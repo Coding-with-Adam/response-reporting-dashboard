@@ -3,7 +3,7 @@ You can either use this repo to work on the dashboard together or create your ow
 
 However, at minimum, to be considered by VOST Europe the dashboard should include the following elements:
 
-- an internal-facing page that vetter volunteers will use to note social media reports:
+- An internal-facing page ([see example](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/iternal.py)) that vetter volunteers will use to note social media reports:
     - Vetted user (predefined list)
     - Social media platform being reported (predefined list)
     - Link of content being reported
