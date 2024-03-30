@@ -1,7 +1,7 @@
 # Response Reporting Dashboard
 
 ## Goal: 
-Build a dashboard to monitor Disinformation Reports and Response Times in Social Media Platforms, using Plotly and Dash. 
+Build a dashboard for [VOST Europe](https://vosteurope.org/) to monitor Disinformation Reports and Response Times in Social Media Platforms, using Plotly and Dash. 
 - Use this repo to work on the dashboard together or create your own repo to build your own dashboard.
 
 ## Problem:
