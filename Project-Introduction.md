@@ -1,8 +1,10 @@
 # Response Reporting Dashboard
-
+  
 ## Goal: 
 Build a dashboard for [VOST Europe](https://vosteurope.org/) to monitor Disinformation Reports and Response Times in Social Media Platforms, using Plotly and Dash. 
 - Use this repo to work on the dashboard together or create your own repo to build your own dashboard.
+- See [Readme](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/README.md) for the dashboard guideline.
+
 
 ## Problem:
 When citizens flag content on very large online platforms (VLOPS) as disinformation or scam/frauds , the social media platforms respond that they will investigate and take action if needed. However, it is very challenging to follow up on the actions taken by these platforms. The main challenge is the lack of a tracking system to: 1) measure the number of reports made; 2) measure the follow-up actions taken in response and 3) measure the time it takes for VLOPS to answer those reports.
