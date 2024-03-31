@@ -1,0 +1,3 @@
+- [ ] Create more sample data inside reports.csv to reach 100 rows
+- [ ] Find an online platform to store images and generate links
+- [ ] sdfs
