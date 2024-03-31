@@ -4,7 +4,7 @@ from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
 
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/reports.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
 df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
 df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
 
