@@ -8,4 +8,3 @@
   - [ ] [internal](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page (for tracking flags)
   - [ ] [data insights](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/data-insights.py) page 
   - [ ] [application](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/application.py) page (for people requesting to apply to become vetted users)
-- [ ] dsf
