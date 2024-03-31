@@ -1,11 +1,11 @@
 - [ ] Create more sample data inside reports.csv to reach 100 rows
-- [ ] Set up online database (like mongoDB), upload [reports.csv data](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/reports.csv) to it, and connect the database to the app
+- [ ] Set up online database (like mongoDB), upload [reports.csv data](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/reports.csv) to it, and connect the database to the app
 - [ ] Create an application page for people requesting to apply to become vetted users.
 - [ ] Create a multi-page app framework, using [Pages](https://dash.plotly.com/urls#dash-pages), that has these pages: homepage, internal, data insights, and application page.
-- [ ] Set up [basic authentication](https://github.com/plotly/dash-auth/blob/main/README.md) for [internal.py](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/internal.py) page
+- [ ] Set up [basic authentication](https://github.com/plotly/dash-auth/blob/main/README.md) for [internal.py](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page
 - [ ] Make improvements to the app's page so they are ready to be used by VOST Europe:
-  - [ ] [homepage](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/homepage.py)
-  - [ ] [internal](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/internal.py) page (for tracking flags)
-  - [ ] [data insights](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/data-insights.py) page 
-  - [ ] [application](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/application.py) page (for people requesting to apply to become vetted users)
+  - [ ] [homepage](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/homepage.py)
+  - [ ] [internal](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page (for tracking flags)
+  - [ ] [data insights](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/data-insights.py) page 
+  - [ ] [application](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/application.py) page (for people requesting to apply to become vetted users)
 - [ ] dsf
