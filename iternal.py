@@ -1,10 +1,64 @@
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
-import dash_ag_grid as dag
-import pandas as pd
 import dash_mantine_components as dmc
 from datetime import datetime
+import dash_ag_grid as dag
+import pandas as pd
 
-df = pd.read_csv("reports.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/reports.csv")
+df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
+df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
+
+
+cols = [
+    {
+        "headerName": "User",
+        "field": "vetted-user",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["vetted-user"].unique()}
+    },
+    {
+        "headerName": "Platform",
+        "field": "platform",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["platform"].unique()}
+    },
+    {
+        "headerName": "Content link",
+        "field": "content-link",
+    },
+    {
+        "headerName": "Flag type",
+        "field": "flag-type",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["flag-type"].unique()}
+    },
+    {
+        "headerName": "Flag day",
+        "field": "flag-day",
+        "filter": "agDateColumnFilter",
+        'cellEditor': 'agDateStringCellEditor',
+        'cellEditorParams': {'min': '2024-01-01'}
+    },
+    {
+        "headerName": "Response type",
+        "field": "response-type",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["response-type"].unique()}
+    },
+    {
+        "headerName": "Response notes",
+        "field": "response-notes",
+    },
+    {
+        "headerName": "Response day",
+        "field": "response-day",
+        "filter": "agDateColumnFilter",
+        'cellEditor': 'agDateStringCellEditor',
+        'cellEditorParams': {
+            'min': '2024-01-01',
+        }
+    }
+]
 
 
 app = Dash()
@@ -12,14 +66,14 @@ app.layout = dmc.MantineProvider(
     theme={"colorScheme": "dark"},
     withGlobalStyles=True,
     children=[
-        html.H1("Transparency Reporting Platform - Internal Page"),
+        html.H1("Transparency Reporting Platform - Internal"),
         dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
         dag.AgGrid(
             id="reports-table",
             rowData=df.to_dict("records"),
-            columnDefs=[{"field": i} for i in df.columns],
+            columnDefs=cols,
             columnSize="sizeToFit",
-            defaultColDef={"editable": True},
+            defaultColDef={"editable": True, "filter": True},
             dashGridOptions={"pagination": True,
                              "paginationPageSize": 7,
                              "undoRedoCellEditing": True,
@@ -51,6 +105,7 @@ def update_table(n_dlt, n_add, data):
             "vetted-user": ["user1"],
             "platform": [""],
             "content-link": [""],
+            "image-link": [""],
             "report-type": [""],
             "report-time": [""],
             "response-type": [""],
@@ -65,6 +120,7 @@ def update_table(n_dlt, n_add, data):
 
     elif ctx.triggered_id == "delete-row-btn":
         return True, no_update
+
 
 
 if __name__ == '__main__':
