@@ -1,13 +1,14 @@
-from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
+from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update, register_page
 import dash_mantine_components as dmc
 from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
 
+register_page(__name__)
+
 df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
 df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
 df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
-
 
 cols = [
     {
@@ -61,8 +62,8 @@ cols = [
 ]
 
 
-app = Dash()
-app.layout = dmc.MantineProvider(
+
+layout = dmc.MantineProvider(
     theme={"colorScheme": "dark"},
     withGlobalStyles=True,
     children=[
@@ -120,8 +121,3 @@ def update_table(n_dlt, n_add, data):
 
     elif ctx.triggered_id == "delete-row-btn":
         return True, no_update
-
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)

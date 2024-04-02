@@ -1,7 +1,3 @@
-# This file is typically the entry page to a multipage app using Dash Page -- https://dash.plotly.com/urls#dash-pages
-# More multipage app examples by Ann Marie: https://github.com/AnnMarieW/dash-multi-page-app-demos
-# Here is some code to get started:
-
 import dash
 from dash import Dash, html, dcc
 
