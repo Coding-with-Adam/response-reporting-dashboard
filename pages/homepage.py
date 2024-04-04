@@ -5,9 +5,11 @@ register_page(__name__, path = '/')
 
 layout = dbc.Container([
 	dbc.Row([
-		html.H1("Page under construction")
+		html.H1("Page under construction", style = {"text-align":"center"})
 		]),
-	dbc.Row([]),
-	dbc.Row([])
+	dbc.Row([
+		]),
+	dbc.Row([
+		])
 	],
 	fluid = True)

@@ -65,7 +65,7 @@ cols = [
 
 
 layout = dbc.Container([
-        html.H1("Transparency Reporting Platform - Internal"),
+        html.H1("Internal", style = {"text-align":"center"}),
         dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
         dag.AgGrid(
             id="reports-table",

@@ -12,19 +12,42 @@ fig1 = px.histogram(df, x='platform')
 fig2 = px.histogram(df, x='flag-type', facet_col='platform')
 fig3 = px.histogram(df, x='response-type', facet_col='platform')
 
-layout = dbc.Container([
-        html.H1("Transparency Reporting Data Insights"),
-        dag.AgGrid(
-            id="reports-table",
+grid = dag.AgGrid(
+            id = "reports-table",
             rowData=df.to_dict("records"),
             columnDefs=[{"field": i} for i in df.columns],
             columnSize="sizeToFit",
             defaultColDef={"filter": True},
             dashGridOptions={"pagination": True, "paginationPageSize":7},
-        ),
-        dcc.Graph(id='graph1', figure=fig1),
-        dcc.Graph(id='graph2', figure=fig2),
-        dcc.Graph(id='graph3', figure=fig3)
+        )
+
+tabs_container = dbc.Container([
+    dbc.Tabs([
+        dbc.Tab([
+            grid
+            ],
+            label = 'Report Table'),
+        dbc.Tab([
+            dcc.Graph(id='graph1', figure=fig1),
+            ],
+            label = 'Report Graphs 1'
+            ),
+        dbc.Tab([
+            dcc.Graph(id='graph2', figure=fig2),
+            ],
+            label = 'Report Graphs 2'
+            ),
+        dbc.Tab([
+            dcc.Graph(id='graph3', figure=fig3)
+            ],
+            label = 'Report Graphs 3'
+            )
+        ])
+    ])
+
+layout = dbc.Container([
+        dbc.Row([html.H1("Data Insights", style = {"text-align":"center"})]),
+        dbc.Row(tabs_container)
     ],
     fluid = True
 )
