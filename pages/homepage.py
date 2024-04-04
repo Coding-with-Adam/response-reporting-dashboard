@@ -4,7 +4,10 @@ import dash_bootstrap_components as dbc
 register_page(__name__, path = '/')
 
 layout = dbc.Container([
-	dbc.Row([]),
+	dbc.Row([
+		html.H1("Page under construction")
+		]),
 	dbc.Row([]),
 	dbc.Row([])
-	])
+	],
+	fluid = True)

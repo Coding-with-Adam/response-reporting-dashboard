@@ -1,5 +1,5 @@
 from dash import Dash, html, dcc, callback, Output, Input, State, register_page
-import dash_mantine_components as dmc
+import dash_bootstrap_components as dbc
 import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
@@ -12,10 +12,7 @@ fig1 = px.histogram(df, x='platform')
 fig2 = px.histogram(df, x='flag-type', facet_col='platform')
 fig3 = px.histogram(df, x='response-type', facet_col='platform')
 
-layout = dmc.MantineProvider(
-    theme={"colorScheme": "dark"},
-    withGlobalStyles=True,
-    children=[
+layout = dbc.Container([
         html.H1("Transparency Reporting Data Insights"),
         dag.AgGrid(
             id="reports-table",
@@ -28,5 +25,6 @@ layout = dmc.MantineProvider(
         dcc.Graph(id='graph1', figure=fig1),
         dcc.Graph(id='graph2', figure=fig2),
         dcc.Graph(id='graph3', figure=fig3)
-    ]
+    ],
+    fluid = True
 )
