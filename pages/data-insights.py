@@ -7,7 +7,7 @@ from datetime import datetime
 
 register_page(__name__)
 
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
+df = pd.read_csv("assets/reports.csv")
 fig1 = px.histogram(df, x='platform')
 fig2 = px.histogram(df, x='flag-type', facet_col='platform')
 fig3 = px.histogram(df, x='response-type', facet_col='platform')
@@ -30,19 +30,20 @@ tabs_container = dbc.Container([
         dbc.Tab([
             dcc.Graph(id='graph1', figure=fig1),
             ],
-            label = 'Report Graphs 1'
+            label = 'Report Count by Platform'
             ),
         dbc.Tab([
             dcc.Graph(id='graph2', figure=fig2),
             ],
-            label = 'Report Graphs 2'
+            label = 'Flag Types'
             ),
         dbc.Tab([
             dcc.Graph(id='graph3', figure=fig3)
             ],
-            label = 'Report Graphs 3'
+            label = 'Response Type'
             )
-        ])
+        ],
+        id = 'all_tabs')
     ])
 
 layout = dbc.Container([

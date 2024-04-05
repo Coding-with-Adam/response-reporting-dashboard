@@ -7,7 +7,7 @@ import pandas as pd
 
 register_page(__name__)
 
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
+df = pd.read_csv("assets/reports.csv")
 df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
 df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
 

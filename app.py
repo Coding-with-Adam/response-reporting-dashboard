@@ -4,7 +4,7 @@ from dash import Dash, html, dcc
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
-app = Dash(__name__, use_pages=True, external_stylesheets = [dbc.themes.MATERIA])
+app = Dash(__name__, use_pages=True, external_stylesheets = [dbc.themes.BOOTSTRAP])
 
 #___________________________________Navigation bar___________________________________#
 
