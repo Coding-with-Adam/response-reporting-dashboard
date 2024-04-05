@@ -1,7 +1,6 @@
 - [ ] Create more sample data inside reports.csv to reach 100 rows (will be provided by VOST)
 - [ ] Set up online database (SQLite), upload the sample data to it, and connect the database to the app (will be provided by VOST)
 - [ ] Create an application page for people requesting to apply to become vetted users.
-- [ ] Create a multi-page app framework, using [Pages](https://dash.plotly.com/urls#dash-pages), that has these pages: homepage, internal, data insights, and application page.
 - [ ] Set up [basic authentication](https://github.com/plotly/dash-auth/blob/main/README.md) for [internal.py](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page
 - [ ] Make improvements to the app's page so they are ready to be used by VOST Europe:
   - [ ] [homepage](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/homepage.py)
