@@ -28,17 +28,17 @@ tabs_container = dbc.Container([
             ],
             label = 'Report Table'),
         dbc.Tab([
-            dcc.Graph(id='graph1', figure=fig1),
+            dcc.Graph(id='graph1', figure = fig1),
             ],
             label = 'Report Count by Platform'
             ),
         dbc.Tab([
-            dcc.Graph(id='graph2', figure=fig2),
+            dcc.Graph(id='graph2', figure = fig2),
             ],
             label = 'Flag Types'
             ),
         dbc.Tab([
-            dcc.Graph(id='graph3', figure=fig3)
+            dcc.Graph(id='graph3', figure = fig3)
             ],
             label = 'Response Type'
             )

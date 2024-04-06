@@ -78,13 +78,17 @@ layout = dbc.Container([
                              "undoRedoCellEditing": True,
                              "rowSelection": "multiple"}
         ),
-        dmc.Button(
+        dbc.Button(
             id="delete-row-btn",
             children="Delete row",
+            color = "danger",
+            class_name = "me-1 mt-1",
         ),
-        dmc.Button(
+        dbc.Button(
             id="add-row-btn",
             children="Add row",
+            color = "primary",
+            class_name = "me-1 mt-1",
         ),
     ],
     fluid = True #To fit the size of the screen
