@@ -8,17 +8,17 @@ from datetime import datetime
 register_page(__name__)
 
 df = pd.read_csv("assets/reports.csv")
-fig1 = px.histogram(df, x='platform')
-fig2 = px.histogram(df, x='flag-type', facet_col='platform')
-fig3 = px.histogram(df, x='response-type', facet_col='platform')
+fig_reports_by_platform = px.histogram(df, x = 'Platform')
+fig_report_types = px.histogram(df, x = 'Report Type', facet_col = 'Platform')
+fig_decisions = px.histogram(df, x = 'Platform Decision', facet_col = 'Platform')
 
 grid = dag.AgGrid(
             id = "reports-table",
-            rowData=df.to_dict("records"),
-            columnDefs=[{"field": i} for i in df.columns],
-            columnSize="sizeToFit",
-            defaultColDef={"filter": True},
-            dashGridOptions={"pagination": True, "paginationPageSize":7},
+            rowData = df.to_dict("records"),
+            columnDefs = [{"field": i} for i in df.columns],
+            columnSize = "sizeToFit",
+            defaultColDef = {"filter": True},
+            dashGridOptions = {"pagination": True, "paginationPageSize":7},
         )
 
 tabs_container = dbc.Container([
@@ -28,19 +28,19 @@ tabs_container = dbc.Container([
             ],
             label = 'Report Table'),
         dbc.Tab([
-            dcc.Graph(id='graph1', figure = fig1),
+            dcc.Graph(id ='id_graph_all_reports', figure = fig_reports_by_platform),
             ],
-            label = 'Report Count by Platform'
+            label = 'Reports by Platform'
             ),
         dbc.Tab([
-            dcc.Graph(id='graph2', figure = fig2),
+            dcc.Graph(id = 'id_graph_reports_types', figure = fig_report_types),
             ],
-            label = 'Flag Types'
+            label = 'Reports Types by Platform'
             ),
         dbc.Tab([
-            dcc.Graph(id='graph3', figure = fig3)
+            dcc.Graph(id = 'id_graph_decisions', figure = fig_decisions)
             ],
-            label = 'Response Type'
+            label = 'Decisions by Platform'
             )
         ],
         id = 'all_tabs')

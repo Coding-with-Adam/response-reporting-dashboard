@@ -8,57 +8,66 @@ import pandas as pd
 register_page(__name__)
 
 df = pd.read_csv("assets/reports.csv")
-df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
-df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
+df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
+df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
 
 cols = [
     {
-        "headerName": "User",
-        "field": "vetted-user",
+        "headerName": "Report Date",
+        "field": "Timestamp",
+        "filter": "agDateColumnFilter",
+        'cellEditor': 'agDateStringCellEditor'
+    },
+    {
+        "headerName": "Reporting Entity",
+        "field": "Reporting Entity",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["vetted-user"].unique()}
+        "cellEditorParams": {"values": df["Reporting Entity"].unique()}
+    },
+    {
+        "headerName": "User",
+        "field": "Reporting User"
     },
     {
         "headerName": "Platform",
-        "field": "platform",
+        "field": "Platform",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["platform"].unique()}
+        "cellEditorParams": {"values": df["Platform"].unique()}
     },
     {
-        "headerName": "Content link",
-        "field": "content-link",
+        "headerName": "Content URL",
+        "field": "URL",
     },
     {
-        "headerName": "Flag type",
-        "field": "flag-type",
+        "headerName": "Report Type",
+        "field": "Report Type",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["flag-type"].unique()}
+        "cellEditorParams": {"values": df["Report Type"].unique()}
     },
     {
-        "headerName": "Flag day",
-        "field": "flag-day",
-        "filter": "agDateColumnFilter",
-        'cellEditor': 'agDateStringCellEditor',
-        'cellEditorParams': {'min': '2024-01-01'}
-    },
-    {
-        "headerName": "Response type",
-        "field": "response-type",
-        "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["response-type"].unique()}
-    },
-    {
-        "headerName": "Response notes",
-        "field": "response-notes",
-    },
-    {
-        "headerName": "Response day",
-        "field": "response-day",
+        "headerName": "Answer Date",
+        "field": "Answer Date",
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor',
         'cellEditorParams': {
             'min': '2024-01-01',
         }
+    },
+    {
+        "headerName": "Platform Decision",
+        "field": "Platform Decision",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Platform Decision"].unique()}
+    },
+    {
+        "headerName": "Policy",
+        "field": "Policy",
+    },
+    {
+    "headerName" : "Appeal",
+    "field" : "Appeal",
+    "cellEditor" : "agSelectCellEditor",
+    "cellEditorParams" : {"values" : ["Yes", "No"]}
     }
 ]
 
@@ -66,14 +75,14 @@ cols = [
 
 layout = dbc.Container([
         html.H1("Internal", style = {"text-align":"center"}),
-        dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
+        dmc.Center(html.H4("Update existing report or insert a new report.")),
         dag.AgGrid(
             id="reports-table",
             rowData=df.to_dict("records"),
-            columnDefs=cols,
-            columnSize="sizeToFit",
-            defaultColDef={"editable": True, "filter": True},
-            dashGridOptions={"pagination": True,
+            columnDefs = cols,
+            columnSize = "sizeToFit",
+            defaultColDef = {"editable": True, "filter": True},
+            dashGridOptions = {"pagination": True,
                              "paginationPageSize": 7,
                              "undoRedoCellEditing": True,
                              "rowSelection": "multiple"}
@@ -101,20 +110,21 @@ layout = dbc.Container([
     Input("delete-row-btn", "n_clicks"),
     Input("add-row-btn", "n_clicks"),
     State("reports-table", "rowData"),
-    prevent_initial_call=True,
+    prevent_initial_call = True,
 )
 def update_table(n_dlt, n_add, data):
     if ctx.triggered_id == "add-row-btn":
         new_row = {
-            "vetted-user": ["user1"],
-            "platform": [""],
-            "content-link": [""],
-            "image-link": [""],
-            "report-type": [""],
-            "report-time": [""],
-            "response-type": [""],
-            "response-notes": [""],
-            "response-time": [""]
+            "Timestamp" : [""],
+            "Reporting Entity" : [""],
+            "Reporting User" : [""],
+            "Platform" : [""],
+            "URL" : [""],
+            "Report Type" : [""],
+            "Answer Date" : [""],
+            "Platform Decision" : [""],
+            "Policy" : [""],
+            "Appeal" : [""]
         }
         df_new_row = pd.DataFrame(new_row)
         updated_table = pd.concat(

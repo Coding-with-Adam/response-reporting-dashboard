@@ -42,7 +42,6 @@ credentials_input = dbc.Row([
 		],
 		width = 6,
 		),
-
 	dbc.Col([
 		dbc.Input(id= "id_password", type = "password", placeholder = "Enter password"),
 		],
@@ -61,8 +60,9 @@ form = dbc.Card([
 	])
 
 layout = dbc.Container([
+	html.Hr(),
 	dbc.Row([
-		html.H1("Apply to become a vetted user for VOST", style = {"text-align" : "center"}),
+		html.H1("Become a vetted user for VOST", style = {"text-align" : "center"}),
 		]),
 	html.Hr(),
 	form,
