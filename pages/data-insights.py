@@ -5,10 +5,10 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
-fig1 = px.histogram(df, x='platform')
-fig2 = px.histogram(df, x='flag-type', facet_col='platform')
-fig3 = px.histogram(df, x='response-type', facet_col='platform')
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
+fig1 = px.histogram(df, x='Platform')
+fig2 = px.histogram(df, x='Report Type', facet_col='Platform')
+fig3 = px.histogram(df, x='Platform Decision', facet_col='Platform')
 
 app = Dash()
 app.layout = dmc.MantineProvider(
