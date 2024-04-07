@@ -1,10 +1,19 @@
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
 import dash_mantine_components as dmc
+import dash_bootstrap_components as dbc
 from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
+import dash
+from utils.login_handler import require_login
 
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
+
+
+dash.register_page(__name__, path="/internal")
+require_login(__name__)
+
+
+df = pd.read_csv("pages/reports.csv")
 df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
 df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
 
@@ -61,13 +70,12 @@ cols = [
 ]
 
 
-app = Dash()
-app.layout = dmc.MantineProvider(
-    theme={"colorScheme": "dark"},
-    withGlobalStyles=True,
+layout = dmc.MantineProvider(
+    # theme={"colorScheme": "dark"},
+    # withGlobalStyles=True,
     children=[
-        html.H1("Transparency Reporting Platform - Internal"),
-        dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
+        dcc.Store(id='data-store', data=df.to_json()),
+        html.H5(id='username', className='fw-bold text-black mt-2'),
         dag.AgGrid(
             id="reports-table",
             rowData=df.to_dict("records"),
@@ -79,11 +87,11 @@ app.layout = dmc.MantineProvider(
                              "undoRedoCellEditing": True,
                              "rowSelection": "multiple"}
         ),
-        dmc.Button(
+        dbc.Button(
             id="delete-row-btn",
             children="Delete row",
         ),
-        dmc.Button(
+        dbc.Button(
             id="add-row-btn",
             children="Add row",
         ),
@@ -105,23 +113,20 @@ def update_table(n_dlt, n_add, data):
             "vetted-user": ["user1"],
             "platform": [""],
             "content-link": [""],
-            "image-link": [""],
-            "report-type": [""],
-            "report-time": [""],
+            # "image-link": [""],
+            "flag-type": [""],
+            "flag-day": [""],
             "response-type": [""],
             "response-notes": [""],
-            "response-time": [""]
+            "response-day": [""]
         }
         df_new_row = pd.DataFrame(new_row)
         updated_table = pd.concat(
             [pd.DataFrame(data), df_new_row]
         )  # add new row to orginal dataframe
+        print(updated_table.tail())
         return False, updated_table.to_dict("records")
 
     elif ctx.triggered_id == "delete-row-btn":
-        return True, no_update
+        return True, no_update, no_update
 
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
