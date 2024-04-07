@@ -1,4 +1,4 @@
-- [ ] Create more sample data inside reports.csv to reach 100 rows (will be provided by VOST)
+- [X] Create more sample data inside reports.csv to reach 100 rows (will be provided by VOST)
 - [ ] Set up online database (SQLite), upload the sample data to it, and connect the database to the app (will be provided by VOST)
 - [ ] Create an application page for people requesting to apply to become vetted users.
 - [ ] Set up [basic authentication](https://github.com/plotly/dash-auth/blob/main/README.md) for [internal.py](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page
