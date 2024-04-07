@@ -1,62 +1,77 @@
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
 import dash_mantine_components as dmc
 from datetime import datetime
+from datetime import date
 import dash_ag_grid as dag
 import pandas as pd
 
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/pages/reports.csv")
-df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
-df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
+# get data
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
+df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
+df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
 
 
 cols = [
     {
-        "headerName": "User",
-        "field": "vetted-user",
+        "headerName": "Timestamp",
+        "field": "Timestamp"
+    },
+    {
+        "headerName": "Reporting Entity",
+        "field": "Reporting Entity",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["vetted-user"].unique()}
+        "cellEditorParams": {"values": df["Reporting Entity"].unique()}
+    },
+    {
+        "headerName": "Reporting User",
+        "field": "Reporting User",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Reporting User"].unique()}
     },
     {
         "headerName": "Platform",
-        "field": "platform",
+        "field": "Platform",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["platform"].unique()}
+        "cellEditorParams": {"values": df["Platform"].unique()}
     },
     {
-        "headerName": "Content link",
-        "field": "content-link",
+        "headerName": "URL",
+        "field": "URL",
     },
     {
-        "headerName": "Flag type",
-        "field": "flag-type",
+        "headerName": "Report Type",
+        "field": "Report Type",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["flag-type"].unique()}
+        "cellEditorParams": {"values": df["Report Type"].unique()}
     },
     {
-        "headerName": "Flag day",
-        "field": "flag-day",
+        "headerName": "Screenshot URL",
+        "field": "Screenshot URL",
+    },
+    {
+        "headerName": "Answer Date",
+        "field": "Answer Date",
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor',
-        'cellEditorParams': {'min': '2024-01-01'}
+        'cellEditorParams': {'min': '2023-01-01'}
     },
     {
-        "headerName": "Response type",
-        "field": "response-type",
+        "headerName": "Platform Decision",
+        "field": "Platform Decision",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["response-type"].unique()}
+        "cellEditorParams": {"values": df["Platform Decision"].unique()}
     },
     {
-        "headerName": "Response notes",
-        "field": "response-notes",
+        "headerName": "Policy",
+        "field": "Policy",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Policy"].unique()}
     },
     {
-        "headerName": "Response day",
-        "field": "response-day",
-        "filter": "agDateColumnFilter",
-        'cellEditor': 'agDateStringCellEditor',
-        'cellEditorParams': {
-            'min': '2024-01-01',
-        }
+        "headerName": "Appeal",
+        "field": "Appeal",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Appeal"].unique()}
     }
 ]
 
@@ -102,15 +117,17 @@ app.layout = dmc.MantineProvider(
 def update_table(n_dlt, n_add, data):
     if ctx.triggered_id == "add-row-btn":
         new_row = {
-            "vetted-user": ["user1"],
-            "platform": [""],
-            "content-link": [""],
-            "image-link": [""],
-            "report-type": [""],
-            "report-time": [""],
-            "response-type": [""],
-            "response-notes": [""],
-            "response-time": [""]
+            "Timestamp": [date.today().isoformat()],
+            "Reporting Entity": [""],
+            "Reporting User": [""],
+            "Platform": [""],
+            "URL": [""],
+            "Report Type": [""],
+            "Screenshot URL": [""],
+            "Answer Date": [""],
+            "Platform Decision": [""],
+            "Policy": [""],
+            "Appeal": [""]
         }
         df_new_row = pd.DataFrame(new_row)
         updated_table = pd.concat(
