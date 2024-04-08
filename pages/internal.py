@@ -1,71 +1,83 @@
+import dash
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
 import dash_mantine_components as dmc
-import dash_bootstrap_components as dbc
 from datetime import datetime
+from datetime import date
 import dash_ag_grid as dag
 import pandas as pd
-import dash
 from utils.login_handler import require_login
-
+import dash_bootstrap_components as dbc
 
 
 dash.register_page(__name__, path="/internal")
 require_login(__name__)
 
-
-df = pd.read_csv("pages/reports.csv")
-df["response-day"] = pd.to_datetime(df["response-day"]).dt.strftime('%Y-%m-%d')
-df["flag-day"] = pd.to_datetime(df["flag-day"]).dt.strftime('%Y-%m-%d')
+df = pd.read_csv("pages/data.csv")
+df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
+df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
 
 
 cols = [
     {
-        "headerName": "User",
-        "field": "vetted-user",
+        "headerName": "Timestamp",
+        "field": "Timestamp"
+    },
+    {
+        "headerName": "Reporting Entity",
+        "field": "Reporting Entity",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["vetted-user"].unique()}
+        "cellEditorParams": {"values": df["Reporting Entity"].unique()}
+    },
+    {
+        "headerName": "Reporting User",
+        "field": "Reporting User",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Reporting User"].unique()}
     },
     {
         "headerName": "Platform",
-        "field": "platform",
+        "field": "Platform",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["platform"].unique()}
+        "cellEditorParams": {"values": df["Platform"].unique()}
     },
     {
-        "headerName": "Content link",
-        "field": "content-link",
+        "headerName": "URL",
+        "field": "URL",
     },
     {
-        "headerName": "Flag type",
-        "field": "flag-type",
+        "headerName": "Report Type",
+        "field": "Report Type",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["flag-type"].unique()}
+        "cellEditorParams": {"values": df["Report Type"].unique()}
     },
     {
-        "headerName": "Flag day",
-        "field": "flag-day",
+        "headerName": "Screenshot URL",
+        "field": "Screenshot URL",
+    },
+    {
+        "headerName": "Answer Date",
+        "field": "Answer Date",
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor',
-        'cellEditorParams': {'min': '2024-01-01'}
+        'cellEditorParams': {'min': '2023-01-01'}
     },
     {
-        "headerName": "Response type",
-        "field": "response-type",
+        "headerName": "Platform Decision",
+        "field": "Platform Decision",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["response-type"].unique()}
+        "cellEditorParams": {"values": df["Platform Decision"].unique()}
     },
     {
-        "headerName": "Response notes",
-        "field": "response-notes",
+        "headerName": "Policy",
+        "field": "Policy",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Policy"].unique()}
     },
     {
-        "headerName": "Response day",
-        "field": "response-day",
-        "filter": "agDateColumnFilter",
-        'cellEditor': 'agDateStringCellEditor',
-        'cellEditorParams': {
-            'min': '2024-01-01',
-        }
+        "headerName": "Appeal",
+        "field": "Appeal",
+        "cellEditor": "agSelectCellEditor",
+        "cellEditorParams": {"values": df["Appeal"].unique()}
     }
 ]
 
@@ -74,7 +86,6 @@ layout = dmc.MantineProvider(
     # theme={"colorScheme": "dark"},
     # withGlobalStyles=True,
     children=[
-        dcc.Store(id='data-store', data=df.to_json()),
         html.H5(id='username', className='fw-bold text-black mt-2'),
         dag.AgGrid(
             id="reports-table",
@@ -110,23 +121,23 @@ layout = dmc.MantineProvider(
 def update_table(n_dlt, n_add, data):
     if ctx.triggered_id == "add-row-btn":
         new_row = {
-            "vetted-user": ["user1"],
-            "platform": [""],
-            "content-link": [""],
-            # "image-link": [""],
-            "flag-type": [""],
-            "flag-day": [""],
-            "response-type": [""],
-            "response-notes": [""],
-            "response-day": [""]
+            "Timestamp": [date.today().isoformat()],
+            "Reporting Entity": [""],
+            "Reporting User": [""],
+            "Platform": [""],
+            "URL": [""],
+            "Report Type": [""],
+            "Screenshot URL": [""],
+            "Answer Date": [""],
+            "Platform Decision": [""],
+            "Policy": [""],
+            "Appeal": [""]
         }
         df_new_row = pd.DataFrame(new_row)
         updated_table = pd.concat(
             [pd.DataFrame(data), df_new_row]
         )  # add new row to orginal dataframe
-        print(updated_table.tail())
         return False, updated_table.to_dict("records")
 
     elif ctx.triggered_id == "delete-row-btn":
-        return True, no_update, no_update
-
+        return True, no_update

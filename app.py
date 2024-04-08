@@ -2,7 +2,6 @@
 # More multipage app examples by Ann Marie: https://github.com/AnnMarieW/dash-multi-page-app-demos
 # Here is some code to get started:
 
-
 from flask import Flask, request, redirect, session, url_for, flash, render_template
 from flask_login import login_user, LoginManager, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -12,20 +11,18 @@ from utils.login_handler import restricted_page
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from datetime import datetime, timedelta
+import os
 
 
 
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
+server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+server.config.update(SECRET_KEY=os.environ.get('SECRET_KEY'))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 db = SQLAlchemy(server)
 
-
-#
-# 'postgresql://superstore_jibm_user:6a4sKfN1RmZwRMr06jCxKABco67BmHhq@dpg-cmajt30l5elc73el1qi0-a.frankfurt-postgres.render.com/superstore_jibm'
 
 
 
@@ -239,7 +236,7 @@ def current_username(url):
     Output("the_alert", "children"),
     Input("url", "pathname"))
 def toggle_modal(path):
-    alert_message = dbc.Alert("User registered successfully", color="#f5813d",
+    alert_message = dbc.Alert("User registered successfully", color="#2e8cbc",
                               dismissable=True, className="text-center fw-bold")
     global count_message
     if path == '/login' and alert == True and count_message == 0:
@@ -250,4 +247,4 @@ def toggle_modal(path):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server()
