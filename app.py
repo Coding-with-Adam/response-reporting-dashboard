@@ -1,10 +1,18 @@
 import dash
 import os
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, Input, Output, callback
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
-app = Dash(__name__, use_pages=True, external_stylesheets = [dbc.themes.BOOTSTRAP])
+app = Dash(
+    __name__,
+    use_pages=True,
+    external_stylesheets = [dbc.themes.BOOTSTRAP],
+    suppress_callback_exceptions = True
+    )
+#Callback exceptions need to be suppressed for the app to fire callbacks in different pages
+#without getting errors.
+
 
 #___________________________________Navigation bar___________________________________#
 
@@ -25,29 +33,37 @@ navigation_bar = dbc.Navbar([
             dbc.Col(logo),
             dbc.Col(brand)
             ],
-            align = 'center'),
+            align = 'center'
+            ),
         dbc.Nav(
             navigation_pages,
-            navbar = True),
+            navbar = True,
+            ),
         ],
-        fluid = True)
+        fluid = True
+        )
     ],
     color = "dark",
     dark = True,
     sticky = 'top',
-    style = {"height":"60px"})
+    style = {"height":"60px"}
+    )
 
 #___________________________________App body___________________________________#
 
 
-app.layout = dmc.MantineProvider(
-    theme = {"colorScheme": "dark"},
-    withGlobalStyles = True,
-    children = [
+app.layout = dmc.MantineProvider([
     navigation_bar,
     dash.page_container
-    ]
+    ],
+    id = "id_app_layout",
+    theme = {"colorScheme": "dark"},
+    withGlobalStyles = True
     )
+
+#___________________________________Callbacks___________________________________#
+
+
 
 #___________________________________Serve app___________________________________#
 
