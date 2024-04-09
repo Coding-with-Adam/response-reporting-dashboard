@@ -10,8 +10,8 @@ app = Dash(
     external_stylesheets = [dbc.themes.BOOTSTRAP],
     suppress_callback_exceptions = True
     )
-#Callback exceptions need to be suppressed for the app to fire callbacks in different pages
-#without getting errors.
+#Callback exceptions need to be suppressed for the app to fire the callbacks defined here
+#in different pages without getting errors.
 
 
 #___________________________________Navigation bar___________________________________#
