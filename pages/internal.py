@@ -1,9 +1,12 @@
+import dash
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
 import dash_mantine_components as dmc
 from datetime import datetime
 from datetime import date
 import dash_ag_grid as dag
 import pandas as pd
+
+dash.register_page(__name__)
 
 df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
 df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
@@ -75,8 +78,8 @@ cols = [
 ]
 
 
-app = Dash()
-app.layout = dmc.MantineProvider(
+
+layout = dmc.MantineProvider(
     theme={"colorScheme": "dark"},
     withGlobalStyles=True,
     children=[
@@ -137,7 +140,3 @@ def update_table(n_dlt, n_add, data):
     elif ctx.triggered_id == "delete-row-btn":
         return True, no_update
 
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)

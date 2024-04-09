@@ -1,3 +1,4 @@
+import dash
 from dash import Dash, html, dcc, callback, Output, Input, State
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
@@ -5,13 +6,14 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
+dash.register_page(__name__)
+
 df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
 fig1 = px.histogram(df, x='Platform')
 fig2 = px.histogram(df, x='Report Type', facet_col='Platform')
 fig3 = px.histogram(df, x='Platform Decision', facet_col='Platform')
 
-app = Dash()
-app.layout = dmc.MantineProvider(
+layout = dmc.MantineProvider(
     theme={"colorScheme": "dark"},
     withGlobalStyles=True,
     children=[
@@ -30,6 +32,3 @@ app.layout = dmc.MantineProvider(
     ]
 )
 
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
