@@ -1,16 +1,12 @@
 import dash
 import dash_mantine_components as dmc
 from dash import html
+import dash_bootstrap_components as dbc
+
 dash.register_page(__name__,path='/')
 
-layout =  dmc.MantineProvider(
-    theme={"colorScheme": "dark"},
-    withGlobalStyles=True,
+layout =  dbc.Container(
     children=[
-        dmc.Header(
-            html.H1("Welcome to the VOST page"),
-            height=60,
-        ),
-
-        ]
+        html.H1("Welcome to the VOST page"),
+    ]
 )
