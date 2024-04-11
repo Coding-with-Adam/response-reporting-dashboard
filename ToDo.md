@@ -1,9 +1,9 @@
 - [X] Create more sample data inside reports.csv to reach 100 rows (will be provided by VOST)
 - [ ] Set up online database (SQLite), upload the sample data to it, and connect the database to the app (will be provided by VOST)
-- [ ] Create an application page for people requesting to apply to become vetted users.
+- [X] Create an application page for people requesting to apply to become vetted users.
 - [ ] Set up [basic authentication](https://github.com/plotly/dash-auth/blob/main/README.md) for [internal.py](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page
 - [ ] Make improvements to the app's page so they are ready to be used by VOST Europe:
   - [ ] [homepage](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/homepage.py)
   - [ ] [internal](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/internal.py) page (for tracking flags)
   - [ ] [data insights](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/data-insights.py) page 
-  - [ ] [application](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/application.py) page (for people requesting to apply to become vetted users)
+  - [X] [application](https://github.com/Coding-with-Adam/response-reporting-dashboard/blob/main/pages/application.py) page (for people requesting to apply to become vetted users)
