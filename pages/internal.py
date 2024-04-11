@@ -1,6 +1,7 @@
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
 import dash_mantine_components as dmc
+import dash_bootstrap_components as dbc
 from datetime import datetime
 from datetime import date
 import dash_ag_grid as dag
@@ -79,23 +80,25 @@ cols = [
 
 
 
-layout = dmc.MantineProvider(
-    theme={"colorScheme": "dark"},
-    withGlobalStyles=True,
+layout = dbc.Container(
     children=[
         html.H1("Transparency Reporting Platform - Internal"),
         dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
-        dag.AgGrid(
-            id="reports-table",
-            rowData=df.to_dict("records"),
-            columnDefs=cols,
-            columnSize="sizeToFit",
-            defaultColDef={"editable": True, "filter": True},
-            dashGridOptions={"pagination": True,
-                             "paginationPageSize": 7,
-                             "undoRedoCellEditing": True,
-                             "rowSelection": "multiple"}
-        ),
+        dbc.Row([
+            dbc.Col([
+                dag.AgGrid(
+                    id="reports-table",
+                    rowData=df.to_dict("records"),
+                    columnDefs=cols,
+                    columnSize="sizeToFit",
+                    defaultColDef={"editable": True, "filter": True},
+                    dashGridOptions={"pagination": True,
+                                     "paginationPageSize": 7,
+                                     "undoRedoCellEditing": True,
+                                     "rowSelection": "multiple"}
+                )
+            ], width=12)
+        ]),
         dmc.Button(
             id="delete-row-btn",
             children="Delete row",
@@ -104,7 +107,7 @@ layout = dmc.MantineProvider(
             id="add-row-btn",
             children="Add row",
         ),
-    ]
+    ], 	fluid = True
 )
 
 
