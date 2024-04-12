@@ -16,14 +16,15 @@ quickLinksLabels = {
     "Homepage": "Home",
     "Data-insights": "Data Insights",
     "Application": "Apply to Volunteer",
-    # "Internal": "Internal",
+    "Internal": "Internal",
 }
 
 nav = dbc.DropdownMenu(
     children=[
         dbc.DropdownMenuItem(quickLinksLabels[page["name"]], href=page["path"])
         for page in dash.page_registry.values()
-        if (page["module"] != "pages.not_found_404") & (page["name"] != "Internal")
+        if (page["module"] != "pages.not_found_404")
+        # if (page["module"] != "pages.not_found_404") & (page["name"] != "Internal")
     ],
     nav=True,
     in_navbar=True,
