@@ -50,13 +50,24 @@ affiliation_input = dbc.Row([
 	class_name = "mb-3"
 	)
 
-country_input = dbc.Row([
+contacts_input = dbc.Row([
 	dbc.Label("Website:", width = 1),
 	dbc.Col([
 		dbc.Input(id= "id_website", placeholder = "Enter the website of the entity"),
 		],
 		width = 5,
 		),
+	dbc.Label("Work Email:", width = 1),
+	dbc.Col([
+		dbc.Input(id= "id_email", type = "email", placeholder = "Enter your work email", invalid = True),
+		],
+		width = 5,
+		),
+	],
+	class_name = "mb-3"
+	)
+
+country_input = dbc.Row([
 	dbc.Label("Country:", width = 1),
 	dbc.Col([
 		dcc.Dropdown([
@@ -72,31 +83,14 @@ country_input = dbc.Row([
 	class_name = "mb-3"
 	)
 
-credentials_input = dbc.Row([
-	dbc.Label("Work Email:", width = 1),
-	dbc.Col([
-		dbc.Input(id= "id_email", type = "email", placeholder = "Enter your work email", invalid = True),
-		],
-		width = 5,
-		),
-	dbc.Label("Password:", width = 1),
-	dbc.Col([
-		dbc.Input(id= "id_pwd", type = "password", placeholder = "Enter a strong password", invalid = True),
-		],
-		width = 5,
-		)
-	],
-	class_name = "mb-3"
-	)
-
 #_________________________________________Form body_________________________________________#
 
 form = dbc.Card([
 	dbc.CardBody([
 		name_input,
 		affiliation_input,
+		contacts_input,
 		country_input,
-		credentials_input,
 		])
 	])
 
@@ -127,7 +121,8 @@ layout = dbc.Container([
 @callback(
 	Output("id_first_name", "invalid"),
 	Input("id_first_name", "value"),
-	prevent_initial_call = True)
+	prevent_initial_call = True
+	)
 def verify_names(first_name):
 	name_criteria = r"[a-zA-Z]{2,}"
 	first_name_match = re.match(name_criteria, first_name)
@@ -138,7 +133,8 @@ def verify_names(first_name):
 @callback(
 	Output("id_last_name", "invalid"),
 	Input("id_last_name", "value"),
-	prevent_initial_call = True)
+	prevent_initial_call = True
+	)
 def verify_names(last_name):
 	name_criteria = r"[a-zA-Z]{2,}"
 	last_name_match = re.match(name_criteria, last_name)
@@ -159,27 +155,15 @@ def verify_email(user_email):
 	return True
 
 @callback(
-	Output("id_pwd", "invalid"),
-	Input("id_pwd", "value"),
-	prevent_initial_call = True
-	)
-def verify_password(user_password):
-	if user_password:
-		if len(user_password) > 5:
-			return False
-		return True
-	return True
-
-@callback(
 	Output("id_test_output", "children"),
 	Input("id_submit_button", "n_clicks"),
 	Input("id_first_name", "invalid"),
 	Input("id_last_name", "invalid"),
 	Input("id_email", "invalid"),
-	Input("id_pwd", "invalid"),
-	prevent_initial_call = True)
-def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid, pwd_invalid):
-	all_status = [f_name_invalid, l_name_invalid, email_invalid, pwd_invalid]
+	prevent_initial_call = True
+	)
+def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid):
+	all_status = [f_name_invalid, l_name_invalid, email_invalid]
 	if (ctx.triggered_id == "id_submit_button"):
 		if True in all_status :
 			return "Incorrect information. Form rejected"

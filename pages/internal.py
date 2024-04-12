@@ -25,7 +25,7 @@ cols = [
         "cellEditorParams": {"values": df["Reporting Entity"].unique()}
     },
     {
-        "headerName": "User",
+        "headerName": "Reporting User",
         "field": "Reporting User"
     },
     {
@@ -43,6 +43,10 @@ cols = [
         "field": "Report Type",
         "cellEditor": "agSelectCellEditor",
         "cellEditorParams": {"values": df["Report Type"].unique()}
+    },
+    {
+        "headerName" : "Screenshot URL",
+        "field" : "Screenshot URL"
     },
     {
         "headerName": "Answer Date",
