@@ -76,7 +76,7 @@ app.layout = dbc.Container(
     [dbc.Row([dbc.Col([navbar, content], width=12)])],
     fluid=False,
     style={},
-    className="bg-opacity-10 p-2 bg-primary text-dark fw-bold rounded border border-light vh-100",
+    className="bg-opacity-10 p-2 bg-primary text-dark fw-bold rounded border border-light mh-100",
 )
 
 
