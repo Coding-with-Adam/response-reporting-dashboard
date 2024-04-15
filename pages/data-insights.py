@@ -157,7 +157,9 @@ layout = dbc.Container(
 #                     options=mo,
 #                     value=['all'], 
 #                     multi=True,
-#                     searchable=True
+#                     searchable=True,
+#                     clearable=False,
+#                     style={'color': 'black'}
 #                 ),
 #             ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
 #             html.Div([
@@ -167,7 +169,9 @@ layout = dbc.Container(
 #                     options=yo,
 #                     value=['all'], 
 #                     multi=True,
-#                     searchable=True
+#                     searchable=True,
+#                     clearable=False,
+#                     style={'color': 'black'}
 #                 ),
 #             ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
 #             html.Div([
@@ -191,7 +195,8 @@ layout = dbc.Container(
 #                     value=['all'], 
 #                     multi=True,
 #                     searchable=True,
-#                     placeholder="Select a month"
+#                     clearable=False,
+#                     style={'color': 'black'}
 #                 ),
 #             ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
 #             html.Div([
@@ -202,7 +207,8 @@ layout = dbc.Container(
 #                     value=['all'], 
 #                     multi=True,
 #                     searchable=True,
-#                     placeholder="Select a year"
+#                     clearable=False,
+#                     style={'color': 'black'}
 #                 ),
 #             ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
 #             html.Div([
@@ -249,16 +255,15 @@ layout = dbc.Container(
 #     return fig1
 
 # @callback(
-#     Output("graph-tooltip", "show"),
-#     Output("graph-tooltip", "bbox"),
-#     Output("graph-tooltip", "children"),
-#     Input("graph1", "hoverData"),
+#     Output('graph-tooltip', 'show'),
+#     Output('graph-tooltip', 'bbox'),
+#     Output('graph-tooltip', 'children'),
+#     Input('graph1', 'hoverData'),
 #     prevent_initial_call=True
 # )
 # def update_tooltip_content(hoverData):
 #     if hoverData is None:
 #         return no_update
-
 #     pt = hoverData["points"][0]
 #     bbox = pt["bbox"]
 #     dff = df[df.Platform == pt["label"]]
@@ -266,8 +271,29 @@ layout = dbc.Container(
 #     fig_bar = px.bar(dff, y=prt_counts.index, x=prt_counts.values, title=f"Types of Reporting - {pt['label']}", text=prt_counts.values, orientation='h')
 #     fig_bar.update_layout(yaxis_title="Report Types", xaxis_title="Count")
 #     children = [dcc.Graph(figure=fig_bar, style={"height": 300, "width": 600})]
-
 #     return True, bbox, children
+
+# @callback(
+#     Output('graph-tooltip', 'figure'),
+#     Input('pie-button', 'n_clicks'),
+#     Input('graph1', 'hoverData'),
+#     State('month-variable', 'value'),
+#     State('year-variable', 'value'),
+#     prevent_initial_call=True
+# )
+# def update_tooltip_chart(_, selected_month, selected_year):
+#     if selected_month==['all'] and selected_year==['all']:
+#         df_sub = df
+#     else:
+#         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+#     pt = hoverData["points"][0]
+#     bbox = pt["bbox"]
+#     dff = df[df.Platform == pt["label"]]
+#     prt_counts = dff['Report Type'].value_counts().sort_values(ascending=True)
+#     fig_bar = px.bar(dff, y=prt_counts.index, x=prt_counts.values, title=f"Types of Reporting - {pt['label']}", text=prt_counts.values, orientation='h')
+#     fig_bar.update_layout(yaxis_title="Report Types", xaxis_title="Count")
+#     children = [dcc.Graph(figure=fig_bar, style={"height": 300, "width": 600})]
+#     return fig_bar
 
 # @callback(
 #     Output('graph2', 'figure'),
