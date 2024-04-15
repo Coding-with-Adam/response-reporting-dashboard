@@ -3,6 +3,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import re
 from datetime import datetime
+from utils.app_queries import register_user
 
 register_page(__name__)
 
@@ -14,13 +15,13 @@ country_names = countries["country_name"]
 name_input = dbc.Row([
 	dbc.Label("First Name: ", width = 1),
 	dbc.Col([
-		dbc.Input(id= "id_first_name", placeholder = "Enter your first name", invalid = True),
+		dbc.Input(id= "id_first_name_in", placeholder = "Enter your first name", invalid = True),
 		],
 		width = 5,
 		),
 	dbc.Label("Last Name:", width = 1),
 	dbc.Col([
-		dbc.Input(id= "id_last_name", placeholder = "Enter your last name", invalid = True),
+		dbc.Input(id= "id_last_name_in", placeholder = "Enter your last name", invalid = True),
 		],
 		width = 5,
 		),
@@ -31,7 +32,7 @@ name_input = dbc.Row([
 affiliation_input = dbc.Row([
 	dbc.Label("Affiliation:", width = 1),
 	dbc.Col([
-		dbc.Input(id= "id_affiliatiion", placeholder = "The name of the entity you are representing"),
+		dbc.Input(id= "id_affiliatiion_in", placeholder = "The name of the entity you are representing"),
 		],
 		width = 5),
 	dbc.Label("Signatory of the Code of Practice on Disinformation:", width = 4),
@@ -42,7 +43,7 @@ affiliation_input = dbc.Row([
 			{"label":"No", "value":"no"},
 			],
 			value = "yes",
-			id = "id_signatory")
+			id = "id_signatory_status")
 		],
 		width = 2,
 		),
@@ -53,13 +54,13 @@ affiliation_input = dbc.Row([
 contacts_input = dbc.Row([
 	dbc.Label("Website:", width = 1),
 	dbc.Col([
-		dbc.Input(id= "id_website", placeholder = "Enter the website of the entity"),
+		dbc.Input(id= "id_website_in", placeholder = "Enter the website of the entity"),
 		],
 		width = 5,
 		),
 	dbc.Label("Work Email:", width = 1),
 	dbc.Col([
-		dbc.Input(id= "id_email", type = "email", placeholder = "Enter your work email", invalid = True),
+		dbc.Input(id= "id_email_in", type = "email", placeholder = "Enter your work email", invalid = True),
 		],
 		width = 5,
 		),
@@ -73,6 +74,7 @@ country_input = dbc.Row([
 		dcc.Dropdown([
 			{"label" : country, "value" : country} for country in country_names
 			],
+			id = "id_country_in",
 			value = "France",
 			clearable = False,
 			searchable = True),
@@ -97,6 +99,9 @@ form = dbc.Card([
 #_________________________________________Form Layout_________________________________________#
 
 layout = dbc.Container([
+	dcc.Store(id = "id_registration_data", storage_type = "local", data = {"registered_user":False}),
+	dcc.Location(id="id_url", refresh = True),
+
 	html.Hr(),
 	dbc.Row([
 		html.H1("Become a vetted user for VOST", style = {"text-align" : "center"}),
@@ -110,7 +115,7 @@ layout = dbc.Container([
 			])
 		]),
 	dbc.Row([
-		dbc.Col(id = "id_test_output")
+		dbc.Col(id = "id_registration_message")
 		])
 	],
 	fluid = True
@@ -119,8 +124,8 @@ layout = dbc.Container([
 #_________________________________________Callbacks_________________________________________#
 
 @callback(
-	Output("id_first_name", "invalid"),
-	Input("id_first_name", "value"),
+	Output("id_first_name_in", "invalid"),
+	Input("id_first_name_in", "value"),
 	prevent_initial_call = True
 	)
 def verify_names(first_name):
@@ -131,8 +136,8 @@ def verify_names(first_name):
 	return True
 
 @callback(
-	Output("id_last_name", "invalid"),
-	Input("id_last_name", "value"),
+	Output("id_last_name_in", "invalid"),
+	Input("id_last_name_in", "value"),
 	prevent_initial_call = True
 	)
 def verify_names(last_name):
@@ -143,8 +148,8 @@ def verify_names(last_name):
 	return True
 
 @callback(
-	Output("id_email", "invalid"),
-	Input("id_email", "value"),
+	Output("id_email_in", "invalid"),
+	Input("id_email_in", "value"),
 	prevent_initial_call = True
 	)
 def verify_email(user_email):
@@ -155,16 +160,47 @@ def verify_email(user_email):
 	return True
 
 @callback(
-	Output("id_test_output", "children"),
+	Output("id_registration_message", "children"),
+	Output("id_registration_data", "data"),
 	Input("id_submit_button", "n_clicks"),
-	Input("id_first_name", "invalid"),
-	Input("id_last_name", "invalid"),
-	Input("id_email", "invalid"),
+	State("id_first_name_in", "invalid"),
+	State("id_last_name_in", "invalid"),
+	State("id_email_in", "invalid"),
+	Input("id_first_name_in", "value"),
+	Input("id_last_name_in", "value"),
+	Input("id_affiliatiion_in", "value"),
+	Input("id_signatory_status", "value"),
+	Input("id_website_in", "value"),
+	Input("id_email_in", "value"),
+	Input("id_country_in", "value"),
 	prevent_initial_call = True
 	)
-def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid):
-	all_status = [f_name_invalid, l_name_invalid, email_invalid]
-	if (ctx.triggered_id == "id_submit_button"):
-		if True in all_status :
-			return "Incorrect information. Form rejected"
-		return "Submission successful"
+def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid,
+	f_name_in, l_name_in, affiliation_in, status_in, website_in, email_in, country_in):
+
+	invalid_inputs = [f_name_invalid, l_name_invalid, email_invalid]
+
+	if (ctx.triggered_id == "id_submit_button") and not (True in invalid_inputs) :
+		query_message = register_user(email_in, f_name_in, l_name_in, affiliation_in,
+			website_in, status_in, country_in)
+		if query_message == "Success":
+			return "Submission successful", {"registered_user":True}
+		elif query_message == "Existing User":
+			return "The input email is already taken", {"registered_user":False}
+		else:
+			return query_message, {"registered_user":False}
+
+	return "Incorrect information", {"registered_user":False}
+
+@callback(
+	Output("id_url", "pathname"),
+	Input("id_registration_data", "data"),
+	prevent_initial_call = True
+	)
+def load_user_home_page(registration_data):
+	if registration_data == {"registered_user":True}:
+		return "/login"
+	else:
+		return "/application"
+
+
