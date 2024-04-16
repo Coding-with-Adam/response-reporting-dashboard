@@ -12,6 +12,10 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from datetime import datetime, timedelta
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 
@@ -247,4 +251,4 @@ def toggle_modal(path):
 
 
 if __name__ == "__main__":
-    app.run_server()
+    app.run_server(debug=True)

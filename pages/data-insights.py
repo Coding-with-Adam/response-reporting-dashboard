@@ -68,6 +68,10 @@ layout = dbc.Container(
                 className='my-4',
                 style={"height": '45vh'},
                 justify='around'),
+        # dbc.Row([dbc.Col(fig1_card, width=6, style=column_heigh_style), dbc.Col(fig2_card, width=6, style=column_heigh_style)],
+        #         className='my-4',
+        #         style={"height": '30vh'},
+        #         justify='around'),
         ],
     fluid=True,
     style={"height": '100vh'}

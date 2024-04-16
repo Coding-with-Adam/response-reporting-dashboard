@@ -1,2 +1,5 @@
 .idea
 pages/__pycache__
+.env
+laura.py
+replace.py
