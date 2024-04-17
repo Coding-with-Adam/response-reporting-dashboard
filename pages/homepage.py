@@ -9,7 +9,7 @@ dash.register_page(__name__, path="/", order=0)
 accordion = html.Div(
     [
         html.H4(
-            "VOST Fight Against Disinformation",
+            "WatchTower by VOST Europe",
             className="text-primary fw-bold mt-3 ms-5 ",
         ),
         dbc.Accordion(
@@ -17,7 +17,7 @@ accordion = html.Div(
                 dbc.AccordionItem(
                     [
                         html.P(
-                            "Provide support in hoax and abusive behavior, disinformation and misinformation detection, by monitoring multiple channels and by establishing direct communication channels with online platforms"
+                            "By facilitating a centralized repository of disinformation reports, WATCHTOWER enhances transparency and accountability among online entities, ultimately contributing to more effective detection and mitigation of disinformation on a global scale."
                         ),
                         dcc.Link(
                             "Learn more",
@@ -31,22 +31,22 @@ accordion = html.Div(
                 dbc.AccordionItem(
                     [
                         html.P(
-                            "A registration process is needed to become a vetted user"
+                            "To ensure the integrity and effectiveness of our platform, WATCHTOWER implements a thorough registration process for new users. Entities that are already signatories of the Code of Practice on Disinformation benefit from a streamlined, fast-track registration, acknowledging their established commitment to combating disinformation. Non-signatory participants will undergo a standard vetting process, ensuring that all contributors are equipped and dedicated to maintaining the highest standards of information accuracy."
                         ),
                         # dbc.Button("Don't click me!", color="danger"),
                         dcc.Link("Go to the application page", href="/application"),
                     ],
-                    title="Apply to Volunteer",
+                    title="Become a WATCHTOWER user",
                     className="bg-opacity-10 me-5  ms-5  mt-3 border-primary border-1 bg-primary text-primary  rounded",
                 ),
                 dbc.AccordionItem(
                     [
                         html.P(
-                            "Analytics dashboard for trending reports, data drill-down, highlight outstanding issue"
+                            "In our public analytics dashboard, you can access major insights into the ongoing efforts by WATCHTOWER's users to combat online disinformation. This interactive tool showcases the impact and reach of collective actions taken against disinformation, all visualized through publicly available data."
                         ),
                         dcc.Link("Go to data insight page", href="/data-insights"),
                     ],
-                    title="Data Insights",
+                    title="WATCHTOWER insights",
                     className="bg-opacity-10 me-5  ms-5  mt-3 mb-5 border-primary border-1 bg-primary text-primary  rounded",
                 ),
             ],
@@ -64,7 +64,7 @@ layout = dbc.Container(
                     [
                         dbc.Container(
                             html.Img(
-                                src=dash.get_asset_url("Banner.png"),
+                                src=dash.get_asset_url("VOSTEU_WATCHTOWER_TOPBANNER.svg"),
                                 style={
                                     "margin-left": "auto",
                                     "margin-right": "auto",

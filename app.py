@@ -14,8 +14,8 @@ app = Dash(
 # dropdown w/ quick links to navigate to the other pages
 quickLinksLabels = {
     "Homepage": "Home",
-    "Data-insights": "Data Insights",
-    "Application": "Apply to Volunteer",
+    "Data-insights": "WATCHTOWER Insights",
+    "Application": "Become a part of WatchTower",
     "Internal": "Internal",
 }
 
@@ -41,18 +41,16 @@ navbar = dbc.Navbar(
                         dbc.Col(
                             [
                                 html.Img(
-                                    src=dash.get_asset_url("VOST_LOGO.png"),
+                                    src=dash.get_asset_url("VOSTEU_WatchTowerLogo.png"),
                                     height="30px",
                                 ),
-                                html.Img(
-                                    src=dash.get_asset_url("VOST_EU.png"), height="30px"
-                                ),
+                                
                             ],
                             className="me-2 text-primary",
                         ),
                         dbc.Col(
                             dbc.NavbarBrand(
-                                "Response Reporting Platform",
+                                "WatchTower: Disinformation Reporting Platform",
                                 className="ms-2 text-primary",
                             )
                         ),
