@@ -7,7 +7,7 @@ from utils.app_queries import register_user
 
 register_page(__name__)
 
-countries = pd.read_csv("assets/countries_list.csv")
+countries = pd.read_csv("assets/countries_list.csv") #To replace with a read query from database
 country_names = countries["country_name"]
 
 #_________________________________________Form Input Components_________________________________________#
@@ -71,13 +71,14 @@ contacts_input = dbc.Row([
 country_input = dbc.Row([
 	dbc.Label("Country:", width = 1),
 	dbc.Col([
-		dcc.Dropdown([
+		dbc.Select([
 			{"label" : country, "value" : country} for country in country_names
 			],
 			id = "id_country_in",
-			value = "France",
-			clearable = False,
-			searchable = True),
+			value = "",
+			invalid = True,
+			placeholder = "Select the country of the entity",
+			required = True),
 		],
 		width = 5,
 		),
@@ -104,7 +105,7 @@ layout = dbc.Container([
 
 	html.Hr(),
 	dbc.Row([
-		html.H1("Become a vetted user for VOST", style = {"text-align" : "center"}),
+		html.H1("New User Registration", style = {"text-align" : "center"}),
 		]),
 	html.Hr(),
 	form,
@@ -128,7 +129,7 @@ layout = dbc.Container([
 	Input("id_first_name_in", "value"),
 	prevent_initial_call = True
 	)
-def verify_names(first_name):
+def verify_first_name(first_name):
 	name_criteria = r"[a-zA-Z]{2,}"
 	first_name_match = re.match(name_criteria, first_name)
 	if first_name_match:
@@ -140,7 +141,7 @@ def verify_names(first_name):
 	Input("id_last_name_in", "value"),
 	prevent_initial_call = True
 	)
-def verify_names(last_name):
+def verify_last_name(last_name):
 	name_criteria = r"[a-zA-Z]{2,}"
 	last_name_match = re.match(name_criteria, last_name)
 	if last_name_match:
@@ -160,35 +161,46 @@ def verify_email(user_email):
 	return True
 
 @callback(
+	Output("id_country_in", "invalid"),
+	Input("id_country_in", "value"),
+	prevent_initial_call = True
+	)
+def verify_country(entity_country):
+	if entity_country == "":
+		return True
+	return False
+
+@callback(
 	Output("id_registration_message", "children"),
 	Output("id_registration_data", "data"),
 	Input("id_submit_button", "n_clicks"),
 	State("id_first_name_in", "invalid"),
 	State("id_last_name_in", "invalid"),
 	State("id_email_in", "invalid"),
-	Input("id_first_name_in", "value"),
-	Input("id_last_name_in", "value"),
-	Input("id_affiliatiion_in", "value"),
-	Input("id_signatory_status", "value"),
-	Input("id_website_in", "value"),
-	Input("id_email_in", "value"),
-	Input("id_country_in", "value"),
+	State("id_country_in", "invalid"),
+	State("id_first_name_in", "value"),
+	State("id_last_name_in", "value"),
+	State("id_affiliatiion_in", "value"),
+	State("id_signatory_status", "value"),
+	State("id_website_in", "value"),
+	State("id_email_in", "value"),
+	State("id_country_in", "value"),
 	prevent_initial_call = True
 	)
-def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid,
+def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid, country_invalid,
 	f_name_in, l_name_in, affiliation_in, status_in, website_in, email_in, country_in):
 
-	invalid_inputs = [f_name_invalid, l_name_invalid, email_invalid]
+	invalid_inputs = [f_name_invalid, l_name_invalid, email_invalid, country_invalid]
 
-	if (ctx.triggered_id == "id_submit_button") and not (True in invalid_inputs) :
-		query_message = register_user(email_in, f_name_in, l_name_in, affiliation_in,
+	if (ctx.triggered_id == "id_submit_button") and not (True in invalid_inputs):
+		query_output_message = register_user(email_in, f_name_in, l_name_in, affiliation_in,
 			website_in, status_in, country_in)
-		if query_message == "Success":
+		if query_output_message == "Success":
 			return "Submission successful", {"registered_user":True}
-		elif query_message == "Existing User":
+		elif query_output_message == "Existing User":
 			return "The input email is already taken", {"registered_user":False}
 		else:
-			return query_message, {"registered_user":False}
+			return query_output_message, {"registered_user":False}
 
 	return "Incorrect information", {"registered_user":False}
 
@@ -198,7 +210,7 @@ def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_inva
 	prevent_initial_call = True
 	)
 def load_user_home_page(registration_data):
-	if registration_data == {"registered_user":True}:
+	if registration_data["registered_user"] == True:
 		return "/login"
 	else:
 		return "/application"

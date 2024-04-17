@@ -43,11 +43,11 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`entity` (
   `entity_name` VARCHAR(100) NOT NULL,
   `website` VARCHAR(100) NULL,
   `signatory_of_code_of_practice_on_disinformation` VARCHAR(10) NOT NULL,
-  `country` VARCHAR(100) NULL,
+  `country_name` VARCHAR(100) NULL,
   PRIMARY KEY (`entity_name`),
-  INDEX `affiliation_country_pk_idx` (`country` ASC) VISIBLE,
+  INDEX `affiliation_country_pk_idx` (`country_name` ASC) VISIBLE,
   CONSTRAINT `affiliation_country_pk`
-    FOREIGN KEY (`country`)
+    FOREIGN KEY (`country_name`)
     REFERENCES `vost_db`.`country` (`country_name`)
     ON DELETE NO ACTION
     ON UPDATE CASCADE)

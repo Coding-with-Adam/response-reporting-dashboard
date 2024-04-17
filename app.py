@@ -63,10 +63,9 @@ navigation_bar = dbc.Navbar([
 
 
 app.layout = dmc.MantineProvider([
-    dcc.Store(id="id_session_data", storage_type = "session", data = {}),
+    dcc.Store(id="id_session_data", storage_type = "session", data = {"is_authenticated":False}),
     navigation_bar,
     dash.page_container,
-    dbc.Row(id="id_app_test_output")
     ],
     id = "id_app_layout",
     theme = {"colorScheme": "dark"},
@@ -89,15 +88,15 @@ def switch_app_theme(dark_theme_active):
     Input("id_session_data", "data")
     )
 def update_navbar_pages(user_data):
-    logged_email = user_data.get("user_email", None)
+    authenticated = user_data.get("is_authenticated", False)
 
-    if logged_email:
-        users_pages = [
+    if authenticated:
+        protected_pages = [
         dbc.NavItem(
             dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
             ) for page in app_pages if page["show_to_active_user"] == True
         ]
-        return users_pages
+        return protected_pages
     else:
         public_pages = [
         dbc.NavItem(

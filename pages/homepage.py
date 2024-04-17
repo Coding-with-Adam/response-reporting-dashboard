@@ -1,7 +1,7 @@
 from dash import Dash, html, dcc, Input, Output, callback, ctx, register_page
 import dash_bootstrap_components as dbc
 
-register_page(__name__, path = '/')
+register_page(__name__, path = '/', redirect_from = ["/home", "/home_page"])
 
 header_text = """
 [VOST EUROPE](https://vosteurope.org/), more than an organisation, is a showcase of what citizens
