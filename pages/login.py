@@ -37,30 +37,28 @@ layout = dbc.Container([
 def verify_user(input_data):
 	user_query_string = f"""
 	SELECT
-		CASE
-			WHEN "{input_data}" IN (SELECT work_email FROM vetted_user) THEN 1
-			ELSE 0
-		END AS is_a_user
-	FROM vetted_user;
+		CONCAT(first_name, ' ', last_name) AS full_name
+	FROM vetted_user
+	WHERE work_email = "{input_data}";
 	"""
-	is_a_user = read_query(user_query_string).iloc[0, 0]
-	if is_a_user:
-		return True
-	return False
+	df = read_query(user_query_string)
+	if not df.empty:
+		return df.iloc[0]["full_name"]
+	return ""
 
 @callback(
 	Output("id_session_data", "data"),
 	Output("id_login_page_url", "pathname"),
-	State("id_login_email", "value"),
 	Input("id_login_button", "n_clicks"),
+	State("id_login_email", "value"),
 	prevent_initial_call = True
 	)
-def login_user(email, login_click):
-	is_verified = verify_user(email)
-	if ctx.triggered_id == "id_login_button" and is_verified:
-		user_data = {"is_authenticated" : True}
+def login_user(login_click, email):
+	user_full_name = verify_user(email)
+	if ctx.triggered_id == "id_login_button" and user_full_name:
+		user_data = {"is_authenticated" : True, "full_name": user_full_name}
 		return user_data, "/"
-	return {"is_authenticated" : False}, "/login"
+	return {"is_authenticated" : False, "full_name": ""}, "/login"
 
 @callback(
 	Output("id_login_output_message", "children"),
@@ -69,7 +67,7 @@ def login_user(email, login_click):
 	prevent_initial_call = True
 	)
 def show_output(login_click, user_data):
-	if ctx.triggered_id == "id_login_button" and user_data["is_authenticated"]:
+	if ctx.triggered_id == "id_login_button" and user_data["is_authenticated"] == True:
 		return "Login Success!"
 	else:
 		return "Login Failure, incorrect information."

@@ -11,6 +11,8 @@ df = pd.read_csv("assets/reports.csv")
 df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
 df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
 
+#_________________________________________Columns definition_________________________________________#
+
 cols = [
     {
         "headerName": "Report Date",
@@ -75,9 +77,9 @@ cols = [
     }
 ]
 
+#_______________________________________Layout Protection Setup_______________________________________#
 
-
-layout = dbc.Container([
+protected_container = dbc.Container([
         html.H1("Internal", style = {"text-align":"center"}),
         dmc.Center(html.H4("Update existing report or insert a new report.")),
         dag.AgGrid(
@@ -107,6 +109,39 @@ layout = dbc.Container([
     fluid = True #To fit the size of the screen
 )
 
+
+unprotected_container = dbc.Container([
+    html.Hr(),
+    dbc.Row([
+        dbc.Col([
+            html.H1("Permission denied. Contact an admnistrator.")
+            ],
+            style = {"text-align":"center"})
+        ]),
+    html.Hr(),
+    ],
+    fluid = True
+    )
+
+#_________________________________________The actual Layout_________________________________________#
+
+layout = dbc.Container([
+    ],
+    id = "id_internal_page_layout",
+    fluid = True
+    )
+
+#______________________________________________Callbacks______________________________________________#
+
+@callback(
+    Output("id_internal_page_layout", "children"),
+    Input("id_session_data", "data")
+    ) #Do not prevent initial call
+def layout_security(session_data):
+    authenticated = session_data.get("is_authenticated", False)
+    if authenticated:
+        return protected_container
+    return unprotected_container
 
 @callback(
     Output("reports-table", "deleteSelectedRows"),

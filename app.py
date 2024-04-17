@@ -33,22 +33,24 @@ logo = html.Img(src = logo_path, height = "60px")
 brand = dbc.NavbarBrand("VOST Europe - Response Reporting Platform")
 
 theme_switch = dmc.Switch(label = "Dark", id = "id_theme_switch", checked = True)
+active_user = html.P(id="id_active_user_name")
 
 navigation_bar = dbc.Navbar([
     dbc.Container([
         dbc.Row([
             dbc.Col(logo),
-            dbc.Col(brand)
+            dbc.Col(brand),
             ],
             align = 'center'
             ),
+        dbc.Row([dbc.Col(active_user)], className = "ms-auto mt-3 flex-nowrap"),
         dbc.Nav(
             id = "id_navigation_pages",
             navbar = True,
-            #pills = True,  #To fill the active nav button
+            className = "ms-auto",
+            #ms-auto pushes the content to the right most side of the navigation bar
             ),
-        dbc.Row([
-            theme_switch])
+        dbc.Row([theme_switch]),
         ],
         fluid = True
         )
@@ -63,7 +65,8 @@ navigation_bar = dbc.Navbar([
 
 
 app.layout = dmc.MantineProvider([
-    dcc.Store(id="id_session_data", storage_type = "session", data = {"is_authenticated":False}),
+    dcc.Store(id="id_session_data", storage_type = "session",
+        data = {"is_authenticated":False, "full_name": ""}),
     navigation_bar,
     dash.page_container,
     ],
@@ -87,8 +90,8 @@ def switch_app_theme(dark_theme_active):
     Output("id_navigation_pages", "children"),
     Input("id_session_data", "data")
     )
-def update_navbar_pages(user_data):
-    authenticated = user_data.get("is_authenticated", False)
+def update_navbar_pages(session_data):
+    authenticated = session_data.get("is_authenticated", False)
 
     if authenticated:
         protected_pages = [
@@ -104,6 +107,16 @@ def update_navbar_pages(user_data):
             ) for page in app_pages if page["protected"] == False
         ]
         return public_pages
+
+@callback(
+    Output("id_active_user_name", "children"),
+    Input("id_session_data", "data"),
+    prevent_initial_call = True
+    )
+def user_greetings(session_data):
+    user_full_name = session_data.get("full_name", "")
+    if user_full_name:
+        return f"Hi, {user_full_name}"
 
 #___________________________________Serve app___________________________________#
 
