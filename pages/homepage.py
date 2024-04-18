@@ -43,7 +43,7 @@ home_page_card = dbc.Card([
 layout = dbc.Container([
 	html.Hr(),
 	dbc.Row([
-		dbc.Col([html.H1("Wellcome to VOST Response Reporting App", style = {"text-align":"center"})])
+		dbc.Col([html.H1("Response Reporting App", style = {"text-align":"center"})])
 		]),
 	html.Hr(),
 	dbc.Row([
