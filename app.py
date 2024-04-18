@@ -28,9 +28,9 @@ app_pages = [
 
 #___________________________________Navigation bar___________________________________#
 
-logo_path = os.path.join("assets", "vost_logo.png")
+logo_path = os.path.join("assets", "VOSTEU_WatchTowerLogo.png")
 logo = html.Img(src = logo_path, height = "60px")
-brand = dbc.NavbarBrand("VOST Europe - Response Reporting Platform")
+brand = dbc.NavbarBrand("WatchTower: Disinformation Reporting Platform")
 
 theme_switch = dmc.Switch(label = "Dark", id = "id_theme_switch", checked = True)
 active_user = html.P(id="id_active_user_name")
@@ -65,8 +65,7 @@ navigation_bar = dbc.Navbar([
 
 
 app.layout = dmc.MantineProvider([
-    dcc.Store(id="id_session_data", storage_type = "session",
-        data = {"is_authenticated":False, "full_name": ""}),
+    dcc.Store(id="id_session_data", storage_type = "session", data = {}),
     navigation_bar,
     dash.page_container,
     ],

@@ -3,51 +3,81 @@ import dash_bootstrap_components as dbc
 
 register_page(__name__, path = '/', redirect_from = ["/home", "/home_page"])
 
-header_text = """
-[VOST EUROPE](https://vosteurope.org/), more than an organisation, is a showcase of what citizens
-from different countries can do with the objective to have a society that is more prepared,
-more informed, and more resilient to natural disasters and other events, across the European Space.
-"""
+#_____________________________________Accordion Items_____________________________________#
 
-body_text = """
-VOST’s core mission is to:
+mission_accordion = dbc.AccordionItem([
+	html.P("""
+		By facilitating a centralized repository of disinformation reports, 
+		WATCHTOWER enhances transparency and accountability among online entities, ultimately contributing 
+		to more effective detection and mitigation of disinformation on a global scale.
+	"""),
+	dcc.Link(
+		"Learn more",
+		href = "https://vosteurope.org/",
+		target = "_blank"
+		)
+	],
+	title = "Core Mission"
+	)
 
-1. Use online platforms to inform citizens in the areas of Disaster Risk Management(DRM), Disaster Risk
-Preparedness (DRP)
-2. To support official entities in case of a natural disasters our man-made disruptive events, with an
-impact on society, with information gathering and dissemination of official information
-3. Provide support in hoax and abusive behavior, disinformation and misinformation detection, 
-by monitoring multiple channels and by establishing direct communication channels with online platforms
-"""
-footer_text = """
-**CONTACT US.**
----
-You may contact us by sending us an [email](vosteu@vost.pt) and we will get back to you as soon 
-as possible.
-You can also reach us on [twitter](https://twitter.com/VOSTeurope) or
-[facebook](https://www.facebook.com/Vostpt).
-"""
+application_page_accordion = dbc.AccordionItem([
+	html.P("""
+		To ensure the integrity and effectiveness of our platform, WATCHTOWER implements a thorough
+		registration process for new users. Entities that are already signatories of the Code of Practice
+		on Disinformation benefit from a streamlined, fast-track registration, acknowledging their
+		established commitment to combating disinformation. Non-signatory participants will undergo a
+		standard vetting process, ensuring that all contributors are equipped and dedicated to maintaining
+		the highest standards of information accuracy.
+		"""),
+	dcc.Link(
+		"Go to the application page",
+		href="/application"
+		)
+	],
+	title = "Become a WATCHTOWER user"
+	)
 
-home_page_card = dbc.Card([
-	dbc.CardHeader([
-		dcc.Markdown([header_text])
-		]),
-	dbc.CardBody([
-		dcc.Markdown([body_text])
-		]),
-	dbc.CardFooter([
-		dcc.Markdown([footer_text])
-		])
+insights_page_accordion = dbc.AccordionItem([
+	html.P("""
+		 In our public analytics dashboard, you can access major insights into the ongoing efforts 
+		 by WATCHTOWER's users to combat online disinformation. This interactive tool showcases the 
+		 impact and reach of collective actions taken against disinformation, all visualized through 
+		 publicly available data.
+		"""),
+	dcc.Link(
+		"Go to data insight page",
+		href = "/data-insights")
+	],
+	title = "WATCHTOWER Insights"
+	)
+
+#_____________________________________Home page items_____________________________________#
+
+homepage_title = dbc.Col([
+	html.H1(
+		"WatchTower by VOST Europe",
+		style = {"text-align":"center"}
+		)
 	])
+
+homepage_accordion = dbc.Accordion([
+	mission_accordion,
+	application_page_accordion,
+	insights_page_accordion,
+	],
+	start_collapsed = True
+	)
+
+#_________________________________________Page Layout_________________________________________#
 
 layout = dbc.Container([
 	html.Hr(),
 	dbc.Row([
-		dbc.Col([html.H1("Response Reporting App", style = {"text-align":"center"})])
+		homepage_title
 		]),
 	html.Hr(),
 	dbc.Row([
-		dbc.Col([home_page_card])
+		dbc.Col([homepage_accordion]),
 		]),
 	dbc.Row([
 		])
