@@ -1,7 +1,7 @@
 from dash import html, dcc, Input, Output, State, callback, ctx, register_page
 import dash_bootstrap_components as dbc
 from utils.database_connector import read_query
-from utils.app_data_store import user_session_data
+from utils.custom_templates import session_data_template
 
 register_page(__name__)
 
@@ -57,7 +57,7 @@ def verify_user(input_data):
 def login_user(login_click, email):
 	user_full_name = verify_user(email)
 	if ctx.triggered_id == "id_login_button" and user_full_name:
-		user_data = user_session_data.copy() #Copy the template to avoid rewriting the whole dict stucture
+		user_data = session_data_template.copy() #To avoid rewriting the whole dict stucture
 		user_data["is_authenticated"] = True
 		user_data["full_name"] = user_full_name
 		return user_data, "/"
