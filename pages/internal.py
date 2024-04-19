@@ -1,18 +1,15 @@
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
 import dash_mantine_components as dmc
+import dash_bootstrap_components as dbc
 from datetime import datetime
 from datetime import date
 import dash_ag_grid as dag
 import pandas as pd
-from utils.login_handler import require_login
-import dash_bootstrap_components as dbc
 
+dash.register_page(__name__)
 
-dash.register_page(__name__, path="/internal")
-require_login(__name__)
-
-df = pd.read_csv("pages/data.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
 df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
 df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
 
@@ -82,31 +79,35 @@ cols = [
 ]
 
 
-layout = dmc.MantineProvider(
-    # theme={"colorScheme": "dark"},
-    # withGlobalStyles=True,
+
+layout = dbc.Container(
     children=[
-        html.H5(id='username', className='fw-bold text-black mt-2'),
-        dag.AgGrid(
-            id="reports-table",
-            rowData=df.to_dict("records"),
-            columnDefs=cols,
-            columnSize="sizeToFit",
-            defaultColDef={"editable": True, "filter": True},
-            dashGridOptions={"pagination": True,
-                             "paginationPageSize": 7,
-                             "undoRedoCellEditing": True,
-                             "rowSelection": "multiple"}
-        ),
-        dbc.Button(
+        html.H1("Transparency Reporting Platform - Internal"),
+        dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
+        dbc.Row([
+            dbc.Col([
+                dag.AgGrid(
+                    id="reports-table",
+                    rowData=df.to_dict("records"),
+                    columnDefs=cols,
+                    columnSize="sizeToFit",
+                    defaultColDef={"editable": True, "filter": True},
+                    dashGridOptions={"pagination": True,
+                                     "paginationPageSize": 7,
+                                     "undoRedoCellEditing": True,
+                                     "rowSelection": "multiple"}
+                )
+            ], width=12)
+        ]),
+        dmc.Button(
             id="delete-row-btn",
             children="Delete row",
         ),
-        dbc.Button(
+        dmc.Button(
             id="add-row-btn",
             children="Add row",
         ),
-    ]
+    ], 	fluid = True
 )
 
 

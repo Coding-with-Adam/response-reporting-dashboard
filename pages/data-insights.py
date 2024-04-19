@@ -1,27 +1,33 @@
+import dash
 from dash import Dash, html, dcc, callback, Output, Input, State
-import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
-import dash
-from utils.login_handler import require_login
-from pages.funcs import create_graph_card
+from dash_bootstrap_templates import load_figure_template
+
+load_figure_template("spacelab")
+
+dash.register_page(__name__)
 
 
-dash.register_page(__name__, path="/insights")
-require_login(__name__)
 
 
-df = pd.read_csv("pages/data.csv")
+def create_graph_card(id, fig, className='p-2'):
+    height = "100%"
+    card = dbc.Card(
+    [dcc.Graph(id=id, figure=fig, style={'height': height}, config={'displayModeBar': False})],
+    style={'height': height},
+    className=className
+    )
+    return card
+
+
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
 df.columns = ['timestamp', 'reporting_entity', 'reporting_user', 'platform', 'url', 'report_type', 'screenshot_url', 'answer_date', 'platform_decision', 'policy', 'appeal']
 df['timestamp'] = pd.to_datetime(df['timestamp'])
 df['answer_date'] = pd.to_datetime(df['answer_date'], errors='coerce')
 
-# primary_color = '#2471A3'  # For example, red
-# custom_G10 = list(px.colors.qualitative.G10)
-# custom_G10[0] = primary_color
 
 unique_platforms = df['platform'].unique()
 color_mapping = dict(zip(unique_platforms, px.colors.qualitative.G10))
@@ -39,9 +45,9 @@ fig2 = px.line(df_line, x='timestamp', y='size', color='platform', color_discret
     labels={'Date': 'timestamp', 'Count': 'size', 'Platform': 'platform'})\
     .update_layout(margin=dict(l=0, r=0, t=30, b=5), title=dict(font=dict(family='Arial', size=16), x=0.5))
 
-df3 = df.copy().dropna(subset=['answer_date'])
-df3['response_time'] = (df3['answer_date'] - df3['timestamp']).dt.days
-average_response_time = df3.groupby('platform', as_index=False)['response_time'].mean().sort_values(by='response_time', ascending=False)
+df_average_response_time = df.copy().dropna(subset=['answer_date'])
+df_average_response_time['response_time'] = (df_average_response_time['answer_date'] - df_average_response_time['timestamp']).dt.days
+average_response_time = df_average_response_time.groupby('platform', as_index=False)['response_time'].mean().sort_values(by='response_time', ascending=False)
 fig3 = px.bar(average_response_time, x='platform', y='response_time', title='Average responce time by platform (Days)',
             ).update_layout(margin=dict(l=0, r=0, t=30, b=5), title=dict(font=dict(family='Arial', size=16), x=0.5),
             showlegend=False)
@@ -57,6 +63,7 @@ fig3_card = create_graph_card('fig3', fig3)
 fig4_card = create_graph_card('fig4', fig4)
 
 
+
 column_heigh_style = {"height": "100%"}
 layout = dbc.Container(
     [
@@ -68,11 +75,7 @@ layout = dbc.Container(
                 className='my-4',
                 style={"height": '45vh'},
                 justify='around'),
-        # dbc.Row([dbc.Col(fig1_card, width=6, style=column_heigh_style), dbc.Col(fig2_card, width=6, style=column_heigh_style)],
-        #         className='my-4',
-        #         style={"height": '30vh'},
-        #         justify='around'),
         ],
     fluid=True,
-    style={"height": '100vh'}
+    style={"height": '100vh', 'background-color': '#F4F6F7'},
 )

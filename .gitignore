@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 .idea
 pages/__pycache__
 .env
 laura.py
 replace.py
+=======
+.venv
+>>>>>>> 1fba029f757284afd16f102ac045f9c9d953ddd6
