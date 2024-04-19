@@ -1,6 +1,3 @@
-######################################
-# MANALI JAIN'S CODES
-
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, State, no_update
 import dash_mantine_components as dmc
@@ -14,35 +11,39 @@ df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m/%d/%Y %H:%M')
 df['Month'] = df['Timestamp'].dt.month
 df['Year'] = df['Timestamp'].dt.year
 df['Answer Date'] = pd.to_datetime(df['Answer Date'], format='%m/%d/%Y %H:%M')
-mo = [{'label':m,'value':m} for m in sorted(df['Month'].unique())]
-mo.insert(0, {'label': 'All months', 'value': 'all'})
-yo = [{'label':y,'value':y} for y in sorted(df['Year'].unique())]
-yo.insert(0, {'label': 'All years', 'value': 'all'})
 df['Response Time'] = df['Answer Date'] - df['Timestamp']
 df['Response Days'] = df['Response Time'].dt.days
+x = len(df.index)
 
 # Report table
 grid = dag.AgGrid(
             id = "reports-table",
             rowData = df.to_dict("records"),
-            columnDefs = [{"field": i} for i in df.columns],
+            columnDefs = [
+                {"field": 'Timestamp'},
+                {"field": 'Reporting Entity'},
+                {"field": 'Reporting User'},
+                {"field": 'Platform'},
+                {"field": 'URL'},
+                {"field": 'Report Type'},
+                {"field": 'Screenshot URL'},
+                {"field": 'Answer Date'},
+                {"field": 'Platform Decision'},
+                {"field": 'Policy'},
+                {"field": 'Appeal'}
+            ],
             columnSize = "sizeToFit",
             defaultColDef = {"filter": True},
             dashGridOptions = {"pagination": True, "paginationPageSize":13},
             style = {"height": 650}
         )
 
-# Avg response time line chart 
-fig3 = px.line(df, x=df['Platform'].unique(), y=df.groupby(['Platform'])['Response Days'].mean(), text=df.groupby(['Platform'])['Response Days'].mean())
-fig3.update_layout(xaxis_title="Platforms", yaxis_title="Avg Response Time (days)")
-fig3.update_traces(textposition="top center", texttemplate='%{y:.2f}')
-
 app = Dash(suppress_callback_exceptions=True)
 app.layout = dmc.MantineProvider(
     theme={"colorScheme": "dark"},
     withGlobalStyles=True,
     children=[
-        html.H1(children=["Transparency Reporting Data Insights"], style={"color": "white"}),
+        html.H1(children=[f"Transparency Reporting Data Insights of {x} reports"], style={"color": "white"}),
         dmc.Tabs(
             [
                 dmc.TabsList(
@@ -50,7 +51,9 @@ app.layout = dmc.MantineProvider(
                         dmc.Tab(html.B("Reports Table"), value="1"),
                         dmc.Tab(html.B("Reports by Platform and Types"), value="2"),
                         dmc.Tab(html.B("Platform Decisions on Report Types"), value="3"),
-                        dmc.Tab(html.B("Avg Response Time by Platform"), value="4")
+                        dmc.Tab(html.B("Avg Response Time by Platform"), value="4"),
+                        dmc.Tab(html.B("Policies Implemented"), value="5"),
+                        dmc.Tab(html.B("User Satisfaction"), value="6")
                     ]
                 ),
             ],
@@ -69,92 +72,295 @@ def render_content(active):
         return [grid]
     elif active == "2":
         return [
-            html.P(children=["Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results"], style={"color": "white"}),
-            html.P(children=["Hovering upon a particular Platform slice, will show the count of the Report Types of that particular Platform"], style={"color": "white"}),
             html.Div([
-                html.Label(children=['Month:'], style={'color': 'white', 'font-weight': 'bold'}),
-                dcc.Dropdown(
-                    id='month-variable',
-                    options=mo,
-                    value=['all'], 
-                    multi=True,
-                    searchable=True,
-                    clearable=False,
-                    style={'color': 'black'}
-                ),
-            ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
-            html.Div([
-                html.Label(children=['Year:'], style={'color': 'white', 'font-weight': 'bold'}),
-                dcc.Dropdown(
-                    id='year-variable',
-                    options=yo,
-                    value=['all'], 
-                    multi=True,
-                    searchable=True,
-                    clearable=False,
-                    style={'color': 'black'}
-                ),
-            ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
-            html.Div([
-                dbc.Button(
-                    id='pie-button', 
-                    children="Submit",
-                    style={'height': 50, 'width': 300}
-                ),
-            ], style={'display': 'inline-block', 'margin-right': 20, 'height': 50, 'width': 300}),
+                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
+                html.P("Hovering upon a particular Platform slice, will show the count of the Report Types of that particular Platform", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
+                html.Div([
+                    html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='month-variable',
+                        options=[
+                            {'label': "January", 'value': 1},
+                            {'label': "February", 'value': 2},
+                            {'label': "March", 'value': 3},
+                            {'label': "April", 'value': 4},
+                            {'label': "May", 'value': 5},
+                            {'label': "June", 'value': 6},
+                            {'label': "July", 'value': 7},
+                            {'label': "August", 'value': 8},
+                            {'label': "September", 'value': 9},
+                            {'label': "October", 'value': 10},
+                            {'label': "November", 'value': 11},
+                            {'label': "December", 'value': 12}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select month",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='year-variable',
+                        options=[
+                            {'label': '2023', 'value': 2023}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select year",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    dbc.Button(
+                        id='pie-button', 
+                        children="Submit",
+                        color="info",
+                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+            ]), 
             dcc.Graph(id='graph1', clear_on_unhover=True, style={"height": 600}), 
             dcc.Tooltip(id="graph-tooltip")
         ]
     elif active == "3":
         return [
-            html.P(children=["Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results"], style={"color": "white"}),
             html.Div([
-                html.Label(children=['Month:'], style={'color': 'white', 'font-weight': 'bold'}),
-                dcc.Dropdown(
-                    id='month-variable',
-                    options=mo,
-                    value=['all'], 
-                    multi=True,
-                    searchable=True,
-                    clearable=False,
-                    style={'color': 'black'}
-                ),
-            ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
-            html.Div([
-                html.Label(children=['Year:'], style={'color': 'white', 'font-weight': 'bold'}),
-                dcc.Dropdown(
-                    id='year-variable',
-                    options=yo,
-                    value=['all'], 
-                    multi=True,
-                    searchable=True,
-                    clearable=False,
-                    style={'color': 'black'}
-                ),
-            ], style={'display': 'inline-block', 'margin-right': 20, 'width': 300}),
-            html.Div([
-                dbc.Button(
-                    id='bar-button', 
-                    children="Submit",
-                    style={'height': 50, 'width': 300}
-                ),
-            ], style={'display': 'inline-block', 'margin-right': 20, 'height': 50, 'width': 300}),
+                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
+                html.Div([
+                    html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='month-variable',
+                        options=[
+                            {'label': "January", 'value': 1},
+                            {'label': "February", 'value': 2},
+                            {'label': "March", 'value': 3},
+                            {'label': "April", 'value': 4},
+                            {'label': "May", 'value': 5},
+                            {'label': "June", 'value': 6},
+                            {'label': "July", 'value': 7},
+                            {'label': "August", 'value': 8},
+                            {'label': "September", 'value': 9},
+                            {'label': "October", 'value': 10},
+                            {'label': "November", 'value': 11},
+                            {'label': "December", 'value': 12}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select month",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='year-variable',
+                        options=[
+                            {'label': '2023', 'value': 2023}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select year",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    dbc.Button(
+                        id='bar-button', 
+                        children="Submit",
+                        color="info",
+                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+            ]),
             dcc.Graph(id='graph2')
         ]
-    else:
+    elif active == "4":
         return [
-            dcc.Graph(id='graph3', figure=fig3, style={"height": 600})
+            html.Div([
+                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
+                html.Div([
+                    html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='month-variable',
+                        options=[
+                            {'label': "January", 'value': 1},
+                            {'label': "February", 'value': 2},
+                            {'label': "March", 'value': 3},
+                            {'label': "April", 'value': 4},
+                            {'label': "May", 'value': 5},
+                            {'label': "June", 'value': 6},
+                            {'label': "July", 'value': 7},
+                            {'label': "August", 'value': 8},
+                            {'label': "September", 'value': 9},
+                            {'label': "October", 'value': 10},
+                            {'label': "November", 'value': 11},
+                            {'label': "December", 'value': 12}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select month",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='year-variable',
+                        options=[
+                            {'label': '2023', 'value': 2023}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select year",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    dbc.Button(
+                        id='avg-button', 
+                        children="Submit",
+                        color="info",
+                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+            ]),
+            dcc.Graph(id='graph3', style={"height": 600})
+        ]
+    elif active == "5":
+        return [
+            html.Div([
+                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
+                html.Div([
+                    html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='month-variable',
+                        options=[
+                            {'label': "January", 'value': 1},
+                            {'label': "February", 'value': 2},
+                            {'label': "March", 'value': 3},
+                            {'label': "April", 'value': 4},
+                            {'label': "May", 'value': 5},
+                            {'label': "June", 'value': 6},
+                            {'label': "July", 'value': 7},
+                            {'label': "August", 'value': 8},
+                            {'label': "September", 'value': 9},
+                            {'label': "October", 'value': 10},
+                            {'label': "November", 'value': 11},
+                            {'label': "December", 'value': 12}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select month",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='year-variable',
+                        options=[
+                            {'label': '2023', 'value': 2023}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select year",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    dbc.Button(
+                        id='policy-button', 
+                        children="Submit",
+                        color="info",
+                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+            ]),
+            dcc.Graph(id='graph4', style={'height': 600})
+        ]
+    else:
+        return[
+            html.Div([
+                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
+                html.Div([
+                    html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='month-variable',
+                        options=[
+                            {'label': "January", 'value': 1},
+                            {'label': "February", 'value': 2},
+                            {'label': "March", 'value': 3},
+                            {'label': "April", 'value': 4},
+                            {'label': "May", 'value': 5},
+                            {'label': "June", 'value': 6},
+                            {'label': "July", 'value': 7},
+                            {'label': "August", 'value': 8},
+                            {'label': "September", 'value': 9},
+                            {'label': "October", 'value': 10},
+                            {'label': "November", 'value': 11},
+                            {'label': "December", 'value': 12}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select month",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='year-variable',
+                        options=[
+                            {'label': '2023', 'value': 2023}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select year",
+                        style={'color': 'black'}
+                    ),
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                html.Div([
+                    dbc.Button(
+                        id='appeal-button', 
+                        children="Submit",
+                        color="info",
+                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+            ]),
+            dcc.Graph(id='graph5', style={'height': 600})
         ]
 
 @callback(
     Output('graph1', 'figure'),
     Input('pie-button', 'n_clicks'),
     State('month-variable', 'value'),
-    State('year-variable', 'value'),
-    prevent_initial_call=True
+    State('year-variable', 'value')
 )
-def update_pie_chart(_, selected_month, selected_year):
-    if selected_month==['all'] and selected_year==['all']:
+def update_platform_chart(_, selected_month, selected_year):
+    if not selected_month and not selected_year:
         df_sub = df
     else:
         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
@@ -179,8 +385,7 @@ def update_pie_chart(_, selected_month, selected_year):
     Output('graph-tooltip', 'show'),
     Output('graph-tooltip', 'bbox'),
     Output('graph-tooltip', 'children'),
-    Input('graph1', 'hoverData'),
-    prevent_initial_call=True
+    Input('graph1', 'hoverData')
 )
 def update_tooltip_content(hoverData):
     if hoverData is None:
@@ -194,48 +399,92 @@ def update_tooltip_content(hoverData):
     children = [dcc.Graph(id='tooltip-bar', figure=fig_bar, style={"height": 300, "width": 600})]
     return True, bbox, children
 
-@callback(
-    Output('tooltip-bar', 'figure'),
-    Input('pie-button', 'n_clicks'),
-    State('month-variable', 'value'),
-    State('year-variable', 'value'),
-    prevent_initial_call=True
-)
-def update_tooltip_chart(_, selected_month, selected_year):
-    if selected_month==['all'] and selected_year==['all']:
-        df_sub = df
-    else:
-        df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
-    prt_counts = df_sub['Report Type'].value_counts().sort_values(ascending=True)
-    fig_bar = px.bar(df_sub, y=prt_counts.index, x=prt_counts.values, title=f"Types of Reporting", text=prt_counts.values, orientation='h')
-    fig_bar.update_layout(yaxis_title="Report Types", xaxis_title="Count")
-    # pt = hoverData["points"][0]
-    # bbox = pt["bbox"]
-    # dff = df[df.Platform == pt["label"]]
-    # prt_counts = dff['Report Type'].value_counts().sort_values(ascending=True)
-    # fig_bar = px.bar(dff, y=prt_counts.index, x=prt_counts.values, title=f"Types of Reporting - {pt['label']}", text=prt_counts.values, orientation='h')
+# @callback(
+#     Output('tooltip-bar', 'figure'),
+#     Input('pie-button', 'n_clicks'),
+#     State('month-variable', 'value'),
+#     State('year-variable', 'value')
+# )
+# def update_tooltip_chart(_, selected_month, selected_year):
+#     fig_bar_my = px.bar()  # Create an empty figure
+#     if selected_month or selected_year:
+#         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+#         prt_counts = df_sub['Report Type'].value_counts().sort_values(ascending=True)
+#         fig_bar_my = px.bar(df_sub, y=prt_counts.index, x=prt_counts.values, title=f"Types of Reporting", text=prt_counts.values, orientation='h')
+#         fig_bar_my.update_layout(yaxis_title="Report Types", xaxis_title="Count")
+#     return fig_bar_my
+    # if not selected_month and not selected_year:
+    #     df_sub = df
+    # else:
+    #     df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+    # prt_counts = df_sub['Report Type'].value_counts().sort_values(ascending=True)
+    # fig_bar.add_trace(px.bar(df_sub, y=prt_counts.index, x=prt_counts.values, title=f"Types of Reporting", text=prt_counts.values, orientation='h'))
     # fig_bar.update_layout(yaxis_title="Report Types", xaxis_title="Count")
-    # children = [dcc.Graph(figure=fig_bar, style={"height": 300, "width": 600})]
-    return fig_bar
+    # return fig_bar
 
 @callback(
     Output('graph2', 'figure'),
     Input('bar-button', 'n_clicks'),
     State('month-variable', 'value'),
-    State('year-variable', 'value'),
-    prevent_initial_call=True
+    State('year-variable', 'value')
 )
-def update_bar_chart(_, selected_month, selected_year):
-    if selected_month==['all'] and selected_year==['all']:
+def update_report_type_chart(_, selected_month, selected_year):
+    if not selected_month and not selected_year:
         df_sub = df
     else:
         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
-    #rt_counts = df['Report Type'].value_counts().sort_values(ascending=False)
-    #df['Platform Decision'].fillna("Unknown", inplace=True)
-    #color_map = {"Removed": "green", "Demoted": "blue", "No Action": "red", "Unknown": "gray"}
-    fig2 = px.bar(df, x="Report Type", height=600, color="Platform Decision", barmode="group")
-    fig2.update_layout(xaxis_title="Report Types", yaxis_title="Count")
+    rt_pd = df_sub.groupby(['Report Type', 'Platform Decision']).size().reset_index(name='Count')
+    fig2 = px.bar(rt_pd, height=600, x="Report Type", y="Count", facet_col="Platform Decision", text="Count")
     return fig2
+
+@callback(
+    Output('graph3', 'figure'),
+    Input('avg-button', 'n_clicks'),
+    State('month-variable', 'value'),
+    State('year-variable', 'value')
+)
+def update_avg_chart(_, selected_month, selected_year):
+    if not selected_month and not selected_year:
+        df_sub = df
+    else:
+        df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+    fig3 = px.bar(df_sub, x=df_sub['Platform'].unique(), y=df_sub.groupby(['Platform'])['Response Days'].mean(), text=df_sub.groupby(['Platform'])['Response Days'].mean())
+    fig3.update_layout(xaxis_title="Platforms", yaxis_title="Avg Response Time (days)")
+    fig3.update_traces(textposition="outside", texttemplate='%{y:.2f}')
+    return fig3
+
+@callback(
+    Output('graph4', 'figure'),
+    Input('policy-button', 'n_clicks'),
+    State('month-variable', 'value'),
+    State('year-variable', 'value')
+)
+def update_policy_chart(_, selected_month, selected_year):
+    if not selected_month and not selected_year:
+        df_sub = df
+    else:
+        df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+    py_counts = df_sub['Policy'].value_counts().sort_values(ascending=False)
+    fig4 = px.bar(df_sub, x=py_counts.index, y=py_counts.values, text=py_counts.values)
+    fig4.update_layout(xaxis_title="Policies", yaxis_title="Count")
+    return fig4
+
+@callback(
+    Output('graph5', 'figure'),
+    Input('appeal-button', 'n_clicks'),
+    State('month-variable', 'value'),
+    State('year-variable', 'value')
+)
+def update_appeal_chart(_, selected_month, selected_year):
+    if not selected_month and not selected_year:
+        df_sub = df
+    else:
+        df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+    al_counts = df_sub['Appeal'].value_counts().sort_values(ascending=False)
+    fig5 = px.bar(df_sub, x=al_counts.index, y=al_counts.values, text=al_counts.values)
+    fig5.update_layout(xaxis_title="User Satisfaction", yaxis_title="Count")
+    return fig5
 
 if __name__ == '__main__':
     app.run(debug=True)
+
