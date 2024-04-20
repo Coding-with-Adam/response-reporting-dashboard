@@ -8,51 +8,45 @@ import pandas as pd
 register_page(__name__)
 
 df = pd.read_csv("assets/reports.csv")
-df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
-df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
+df["answer_date"] = pd.to_datetime(df["answer_date"]).dt.strftime('%Y-%m-%d')
+df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.strftime('%Y-%m-%d')
 
 #_________________________________________Columns definition_________________________________________#
 
 cols = [
     {
         "headerName": "Report Date",
-        "field": "Timestamp",
+        "field": "timestamp",
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor'
     },
     {
-        "headerName": "Reporting Entity",
-        "field": "Reporting Entity",
-        "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["Reporting Entity"].unique()}
-    },
-    {
         "headerName": "Reporting User",
-        "field": "Reporting User"
+        "field": "reporting_user"
     },
     {
         "headerName": "Platform",
-        "field": "Platform",
+        "field": "platform",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["Platform"].unique()}
+        "cellEditorParams": {"values": df["platform"].unique()}
     },
     {
         "headerName": "Content URL",
-        "field": "URL",
+        "field": "url",
     },
     {
         "headerName": "Report Type",
-        "field": "Report Type",
+        "field": "report_type",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["Report Type"].unique()}
+        "cellEditorParams": {"values": df["report_type"].unique()}
     },
     {
         "headerName" : "Screenshot URL",
-        "field" : "Screenshot URL"
+        "field" : "screenshot_url"
     },
     {
         "headerName": "Answer Date",
-        "field": "Answer Date",
+        "field": "answer_date",
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor',
         'cellEditorParams': {
@@ -61,17 +55,17 @@ cols = [
     },
     {
         "headerName": "Platform Decision",
-        "field": "Platform Decision",
+        "field": "platform_decision",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["Platform Decision"].unique()}
+        "cellEditorParams": {"values": df["platform_decision"].unique()}
     },
     {
         "headerName": "Policy",
-        "field": "Policy",
+        "field": "policy",
     },
     {
     "headerName" : "Appeal",
-    "field" : "Appeal",
+    "field" : "appeal",
     "cellEditor" : "agSelectCellEditor",
     "cellEditorParams" : {"values" : ["Yes", "No"]}
     }
@@ -154,16 +148,16 @@ def layout_security(session_data):
 def update_table(n_dlt, n_add, data):
     if ctx.triggered_id == "add-row-btn":
         new_row = {
-            "Timestamp" : [""],
-            "Reporting Entity" : [""],
-            "Reporting User" : [""],
-            "Platform" : [""],
-            "URL" : [""],
-            "Report Type" : [""],
-            "Answer Date" : [""],
-            "Platform Decision" : [""],
-            "Policy" : [""],
-            "Appeal" : [""]
+            "timestamp" : [""],
+            "reporting_user" : [""],
+            "platform" : [""],
+            "url" : [""],
+            "report_type" : [""],
+            "screenshot_url" : [""],
+            "answer_date" : [""],
+            "platform_decision" : [""],
+            "policy" : [""],
+            "appeal" : [""]
         }
         df_new_row = pd.DataFrame(new_row)
         updated_table = pd.concat(

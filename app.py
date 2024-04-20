@@ -8,10 +8,12 @@ import dash_bootstrap_components as dbc
 
 app = Dash(
     __name__,
+    title = "WatchTower",
     use_pages=True,
     external_stylesheets = [dbc.themes.BOOTSTRAP],
     suppress_callback_exceptions = True
     )
+app._favicon = os.path.join("assets", "favicon.ico")
 
 server = app.server
 

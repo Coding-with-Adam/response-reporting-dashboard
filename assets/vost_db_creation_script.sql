@@ -93,19 +93,29 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `vost_db`.`report_classification`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `vost_db`.`report_classification` ;
+
+CREATE TABLE IF NOT EXISTS `vost_db`.`report_classification` (
+  `report_type` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`report_type`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `vost_db`.`report`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `vost_db`.`report` ;
 
 CREATE TABLE IF NOT EXISTS `vost_db`.`report` (
   `timestamp` TIMESTAMP(6) NOT NULL,
-  `reporting_entity` VARCHAR(100) NOT NULL,
   `reporting_user` VARCHAR(100) NOT NULL,
   `platform_name` VARCHAR(100) NOT NULL,
   `url` VARCHAR(200) NOT NULL,
   `report_type` VARCHAR(50) NOT NULL,
   `screenshot_url` VARCHAR(200) NULL,
-  `answer_date` DATE NULL,
+  `answer_date` TIMESTAMP(6) NULL,
   `platform_decision` VARCHAR(50) NULL,
   `policy` VARCHAR(100) NULL,
   `appeal` BIT(2) NULL,
@@ -114,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`report` (
   PRIMARY KEY (`url`),
   INDEX `report_user_fk_idx` (`reporting_user` ASC) VISIBLE,
   INDEX `report_platform_fk_idx` (`platform_name` ASC) VISIBLE,
-  INDEX `report_entity_idx` (`reporting_entity` ASC) VISIBLE,
+  INDEX `report_classification_fk_idx` (`report_type` ASC) VISIBLE,
   CONSTRAINT `report_user_fk`
     FOREIGN KEY (`reporting_user`)
     REFERENCES `vost_db`.`vetted_user` (`work_email`)
@@ -125,9 +135,9 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`report` (
     REFERENCES `vost_db`.`platform` (`platform_name`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `report_entity`
-    FOREIGN KEY (`reporting_entity`)
-    REFERENCES `vost_db`.`entity` (`entity_name`)
+  CONSTRAINT `report_classification_fk`
+    FOREIGN KEY (`report_type`)
+    REFERENCES `vost_db`.`report_classification` (`report_type`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

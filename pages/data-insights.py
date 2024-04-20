@@ -8,9 +8,9 @@ from datetime import datetime
 register_page(__name__)
 
 df = pd.read_csv("assets/reports.csv")
-fig_reports_by_platform = px.histogram(df, x = 'Platform')
-fig_report_types = px.histogram(df, x = 'Report Type', facet_col = 'Platform')
-fig_decisions = px.histogram(df, x = 'Platform Decision', facet_col = 'Platform')
+fig_reports_by_platform = px.histogram(df, x = 'platform')
+fig_report_types = px.histogram(df, x = 'report_type', facet_col = 'platform')
+fig_decisions = px.histogram(df, x = 'platform_decision', facet_col = 'platform')
 
 grid = dag.AgGrid(
             id = "reports-table",
