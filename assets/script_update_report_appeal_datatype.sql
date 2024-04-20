@@ -1,0 +1,4 @@
+USE vost_db;
+
+ALTER TABLE report
+MODIFY COLUMN appeal VARCHAR(10);

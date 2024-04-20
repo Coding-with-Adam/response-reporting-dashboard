@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`report` (
   `answer_date` TIMESTAMP(6) NULL,
   `platform_decision` VARCHAR(50) NULL,
   `policy` VARCHAR(100) NULL,
-  `appeal` BIT(2) NULL,
+  `appeal` VARCHAR(10) NULL,
   UNIQUE INDEX `url_UNIQUE` (`url` ASC) VISIBLE,
   UNIQUE INDEX `screenshot_url_UNIQUE` (`screenshot_url` ASC) VISIBLE,
   PRIMARY KEY (`url`),
