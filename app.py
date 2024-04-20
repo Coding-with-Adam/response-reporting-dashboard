@@ -1,6 +1,6 @@
 import dash
 import os
-from dash import Dash, html, dcc, Input, Output, callback
+from dash import Dash, html, dcc, Input, Output, State, callback
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
@@ -65,7 +65,7 @@ navigation_bar = dbc.Navbar([
 
 
 app.layout = dmc.MantineProvider([
-    dcc.Store(id="id_session_data", storage_type = "session", data = {}),
+    dcc.Store(id="id_session_data", storage_type = "local", data = {}),
     navigation_bar,
     dash.page_container,
     ],

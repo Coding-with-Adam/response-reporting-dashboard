@@ -55,22 +55,25 @@ def verify_user(input_data):
 	prevent_initial_call = True
 	)
 def login_user(login_click, email):
+	user_data = session_data_template.copy() #To avoid rewriting the whole dict stucture
 	user_full_name = verify_user(email)
 	if ctx.triggered_id == "id_login_button" and user_full_name:
-		user_data = session_data_template.copy() #To avoid rewriting the whole dict stucture
-		user_data["is_authenticated"] = True
 		user_data["full_name"] = user_full_name
+		user_data["is_authenticated"] = True
 		return user_data, "/"
-	return {"is_authenticated" : False, "full_name": ""}, "/login"
+	user_data["is_authenticated"] = False
+	return user_data, "/login"
 
 @callback(
 	Output("id_login_output_message", "children"),
 	Input("id_login_button", "n_clicks"),
-	State("id_session_data", "data"),
+	Input("id_session_data", "data"),
 	prevent_initial_call = True
 	)
 def show_output(login_click, user_data):
-	if ctx.triggered_id == "id_login_button" and user_data["is_authenticated"] == True:
+	user_logged_in = user_data.get("is_authenticated", False)
+	if ctx.triggered_id == "id_login_button" and user_logged_in:
 		return "Login Success!"
-	else:
+	elif ctx.triggered_id == "id_login_button" and not user_logged_in:
 		return "Login Failure, incorrect information."
+	return "Enter your credentials."
