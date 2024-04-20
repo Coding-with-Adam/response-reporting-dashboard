@@ -4,11 +4,9 @@ import dash_bootstrap_components as dbc
 import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
-from dash_bootstrap_templates import load_figure_template
 
-load_figure_template("spacelab")
 
-dash.register_page(__name__)
+dash.register_page(__name__, path='/insights')
 
 
 
