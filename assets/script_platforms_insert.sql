@@ -12,7 +12,7 @@ VALUES
 ('Telegram', 'Russia'),
 ('TikTok', 'China'),
 ('WeChat', 'China'),
-('WhatsApp'	'United States'),
+('WhatsApp',	'United States'),
 ('X', 'United States'),
 ('YouTube', 'United States');
 
