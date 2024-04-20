@@ -73,8 +73,6 @@ def render_content(active):
     elif active == "2":
         return [
             html.Div([
-                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
-                html.P("Hovering upon a particular Platform slice, will show the count of the Report Types of that particular Platform", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
                 html.Div([
                     html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -98,9 +96,9 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select month",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -113,25 +111,24 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select year",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     dbc.Button(
                         id='pie-button', 
                         children="Submit",
                         color="info",
-                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                        style={'font-weight': 'bold', 'font-size': 15, 'width': 300, 'height': 40}
                     )
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]), 
             dcc.Graph(id='graph1', clear_on_unhover=True, style={"height": 600}), 
-            dcc.Tooltip(id="graph-tooltip")
+            dcc.Tooltip(id="graph-tooltip") 
         ]
     elif active == "3":
         return [
             html.Div([
-                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
                 html.Div([
                     html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -155,9 +152,9 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select month",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -170,24 +167,23 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select year",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     dbc.Button(
                         id='bar-button', 
                         children="Submit",
                         color="info",
-                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                        style={'font-weight': 'bold', 'font-size': 15, 'width': 300, 'height': 40}
                     )
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]),
             dcc.Graph(id='graph2')
         ]
     elif active == "4":
         return [
             html.Div([
-                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
                 html.Div([
                     html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -211,9 +207,9 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select month",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -226,24 +222,23 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select year",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     dbc.Button(
                         id='avg-button', 
                         children="Submit",
                         color="info",
-                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                        style={'font-weight': 'bold', 'font-size': 15, 'width': 300, 'height': 40}
                     )
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]),
             dcc.Graph(id='graph3', style={"height": 600})
         ]
     elif active == "5":
         return [
             html.Div([
-                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
                 html.Div([
                     html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -267,9 +262,9 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select month",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -282,24 +277,23 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select year",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     dbc.Button(
                         id='policy-button', 
                         children="Submit",
                         color="info",
-                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                        style={'font-weight': 'bold', 'font-size': 15, 'width': 300, 'height': 40}
                     )
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]),
             dcc.Graph(id='graph4', style={'height': 600})
         ]
     else:
         return[
             html.Div([
-                html.P("Choose the options from the dropdown menus and click on the 'Submit' button to get the desired results", style={"color": "white", 'margin-top': 5, 'margin-bottom': 5, 'width': 1000}),
                 html.Div([
                     html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -323,9 +317,9 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select month",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
                     dcc.Dropdown(
@@ -338,17 +332,17 @@ def render_content(active):
                         searchable=True,
                         clearable=False,
                         placeholder="Select year",
-                        style={'color': 'black'}
-                    ),
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5, 'width': 692}),
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
                 html.Div([
                     dbc.Button(
                         id='appeal-button', 
                         children="Submit",
                         color="info",
-                        style={'font-weight': 'bold', 'font-size': 15, 'height': 30, 'width': 1420}
+                        style={'font-weight': 'bold', 'font-size': 15, 'width': 300, 'height': 40}
                     )
-                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 5})
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]),
             dcc.Graph(id='graph5', style={'height': 600})
         ]
@@ -389,7 +383,7 @@ def update_platform_chart(_, selected_month, selected_year):
 )
 def update_tooltip_content(hoverData):
     if hoverData is None:
-        return no_update
+        return False, no_update, no_update
     pt = hoverData["points"][0]
     bbox = pt["bbox"]
     dff = df[df.Platform == pt["label"]]
