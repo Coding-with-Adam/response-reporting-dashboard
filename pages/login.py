@@ -50,6 +50,7 @@ def login_user(login_click, email):
 	if ctx.triggered_id == "id_login_button" and returned_name:
 		user_data["full_name"] = returned_name
 		user_data["is_authenticated"] = True
+		user_data["email"] = email
 		return user_data, "/"
 	user_data["is_authenticated"] = False #This is necessary
 	return user_data, "/login"

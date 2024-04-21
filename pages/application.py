@@ -122,7 +122,7 @@ layout = dbc.Container([
 	fluid = True
 	)
 
-#_________________________________________Callbacks_________________________________________#
+#___________________________________________Callbacks___________________________________________#
 
 @callback(
 	Output("id_first_name_in", "invalid"),
@@ -201,7 +201,6 @@ def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_inva
 			return "The input email is already taken", {"registered_user":False}
 		else:
 			return query_output_message, {"registered_user":False}
-
 	return "Incorrect information", {"registered_user":False}
 
 @callback(

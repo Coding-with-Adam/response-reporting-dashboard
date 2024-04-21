@@ -4,12 +4,15 @@ import dash_mantine_components as dmc
 from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
+from utils.app_queries import select_user_reports
+from utils.app_queries import select_all_platforms
+from utils.app_queries import select_reports_types
 
 register_page(__name__)
 
-df = pd.read_csv("assets/reports.csv")
-df["answer_date"] = pd.to_datetime(df["answer_date"]).dt.strftime('%Y-%m-%d')
-df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.strftime('%Y-%m-%d')
+platforms = select_all_platforms()
+reports_types = select_reports_types()
+decisions = ["Demoted", "Removed", "No Action"]
 
 #_________________________________________Columns definition_________________________________________#
 
@@ -21,14 +24,10 @@ cols = [
         'cellEditor': 'agDateStringCellEditor'
     },
     {
-        "headerName": "Reporting User",
-        "field": "reporting_user"
-    },
-    {
         "headerName": "Platform",
         "field": "platform",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["platform"].unique()}
+        "cellEditorParams": {"values": platforms["platform_name"].values}
     },
     {
         "headerName": "Content URL",
@@ -38,7 +37,7 @@ cols = [
         "headerName": "Report Type",
         "field": "report_type",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["report_type"].unique()}
+        "cellEditorParams": {"values": reports_types["report_type"].values}
     },
     {
         "headerName" : "Screenshot URL",
@@ -50,14 +49,14 @@ cols = [
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor',
         'cellEditorParams': {
-            'min': '2024-01-01',
+            'min': '2023-01-01',
         }
     },
     {
         "headerName": "Platform Decision",
         "field": "platform_decision",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": df["platform_decision"].unique()}
+        "cellEditorParams": {"values": decisions}
     },
     {
         "headerName": "Policy",
@@ -71,36 +70,55 @@ cols = [
     }
 ]
 
+#____________________________________________Layout items____________________________________________#
+
+grid = dag.AgGrid(
+    id = "id_internal_reports_table",
+    columnDefs = cols,
+    rowData = [],
+    columnSize = "sizeToFit",
+    defaultColDef = {"editable": True, "filter": True},
+    dashGridOptions = {
+    "pagination": True,
+    "paginationPageSize": 7,
+    "undoRedoCellEditing": True,
+    "rowSelection": "multiple"
+    }
+    )
+
+delete_record = dbc.Button(
+    id = "id_delete_report_button",
+    children = "Delete Row",
+    color = "danger",
+    class_name = "me-1 mt-1",
+    )
+
+update_recod = dbc.Button(
+    id = "id_update_report_button",
+    children = "Update Row",
+    color = "secondary",
+    class_name = "me-1 mt-1",
+    )
+
+add_record = dbc.Button(
+    id = "id_add_report_button",
+    children = "New Report",
+    color = "primary",
+    class_name = "me-1 mt-1",
+    )
+
 #_______________________________________Layout Protection Setup_______________________________________#
 
 protected_container = dbc.Container([
         html.H1("Internal", style = {"text-align":"center"}),
         dmc.Center(html.H4("Update existing report or insert a new report.")),
-        dag.AgGrid(
-            id="reports-table",
-            rowData=df.to_dict("records"),
-            columnDefs = cols,
-            columnSize = "sizeToFit",
-            defaultColDef = {"editable": True, "filter": True},
-            dashGridOptions = {"pagination": True,
-                             "paginationPageSize": 7,
-                             "undoRedoCellEditing": True,
-                             "rowSelection": "multiple"}
-        ),
-        dbc.Button(
-            id="delete-row-btn",
-            children="Delete row",
-            color = "danger",
-            class_name = "me-1 mt-1",
-        ),
-        dbc.Button(
-            id="add-row-btn",
-            children="Add row",
-            color = "primary",
-            class_name = "me-1 mt-1",
-        ),
+        dbc.Row([grid]),
+        dbc.Row([
+            dbc.Col([delete_record, update_recod, add_record]),
+            ]
+            )
     ],
-    fluid = True #To fit the size of the screen
+    fluid = True
 )
 
 
@@ -138,15 +156,25 @@ def layout_security(session_data):
     return unprotected_container
 
 @callback(
+    Output("id_internal_reports_table", "rowData"),
+    Input("id_session_data", "data")
+    )
+def get_reports_for_this_user(user_data):
+    email = user_data.get("email", "")
+    df = select_user_reports(email)
+    grid_row_data = df.to_dict("records")
+    return grid_row_data
+
+@callback(
     Output("reports-table", "deleteSelectedRows"),
     Output("reports-table", "rowData"),
-    Input("delete-row-btn", "n_clicks"),
-    Input("add-row-btn", "n_clicks"),
+    Input("id_delete_report_button", "n_clicks"),
+    Input("id_add_report_button", "n_clicks"),
     State("reports-table", "rowData"),
     prevent_initial_call = True,
 )
 def update_table(n_dlt, n_add, data):
-    if ctx.triggered_id == "add-row-btn":
+    if ctx.triggered_id == "id_add_report_button":
         new_row = {
             "timestamp" : [""],
             "reporting_user" : [""],
@@ -165,5 +193,5 @@ def update_table(n_dlt, n_add, data):
         )  # add new row to orginal dataframe
         return False, updated_table.to_dict("records")
 
-    elif ctx.triggered_id == "delete-row-btn":
+    elif ctx.triggered_id == "id_delete_report_button":
         return True, no_update

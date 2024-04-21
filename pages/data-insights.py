@@ -4,16 +4,20 @@ import dash_ag_grid as dag
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+from utils.app_queries import select_all_reports
 
 register_page(__name__)
 
-df = pd.read_csv("assets/reports.csv")
+df = select_all_reports()
+
 fig_reports_by_platform = px.histogram(df, x = 'platform')
 fig_report_types = px.histogram(df, x = 'report_type', facet_col = 'platform')
 fig_decisions = px.histogram(df, x = 'platform_decision', facet_col = 'platform')
 
+#___________________________________________Layout Items___________________________________________#
+
 grid = dag.AgGrid(
-            id = "reports-table",
+            id = "id_insights_report_table",
             rowData = df.to_dict("records"),
             columnDefs = [{"field": i} for i in df.columns],
             columnSize = "sizeToFit",
@@ -45,6 +49,8 @@ tabs_container = dbc.Container([
         ],
         id = 'all_tabs')
     ])
+
+#_____________________________________________The Layout_____________________________________________#
 
 layout = dbc.Container([
         dbc.Row([html.H1("Data Insights", style = {"text-align":"center"})]),
