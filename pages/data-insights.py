@@ -53,7 +53,8 @@ app.layout = dmc.MantineProvider(
                         dmc.Tab(html.B("Platform Decisions on Report Types"), value="3"),
                         dmc.Tab(html.B("Avg Response Time by Platform"), value="4"),
                         dmc.Tab(html.B("Policies Implemented"), value="5"),
-                        dmc.Tab(html.B("User Satisfaction"), value="6")
+                        dmc.Tab(html.B("User Appeal on Platform Decision"), value="6"),
+                        dmc.Tab(html.B("Reporting User per Month"), value="7")
                     ]
                 ),
             ],
@@ -179,7 +180,7 @@ def render_content(active):
                     )
                 ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]),
-            dcc.Graph(id='graph2')
+            dcc.Graph(id='graph2', style={'height': 600})
         ]
     elif active == "4":
         return [
@@ -291,7 +292,7 @@ def render_content(active):
             ]),
             dcc.Graph(id='graph4', style={'height': 600})
         ]
-    else:
+    elif active == "6":
         return[
             html.Div([
                 html.Div([
@@ -345,6 +346,61 @@ def render_content(active):
                 ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
             ]),
             dcc.Graph(id='graph5', style={'height': 600})
+        ]
+    else:
+        return[
+            html.Div([
+                html.Div([
+                    html.Label('Month:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='month-variable',
+                        options=[
+                            {'label': "January", 'value': 1},
+                            {'label': "February", 'value': 2},
+                            {'label': "March", 'value': 3},
+                            {'label': "April", 'value': 4},
+                            {'label': "May", 'value': 5},
+                            {'label': "June", 'value': 6},
+                            {'label': "July", 'value': 7},
+                            {'label': "August", 'value': 8},
+                            {'label': "September", 'value': 9},
+                            {'label': "October", 'value': 10},
+                            {'label': "November", 'value': 11},
+                            {'label': "December", 'value': 12}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select month",
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
+                html.Div([
+                    html.Label('Year:', style={'color': 'white', 'font-weight': 'bold'}),
+                    dcc.Dropdown(
+                        id='year-variable',
+                        options=[
+                            {'label': '2023', 'value': 2023}
+                        ],
+                        value=[], 
+                        multi=True,
+                        searchable=True,
+                        clearable=False,
+                        placeholder="Select year",
+                        style={'color': 'black', 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'top'}),
+                html.Div([
+                    dbc.Button(
+                        id='user-button', 
+                        children="Submit",
+                        color="info",
+                        style={'font-weight': 'bold', 'font-size': 15, 'width': 300, 'height': 40}
+                    )
+                ], style={'display': 'inline-block', 'margin-right': 20, 'margin-bottom': 10, 'vertical-align': 'bottom'})
+            ]),
+            dcc.Graph(id='graph6', style={'height': 600})
         ]
 
 @callback(
@@ -428,7 +484,7 @@ def update_report_type_chart(_, selected_month, selected_year):
     else:
         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
     rt_pd = df_sub.groupby(['Report Type', 'Platform Decision']).size().reset_index(name='Count')
-    fig2 = px.bar(rt_pd, height=600, x="Report Type", y="Count", facet_col="Platform Decision", text="Count")
+    fig2 = px.bar(rt_pd, x="Report Type", y="Count", facet_col="Platform Decision", text="Count")
     return fig2
 
 @callback(
@@ -474,10 +530,25 @@ def update_appeal_chart(_, selected_month, selected_year):
         df_sub = df
     else:
         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
-    al_counts = df_sub['Appeal'].value_counts().sort_values(ascending=False)
-    fig5 = px.bar(df_sub, x=al_counts.index, y=al_counts.values, text=al_counts.values)
-    fig5.update_layout(xaxis_title="User Satisfaction", yaxis_title="Count")
+    al_pd = df_sub.groupby(['Appeal', 'Platform Decision']).size().reset_index(name='Count')
+    fig5 = px.bar(al_pd, height=600, x="Appeal", y="Count", facet_col="Platform Decision", text="Count")
     return fig5
+
+@callback(
+    Output('graph6', 'figure'),
+    Input('user-button', 'n_clicks'),
+    State('month-variable', 'value'),
+    State('year-variable', 'value')
+)
+def update_user_chart(_, selected_month, selected_year):
+    if not selected_month and not selected_year:
+        df_sub = df
+    else:
+        df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
+    uu = df_sub.drop_duplicates(subset=['Reporting User'])
+    my_ru = uu.groupby(['Year', 'Month'])['Reporting User'].nunique().reset_index(name='Unique Users Count')
+    fig6 = px.bar(my_ru, x="Month", y="Unique Users Count", text="Unique Users Count")
+    return fig6
 
 if __name__ == '__main__':
     app.run(debug=True)
