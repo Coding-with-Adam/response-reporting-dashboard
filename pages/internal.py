@@ -14,7 +14,8 @@ platforms = select_all_platforms()
 reports_types = select_reports_types()
 decisions = ["Demoted", "Removed", "No Action"]
 
-#_________________________________________Columns definition_________________________________________#
+#_______________________________________Grid Columns definition_______________________________________#
+#Consider moving column definitions and its function calls into a new module, and only import the result
 
 cols = [
     {
@@ -70,9 +71,60 @@ cols = [
     }
 ]
 
+#_______________________________________Modals Sub components_______________________________________#
+
+confirm_delete_button = dbc.Button(
+    id = "id_confirm_delete_button",
+    children = "Yes",
+    color = "danger",
+    class_name = "me-1"
+    )
+reject_delete_button = dbc.Button(
+    id = "id_reject_delete_button",
+    children = "No",
+    color = "success",
+    class_name = "me-auto"
+    )
+
+#_________________________________________Report Edit Modals_________________________________________#
+
+delete_report_modal = dbc.Modal([
+    dbc.ModalBody([
+        dbc.Row([html.P("Delete this report?", style = {"text-align":"center", "color":"black"})]),
+        dbc.Row([
+            dbc.Col([confirm_delete_button, reject_delete_button])
+            ],
+            ),
+        ])
+    ],
+    id = "id_delete_report_modal",
+    is_open = False,
+    size = "sm",
+    )
+
+update_report_modal = dbc.Modal([
+    dbc.ModalHeader(dbc.ModalTitle("Update a Report")),
+    dbc.ModalBody("Plaholder for Update Report"),
+    dbc.ModalFooter()
+    ],
+    id = "id_update_report_modal",
+    is_open = False,
+    size = "lg",
+    )
+
+add_report_modal = dbc.Modal([
+    dbc.ModalHeader("Add a New Report"),
+    dbc.ModalBody("Plaholder for Update Report"),
+    dbc.ModalFooter()
+    ],
+    id = "id_add_report_modal",
+    is_open = False,
+    size = "lg",
+    )
+
 #____________________________________________Layout items____________________________________________#
 
-grid = dag.AgGrid(
+reports_grid = dag.AgGrid(
     id = "id_internal_reports_table",
     columnDefs = cols,
     rowData = [],
@@ -86,23 +138,23 @@ grid = dag.AgGrid(
     }
     )
 
-delete_record = dbc.Button(
+delete_report_button = dbc.Button(
     id = "id_delete_report_button",
-    children = "Delete Row",
+    children = "Delete Report",
     color = "danger",
     class_name = "me-1 mt-1",
     )
 
-update_recod = dbc.Button(
+update_report_button = dbc.Button(
     id = "id_update_report_button",
-    children = "Update Row",
+    children = "Update Report",
     color = "secondary",
     class_name = "me-1 mt-1",
     )
 
-add_record = dbc.Button(
+add_report_button = dbc.Button(
     id = "id_add_report_button",
-    children = "New Report",
+    children = "Add New Report",
     color = "primary",
     class_name = "me-1 mt-1",
     )
@@ -112,9 +164,14 @@ add_record = dbc.Button(
 protected_container = dbc.Container([
         html.H1("Internal", style = {"text-align":"center"}),
         dmc.Center(html.H4("Update existing report or insert a new report.")),
-        dbc.Row([grid]),
+        dbc.Row([reports_grid]),
         dbc.Row([
-            dbc.Col([delete_record, update_recod, add_record]),
+            dbc.Col([delete_report_modal, update_report_modal, add_report_modal])
+            ],
+            id = "id_hidden_row_for_modals"
+            ),
+        dbc.Row([
+            dbc.Col([delete_report_button, update_report_button, add_report_button]),
             ]
             )
     ],
@@ -166,32 +223,31 @@ def get_reports_for_this_user(user_data):
     return grid_row_data
 
 @callback(
-    Output("reports-table", "deleteSelectedRows"),
-    Output("reports-table", "rowData"),
+    Output("id_delete_report_modal", "is_open"),
     Input("id_delete_report_button", "n_clicks"),
-    Input("id_add_report_button", "n_clicks"),
-    State("reports-table", "rowData"),
-    prevent_initial_call = True,
+    State("id_delete_report_modal", "is_open")
 )
-def update_table(n_dlt, n_add, data):
-    if ctx.triggered_id == "id_add_report_button":
-        new_row = {
-            "timestamp" : [""],
-            "reporting_user" : [""],
-            "platform" : [""],
-            "url" : [""],
-            "report_type" : [""],
-            "screenshot_url" : [""],
-            "answer_date" : [""],
-            "platform_decision" : [""],
-            "policy" : [""],
-            "appeal" : [""]
-        }
-        df_new_row = pd.DataFrame(new_row)
-        updated_table = pd.concat(
-            [pd.DataFrame(data), df_new_row]
-        )  # add new row to orginal dataframe
-        return False, updated_table.to_dict("records")
+def add_report_table(add_click, modal_status):
+    if ctx.triggered_id == "id_delete_report_button":
+        return not modal_status
+    return modal_status
 
-    elif ctx.triggered_id == "id_delete_report_button":
-        return True, no_update
+@callback(
+    Output("id_update_report_modal", "is_open"),
+    Input("id_update_report_button", "n_clicks"),
+    State("id_update_report_modal", "is_open")
+)
+def add_report_table(add_click, modal_status):
+    if ctx.triggered_id == "id_update_report_button":
+        return not modal_status
+    return modal_status
+
+@callback(
+    Output("id_add_report_modal", "is_open"),
+    Input("id_add_report_button", "n_clicks"),
+    State("id_add_report_modal", "is_open")
+)
+def add_report_table(add_click, modal_status):
+    if ctx.triggered_id == "id_add_report_button":
+        return not modal_status
+    return modal_status

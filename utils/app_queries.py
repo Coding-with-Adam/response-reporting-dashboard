@@ -94,21 +94,6 @@ def select_reports_types():
 
 #________________________________________INSERT Queries________________________________________#
 
-#The "add_country" function to be removed once countries table is populated in the database.
-#Later on, countries edit will be handled via an admin menu in the app itself
-def add_country(in_country_name):
-	df = select_all_countries()
-	if in_country_name in df["country_name"].values:
-		return "Existing country"
-
-	add_country_query_string = f"""
-	INSERT INTO country(country_name)
-	VALUES("{in_country_name}");
-	"""
-	result = write_query(add_country_query_string)
-	return result
-
-
 def add_entity(in_affiliation, in_website, in_signatory_status, in_country):
 	df = select_all_entities()
 	if in_affiliation in df["entity_name"].values:
@@ -138,6 +123,5 @@ def add_user(in_email, in_first_name, in_last_name, in_affiliation):
 
 def register_user(in_email, in_first_name, in_last_name, in_affiliation, 
 	in_website, in_signatory_status, in_country):
-	add_country(in_country)
 	add_entity(in_affiliation, in_website, in_signatory_status, in_country)
-	return add_user(in_email, in_first_name, in_last_name, in_affiliation)
+	return add_user(in_email, in_first_name.title(), in_last_name.title(), in_affiliation)
