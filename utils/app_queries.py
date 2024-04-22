@@ -94,34 +94,43 @@ def select_reports_types():
 
 #________________________________________INSERT Queries________________________________________#
 
-def add_entity(in_affiliation, in_website, in_signatory_status, in_country):
+def add_entity(affiliation_in, website_in, signatory_status_in, country_in):
 	df = select_all_entities()
-	if in_affiliation in df["entity_name"].values:
+	if affiliation_in in df["entity_name"].values:
 		return "Existing entity"
 
 	add_entity_query_string = f"""
 	INSERT INTO entity (entity_name, website, signatory_of_code_of_practice_on_disinformation, country_name)
-	VALUES ("{in_affiliation}", "{in_website}", "{in_signatory_status}", "{in_country}");
+	VALUES ("{affiliation_in}", "{website_in}", "{signatory_status_in}", "{country_in}");
 	"""
 	result = write_query(add_entity_query_string)
 	return result
 
 
-def add_user(in_email, in_first_name, in_last_name, in_affiliation):
+def add_user(email_in, first_name_in, last_name_in, affiliation_in):
 	df = select_all_users()
-	if in_email in df["work_email"].values:
+	if email_in in df["work_email"].values:
 		return "Existing User"
 
 	add_user_query_string = f"""
 	INSERT INTO vetted_user(work_email, first_name, last_name, affiliation_name)
-	VALUES ("{in_email}", "{in_first_name}", "{in_last_name}", "{in_affiliation}");
+	VALUES ("{email_in}", "{first_name_in}", "{last_name_in}", "{affiliation_in}");
 	"""
 	result = write_query(add_user_query_string)
 	return result
 
+#________________________________________DELETE Queries________________________________________#
+def delete_report(report_url):
+	delete_report_query = f"""
+	DELETE FROM report
+	WHERE url = "{report_url}"
+	"""
+	result = write_query(delete_report_query)
+	return result
+
 #______________________Custom Functions execute multiple queries in a chain______________________#
 
-def register_user(in_email, in_first_name, in_last_name, in_affiliation, 
-	in_website, in_signatory_status, in_country):
-	add_entity(in_affiliation, in_website, in_signatory_status, in_country)
-	return add_user(in_email, in_first_name.title(), in_last_name.title(), in_affiliation)
+def register_user(email_in, first_name_in, last_name_in, affiliation_in, 
+	website_in, signatory_status_in, country_in):
+	add_entity(affiliation_in, website_in, signatory_status_in, country_in)
+	return add_user(email_in, first_name_in.title(), last_name_in.title(), affiliation_in)

@@ -4,15 +4,18 @@ import dash_mantine_components as dmc
 from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
+from datetime import datetime
 from utils.app_queries import select_user_reports
 from utils.app_queries import select_all_platforms
 from utils.app_queries import select_reports_types
+from utils.app_queries import delete_report
 
 register_page(__name__)
 
 platforms = select_all_platforms()
 reports_types = select_reports_types()
 decisions = ["Demoted", "Removed", "No Action"]
+appeal = ["Yes", "No"]
 
 #_______________________________________Grid Columns definition_______________________________________#
 #Consider moving column definitions and its function calls into a new module, and only import the result
@@ -71,8 +74,9 @@ cols = [
     }
 ]
 
-#_______________________________________Modals Sub components_______________________________________#
-
+#_________________________________________Modals components_________________________________________#
+#----------------------------------------------------------------------------------------------------#
+#Delete-Report Modal components
 confirm_delete_button = dbc.Button(
     id = "id_confirm_delete_button",
     children = "Yes",
@@ -85,14 +89,121 @@ reject_delete_button = dbc.Button(
     color = "success",
     class_name = "me-auto"
     )
+#----------------------------------------------------------------------------------------------------#
+#Update-Report Modal components
+update_report_modal_title = dbc.ModalTitle(
+    html.P("Update a Report", style = {"color":"black"})
+    )
+#----------------------------------------------------------------------------------------------------#
+#Add-Report Modal components
+add_report_modal_title = dbc.ModalTitle(
+    html.P("Add a New Report", style = {"color":"black"})
+    )
+current_timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
 
-#_________________________________________Report Edit Modals_________________________________________#
+report_input = dbc.Row([
+    dbc.Col([
+        dbc.Row([
+            dbc.Label("Platform"),
+            dbc.Select(
+                options = [
+                {"label": value, "value":value} for value in platforms["platform_name"].values
+                ],
+                value = "",
+                id = "id_modal_platform",
+                placeholder = "Select the Platform",
+                invalid = True,
+                )
+            ],
+            class_name = "mb-3"
+            ),
+        dbc.Row([
+            dbc.Label("Content URL"),
+            dbc.Input(id= "id_modal_url", placeholder = "Enter content's URL", invalid = True)
+            ],
+            class_name = "mb-3"
+            ),
+        dbc.Row([
+            dbc.Label("Report Type"),
+            dbc.Select(
+                options = [
+                {"label": value, "value":value} for value in reports_types["report_type"].values
+                ],
+                value = "",
+                id = "id_modal_report_type",
+                placeholder = "Select Report Type",
+                invalid = True
+                )
+            ],
+            class_name = "mb-3"
+            ),
+        dbc.Row([
+            dbc.Label("Screenshot URL"),
+            dbc.Input(id= "id_modal_screenshot", placeholder = "Enter Screenshot URL")
+            ],
+            class_name = "mb-3"
+            )
+        ],
+        class_name = "ms-4 me-2"),
+    dbc.Col([
+        dbc.Row([
+            dbc.Label("Platform Response Date"),
+            #To change into date picker
+            dbc.Input(id= "id_modal_answer_date", placeholder = "Enter answer date")
+            ],
+            class_name = "mb-3"
+            ),
+        dbc.Row([
+            dbc.Label("Platform Decison"),
+            dbc.Select(
+                options = [
+                {"label": value, "value":value} for value in decisions
+                ],
+                value = "",
+                id = "id_modal_decision",
+                placeholder = "Select Platform Decision"
+                )
+            ],
+            class_name = "mb-3"
+            ),
+        dbc.Row([
+            dbc.Label("Policy"),
+            dbc.Input(id= "id_modal_policy", placeholder = "Enter Policy")
+            ],
+            class_name = "mb-3"
+            ),
+        dbc.Row([
+            dbc.Label("Appeal"),
+            dbc.Select(
+                options = [
+                {"label": value, "value":value} for value in appeal
+                ],
+                value = "",
+                id = "id_modal_appeal",
+                placeholder = "Apeal Yes/No"
+                )
+            ],
+            class_name = "mb-3"
+            )
+        ],
+        class_name = "ms-2 me-4")
+    ],
+    )
+
+submit_report_button = dbc.Button(
+    id = "id_submit_report_button",
+    children = "Sumbit",
+    color = "success",
+    class_name = "ms-auto"
+    )
+
+#___________________________________________Report Modals___________________________________________#
 
 delete_report_modal = dbc.Modal([
     dbc.ModalBody([
-        dbc.Row([html.P("Delete this report?", style = {"text-align":"center", "color":"black"})]),
+        dbc.Row([html.P("Are you sure?", style = {"text-align":"center", "color":"black"})]),
         dbc.Row([
-            dbc.Col([confirm_delete_button, reject_delete_button])
+            dbc.Col([confirm_delete_button, reject_delete_button], className = "text-center")
             ],
             ),
         ])
@@ -100,41 +211,47 @@ delete_report_modal = dbc.Modal([
     id = "id_delete_report_modal",
     is_open = False,
     size = "sm",
+    backdrop = True,
+    centered = True
     )
 
 update_report_modal = dbc.Modal([
-    dbc.ModalHeader(dbc.ModalTitle("Update a Report")),
+    dbc.ModalHeader(update_report_modal_title),
     dbc.ModalBody("Plaholder for Update Report"),
     dbc.ModalFooter()
     ],
     id = "id_update_report_modal",
     is_open = False,
     size = "lg",
+    backdrop = "static",
+    scrollable = True,
     )
 
 add_report_modal = dbc.Modal([
-    dbc.ModalHeader("Add a New Report"),
-    dbc.ModalBody("Plaholder for Update Report"),
-    dbc.ModalFooter()
+    dbc.ModalHeader(add_report_modal_title),
+    dbc.ModalBody(report_input),
+    dbc.ModalFooter(submit_report_button)
     ],
     id = "id_add_report_modal",
     is_open = False,
     size = "lg",
+    backdrop = "static",
+    scrollable = True,
     )
 
-#____________________________________________Layout items____________________________________________#
+#__________________________________________Page Layout items__________________________________________#
 
 reports_grid = dag.AgGrid(
     id = "id_internal_reports_table",
     columnDefs = cols,
     rowData = [],
     columnSize = "sizeToFit",
-    defaultColDef = {"editable": True, "filter": True},
+    defaultColDef = {"editable": False, "filter": True},
     dashGridOptions = {
     "pagination": True,
     "paginationPageSize": 7,
-    "undoRedoCellEditing": True,
-    "rowSelection": "multiple"
+    #"undoRedoCellEditing": True,
+    "rowSelection": "single"
     }
     )
 
@@ -214,7 +331,7 @@ def layout_security(session_data):
 
 @callback(
     Output("id_internal_reports_table", "rowData"),
-    Input("id_session_data", "data")
+    Input("id_session_data", "data"),
     )
 def get_reports_for_this_user(user_data):
     email = user_data.get("email", "")
@@ -225,19 +342,30 @@ def get_reports_for_this_user(user_data):
 @callback(
     Output("id_delete_report_modal", "is_open"),
     Input("id_delete_report_button", "n_clicks"),
-    State("id_delete_report_modal", "is_open")
+    State("id_internal_reports_table", "selectedRows"),
+    State("id_delete_report_modal", "is_open"),
+    Input("id_confirm_delete_button", "n_clicks"),
+    Input("id_reject_delete_button", "n_clicks"),
 )
-def add_report_table(add_click, modal_status):
-    if ctx.triggered_id == "id_delete_report_button":
-        return not modal_status
+def open_delete_modal(add_click, row_data, modal_status, confirm_clicked, reject_clicked):
+    if ctx.triggered_id == "id_delete_report_button" and row_data:
+        return True
+    elif ctx.triggered_id == "id_confirm_delete_button" and row_data:
+        input_url = row_data[0]["url"]
+        delete_report(input_url)
+        return False
+        #Implement a refresh page mechanism in another callback to reload grid data
+    elif ctx.triggered_id == "id_reject_delete_button":
+        return False
     return modal_status
 
 @callback(
     Output("id_update_report_modal", "is_open"),
     Input("id_update_report_button", "n_clicks"),
+    State("id_internal_reports_table", "selectedRows"),
     State("id_update_report_modal", "is_open")
 )
-def add_report_table(add_click, modal_status):
+def open_update_modal(add_click, selected_row_data, modal_status):
     if ctx.triggered_id == "id_update_report_button":
         return not modal_status
     return modal_status
@@ -247,7 +375,7 @@ def add_report_table(add_click, modal_status):
     Input("id_add_report_button", "n_clicks"),
     State("id_add_report_modal", "is_open")
 )
-def add_report_table(add_click, modal_status):
+def open_add_modal(add_click, modal_status):
     if ctx.triggered_id == "id_add_report_button":
         return not modal_status
     return modal_status
