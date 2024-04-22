@@ -261,6 +261,15 @@ delete_report_button = dbc.Button(
     color = "danger",
     class_name = "me-1 mt-1",
     )
+delete_report_button_popover = dbc.Popover([
+    "Select a row first to delete."
+    ],
+    id = "id_delete_report_button_popover",
+    target = "id_delete_report_button",
+    body = True,
+    is_open = False,
+    placement = "top",
+    )
 
 update_report_button = dbc.Button(
     id = "id_update_report_button",
@@ -283,12 +292,21 @@ protected_container = dbc.Container([
         dmc.Center(html.H4("Update existing report or insert a new report.")),
         dbc.Row([reports_grid]),
         dbc.Row([
-            dbc.Col([delete_report_modal, update_report_modal, add_report_modal])
+            dbc.Col([
+                delete_report_modal,
+                update_report_modal,
+                add_report_modal
+                ])
             ],
             id = "id_hidden_row_for_modals"
             ),
         dbc.Row([
-            dbc.Col([delete_report_button, update_report_button, add_report_button]),
+            dbc.Col([
+                delete_report_button,
+                delete_report_button_popover,
+                update_report_button,
+                add_report_button
+                ]),
             ]
             )
     ],
@@ -347,7 +365,7 @@ def get_reports_for_this_user(user_data):
     Input("id_confirm_delete_button", "n_clicks"),
     Input("id_reject_delete_button", "n_clicks"),
 )
-def open_delete_modal(add_click, row_data, modal_status, confirm_clicked, reject_clicked):
+def open_delete_modal(delete_click, row_data, modal_status, confirm_click, reject_click):
     if ctx.triggered_id == "id_delete_report_button" and row_data:
         return True
     elif ctx.triggered_id == "id_confirm_delete_button" and row_data:
@@ -358,6 +376,17 @@ def open_delete_modal(add_click, row_data, modal_status, confirm_clicked, reject
     elif ctx.triggered_id == "id_reject_delete_button":
         return False
     return modal_status
+
+@callback(
+    Output("id_delete_report_button_popover", "is_open"),
+    Input("id_delete_report_button", "n_clicks"),
+    State("id_internal_reports_table", "selectedRows"),
+    State("id_delete_report_button_popover", "is_open"),
+)
+def open_delete_popover(delete_click, row_data, popover_status):
+    if ctx.triggered_id == "id_delete_report_button" and (not row_data):
+        return not popover_status
+    return False
 
 @callback(
     Output("id_update_report_modal", "is_open"),
