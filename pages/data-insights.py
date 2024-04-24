@@ -326,8 +326,21 @@ def update_user_chart(_, selected_month, selected_year):
         df_sub = df
     else:
         df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
-    my_ru = df_sub.drop_duplicates(subset=['Reporting User'])
-    my_ru = my_ru.groupby(['Year', 'Month'])['Reporting User'].nunique().reset_index(name='Unique Users Count')
+    # Print selected month and year to check their values
+    # print("Selected Month:", selected_month)
+    # print("Selected Year:", selected_year)
+    
+    # Check the filtered DataFrame
+    # print("Filtered DataFrame:")
+    # print(df_sub.head())
+    
+    # Group by 'Year' and 'Month' and count unique users
+    my_ru = df_sub.drop_duplicates(subset=['Reporting User']).groupby(['Year', 'Month'])['Reporting User'].size().reset_index(name='Unique Users Count')
+    
+    # Print the resulting DataFrame to check the aggregation
+    # print("Aggregated DataFrame:")
+    # print(my_ru.head())
+
     fig1 = px.bar(
         my_ru, 
         x="Month", 
