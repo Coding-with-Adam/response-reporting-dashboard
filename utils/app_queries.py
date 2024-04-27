@@ -43,7 +43,7 @@ def verify_user(email_in):
 		return df.iloc[0]["full_name"]
 	return ""
 
-def select_all_reports():
+def select_all_reports(url_in = None):
 	reports_query_string = f"""
 	SELECT
 		rp.timestamp,
@@ -61,8 +61,12 @@ def select_all_reports():
 		report AS rp
 		INNER JOIN
 		vetted_user AS vu
-		ON vu.work_email = rp.reporting_user;
+		ON vu.work_email = rp.reporting_user
 	"""
+	if url_in is not None:
+		reports_query_string += f"""
+		WHERE rp.url = "{url_in}";
+		"""
 	df = read_query(reports_query_string)
 	return df
 
@@ -100,7 +104,11 @@ def add_entity(affiliation_in, website_in, signatory_status_in, country_in):
 		return "Existing entity"
 
 	add_entity_query_string = f"""
-	INSERT INTO entity (entity_name, website, signatory_of_code_of_practice_on_disinformation, country_name)
+	INSERT INTO entity (
+		entity_name, website,
+		signatory_of_code_of_practice_on_disinformation,
+		country_name
+	)
 	VALUES ("{affiliation_in}", "{website_in}", "{signatory_status_in}", "{country_in}");
 	"""
 	result = write_query(add_entity_query_string)
@@ -113,10 +121,49 @@ def add_user(email_in, first_name_in, last_name_in, affiliation_in):
 		return "Existing User"
 
 	add_user_query_string = f"""
-	INSERT INTO vetted_user(work_email, first_name, last_name, affiliation_name)
+	INSERT INTO vetted_user(
+		work_email,
+		first_name,
+		last_name,
+		affiliation_name
+	)
 	VALUES ("{email_in}", "{first_name_in}", "{last_name_in}", "{affiliation_in}");
 	"""
 	result = write_query(add_user_query_string)
+	return result
+
+def add_report(current_date_in, email_in, platform_in, url_in, type_in, screenshot_url_in = "None",
+	answer_date_in = "None", decision_in = "None", policy_in = "None", appeal_in = "None"):
+	df = select_all_reports(url_in)
+	if not df.empty:
+		return "A report with the specified url already exists. Submission denied."
+	
+	add_report_query_string = f"""
+	INSERT INTO report(
+		timestamp,
+		reporting_user,
+		platform_name,
+		url,
+		report_type,
+		screenshot_url,
+		answer_date,
+		platform_decision,
+		policy,
+		appeal
+	)
+	SELECT
+		"{current_date_in}",
+		"{email_in}",
+		"{platform_in}",
+		"{url_in}",
+		"{type_in}",
+		CASE WHEN "{screenshot_url_in}" = 'None' THEN NULL ELSE "{screenshot_url_in}" END,
+		CASE WHEN "{answer_date_in}" = 'None' THEN NULL ELSE "{answer_date_in}" END,
+		CASE WHEN "{decision_in}" = 'None' THEN NULL ELSE "{decision_in}" END,
+		CASE WHEN "{policy_in}" = 'None' THEN NULL ELSE "{policy_in}" END,
+		CASE WHEN "{appeal_in}" = 'None' THEN NULL ELSE "{appeal_in}" END;
+	"""
+	result = write_query(add_report_query_string)
 	return result
 
 #________________________________________DELETE Queries________________________________________#

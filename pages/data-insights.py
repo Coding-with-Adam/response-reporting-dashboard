@@ -21,7 +21,7 @@ grid = dag.AgGrid(
             rowData = df.to_dict("records"),
             columnDefs = [{"field": i} for i in df.columns],
             columnSize = "sizeToFit",
-            defaultColDef = {"filter": True},
+            defaultColDef = {"filter": True, "resizable": True},
             dashGridOptions = {"pagination": True, "paginationPageSize":7},
         )
 

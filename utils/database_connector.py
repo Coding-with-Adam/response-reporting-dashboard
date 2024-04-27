@@ -8,7 +8,7 @@ def get_connection(logon = "vost_user", pwd = "vost", db = "vost_db"):
 	except connector.Error as Err:
 		return None
 
-def handle_connections(query_function):
+def handle_query_connections(query_function):
 	def wrapper(query_statement):
 		connection = get_connection()
 		if connection:
@@ -22,7 +22,7 @@ def handle_connections(query_function):
 			return "No access"
 	return wrapper
 
-@handle_connections
+@handle_query_connections
 def write_query(cursor, query_statement):
 	try:
 		cursor.execute(query_statement)
@@ -30,7 +30,7 @@ def write_query(cursor, query_statement):
 	except connector.Error as err:
 		return str(err)
 
-@handle_connections
+@handle_query_connections
 def read_query(cursor, query_statement):
 	try:
 		cursor.execute(query_statement)

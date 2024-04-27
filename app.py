@@ -73,7 +73,7 @@ app.layout = dmc.MantineProvider([
     ],
     id = "id_app_layout",
     theme = {"colorScheme": "dark"},
-    withGlobalStyles = True
+    withGlobalStyles = True,
     )
 
 #___________________________________Callbacks___________________________________#
