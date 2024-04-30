@@ -322,25 +322,12 @@ def render_content(active):
     State('year-variable', 'value')
 )
 def update_user_chart(_, selected_month, selected_year):
+    dp_df = df.drop_duplicates(subset=['Reporting User'], keep='first')
     if not selected_month and not selected_year:
-        df_sub = df
+        df_sub = dp_df
     else:
-        df_sub = df[(df['Month'].isin(selected_month)) & (df['Year'].isin(selected_year))]
-    # Print selected month and year to check their values
-    # print("Selected Month:", selected_month)
-    # print("Selected Year:", selected_year)
-    
-    # Check the filtered DataFrame
-    # print("Filtered DataFrame:")
-    # print(df_sub.head())
-    
-    # Group by 'Year' and 'Month' and count unique users
-    my_ru = df_sub.drop_duplicates(subset=['Reporting User']).groupby(['Year', 'Month'])['Reporting User'].size().reset_index(name='Unique Users Count')
-    
-    # Print the resulting DataFrame to check the aggregation
-    # print("Aggregated DataFrame:")
-    # print(my_ru.head())
-
+        df_sub = dp_df[(dp_df['Month'].isin(selected_month)) & (dp_df['Year'].isin(selected_year))]
+    my_ru = df_sub.groupby(['Year', 'Month'])['Reporting User'].size().reset_index(name='Unique Users Count')
     fig1 = px.bar(
         my_ru, 
         x="Month", 
@@ -408,7 +395,7 @@ def update_tooltip_content(hoverData):
     fig_bar.update_layout(yaxis_title="Report Types", xaxis_title="Count")
     children = [dcc.Graph(id='tooltip-bar', figure=fig_bar, style={"height": 300, "width": 600})]
     return True, bbox, children
-
+    
 # @callback(
 #     Output('tooltip-bar', 'figure'),
 #     Input('pie-button', 'n_clicks'),
