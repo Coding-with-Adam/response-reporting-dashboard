@@ -38,11 +38,10 @@ layout = html.Div([
     html.Div(children="", id="output-state"),
     html.H2("Login", className="my-4 text-center"),
     html.Form([username_input, password_input, button_input], method='POST'),
-html.Br(),
+    html.Br(),
     dcc.Link("Don't have an account?", href="/register"),
     html.Br(),
-html.Br(),
-    dcc.Link("Forgot your Password?", href="/register")
+    html.Br(),
      ],
     className="mx-auto col-10 col-md-8 col-lg-6"
 )

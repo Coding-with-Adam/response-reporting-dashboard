@@ -1,11 +1,9 @@
 import dash
-from dash import html
+from dash import html, dcc
 import dash_bootstrap_components as dbc
 
 
 dash.register_page(__name__)
-
-
 
 username_input = html.Div(
     [
@@ -29,14 +27,16 @@ password_input = html.Div(
 
 button_input = html.Div(
 dbc.Button('Sign up', id='submit_button', type='submit'),
-    className= "mb-3 form-group"
+    className="mb-3 form-group"
 )
 
 
 
 layout = html.Div([
     html.H2("Create an Account", className="my-4 text-center"),
-    html.Form([username_input, password_input, button_input], method='POST')
+    html.Form([username_input, password_input, button_input], method='POST'),
+    html.Br(),
+    dcc.Link("Already have an account?", href="/login")
      ],
     className="mx-auto col-10 col-md-8 col-lg-6"
 )

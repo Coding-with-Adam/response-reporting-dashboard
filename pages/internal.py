@@ -82,8 +82,9 @@ cols = [
 
 layout = dbc.Container(
     children=[
-        html.H1("Transparency Reporting Platform - Internal"),
-        dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
+        html.Br(),
+        # html.H1("Transparency Reporting Platform - Internal"),
+        # dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
         dbc.Row([
             dbc.Col([
                 dag.AgGrid(

@@ -31,15 +31,22 @@ class User(db.Model, UserMixin):
 
 with server.app_context():
     db.create_all()
-@server.route('/register', methods=['POST', 'GET'])
+@server.route('/register', methods=['POST'])
 def register_route():
     global alert
     global count_message
     if request.form:
+        username = request.form['username']
+        password = request.form['password']
         data = request.form
+        print(data)
+        if username == '' or password == '':
+            return """username and/or password is empty <a href='/register'>Register here</a>"""
+        if User.query.first() is not None:
+            if User.query.filter_by(username=username).first() is not None:
+                return """username already taken <a href='/register'>Register here</a>"""
         with server.app_context():
-            # if User.query.all() == []:
-            user = User(username=data['username'], password=data['password'])
+            user = User(username=username, password=password)
             db.session.add(user)
             db.session.commit()
             alert=True
@@ -193,17 +200,17 @@ def update_authentication_status(path, n):
         ### if page is restricted, redirect to login and save path
         if path in restricted_page:
             session['url'] = path
-            return register_page, login_page, '/login'
+            return login_page, '', '/login'
 
     ### if path not login and logout display login link
     if current_user and path not in ['/register', '/login', '/logout']:
-        return register_page, login_page, dash.no_update
+        return login_page, '', dash.no_update
     elif path == '/register':
-        return register_page, login_page, dash.no_update
+        return login_page, '', dash.no_update
 
     ### if path login and logout hide links
     if path in ['/login', '/logout', '/register']:
-        return register_page, login_page, dash.no_update
+        return login_page, '', dash.no_update
 
 if __name__ == "__main__":
     app.run_server(debug=True)
