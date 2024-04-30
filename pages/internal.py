@@ -11,6 +11,7 @@ from utils.app_queries import select_all_platforms
 from utils.app_queries import select_reports_types
 from utils.app_queries import delete_report
 from utils.app_queries import add_report
+from utils.app_queries import update_report
 
 register_page(__name__)
 
@@ -18,6 +19,14 @@ platforms = select_all_platforms()
 reports_types = select_reports_types()
 decisions = ["Demoted", "Removed", "No Action"]
 appeal = ["Yes", "No"]
+
+#_________________________________________Utilities Functions_________________________________________#
+
+def match_url(content_url):
+    url_criteria = r"^[a-zA-Z0-9:/]+\.[a-z]{2,}$"
+    if content_url:
+        return re.match(url_criteria, content_url)
+    return None
 
 #_______________________________________Grid Columns definition_______________________________________#
 #Consider moving column definitions and its function calls into a new module, and only import the result
@@ -80,8 +89,7 @@ cols = [
 ]
 
 #_________________________________________Modals components_________________________________________#
-#----------------------------------------------------------------------------------------------------#
-#Delete-Report Modal components
+#-----------------------------------Delete-Report Modal components-----------------------------------#
 confirm_delete_button = dbc.Button(
     id = "id_confirm_delete_button",
     children = "Yes",
@@ -94,8 +102,7 @@ reject_delete_button = dbc.Button(
     color = "success",
     class_name = "me-auto"
     )
-#----------------------------------------------------------------------------------------------------#
-#Add-Report Modal components
+#-------------------------------------Add-Report Modal components-------------------------------------#
 add_report_modal_title = dbc.ModalTitle(
     html.P("Add a New Report", style = {"color":"black"})
     )
@@ -203,13 +210,12 @@ submit_report_button = dbc.Button(
     disabled = "True"
     )
 
-#----------------------------------------------------------------------------------------------------#
-#Update-Report Modal components
+#-------------------------------------Update-Report Modal components-------------------------------------#
 update_report_modal_title = dbc.ModalTitle(
     html.P("Update a Report", style = {"color":"black"})
     )
 
-#identical to add_report_inputs, violates the DRY pinciple but best solution to avoid Dash callbacks issues
+#identical to add_report_inputs, violates the DRY pinciple but avoids Dash callbacks conflicts
 update_report_inputs = dbc.Row([
     dbc.Col([
         dbc.Row([
@@ -228,7 +234,7 @@ update_report_inputs = dbc.Row([
             ),
         dbc.Row([
             dbc.Label("Content URL"),
-            dbc.Input(id= "id_update_url", disabled = True) #Prevent update
+            dbc.Input(id= "id_update_url", disabled = False) #Turn to True if desirable to prevent update
             ],
             class_name = "mb-3"
             ),
@@ -257,7 +263,7 @@ update_report_inputs = dbc.Row([
     dbc.Col([
         dbc.Row([
             dbc.Label("Platform Response Date (Year/Month/Day)"),
-            dbc.Input(id= "id_add_answer_date", placeholder = "YYYY/MM/DD hh:mm:ss")
+            dbc.Input(id= "id_update_answer_date", placeholder = "YYYY/MM/DD hh:mm:ss")
             ],
             class_name = "mb-3"
             ),
@@ -446,7 +452,7 @@ unprotected_container = dbc.Container([
     fluid = True
     )
 
-#_________________________________________The actual Layout_________________________________________#
+#__________________________________________The actual Layout__________________________________________#
 
 layout = dbc.Container([
     ],
@@ -456,6 +462,7 @@ layout = dbc.Container([
 
 #______________________________________________Callbacks______________________________________________#
 
+#------------------------------------------Securing the Page------------------------------------------#
 @callback(
     Output("id_internal_page_layout", "children"),
     Input("id_session_data", "data")
@@ -466,18 +473,22 @@ def layout_security(session_data):
         return protected_container
     return unprotected_container
 
+#---------------------------------------Returning User's reports---------------------------------------#
 @callback(
     Output("id_internal_reports_table", "rowData"),
     Input("id_session_data", "data"),
     Input("id_add_report_message", "children"),
-    Input("id_delete_report_message", "children")
+    Input("id_delete_report_message", "children"),
+    Input("id_update_report_message", "children")
     )
-def get_reports_for_this_user(user_data, new_report_msg, delete_report_msg):
+def get_reports_for_this_user(user_data, new_report_msg, delete_report_msg, update_report_message):
+    """The data is update both when the user logs in and when there are updates"""
     email = user_data.get("email", "")
     df = select_user_reports(email)
     grid_row_data = df.to_dict("records")
     return grid_row_data
 
+#------------------------------------------Deleting Data------------------------------------------#
 @callback(
     Output("id_delete_report_button_popover", "is_open"),
     Input("id_delete_report_button", "n_clicks"),
@@ -500,30 +511,18 @@ def open_delete_popover(delete_click, row_data, popover_status):
     Input("id_reject_delete_button", "n_clicks"),
     prevent_initial_call = True,
 )
-def open_modal_and_delete_report(delete_click, row_data, modal_status, confirm_click, reject_click):
+def open_delete_modal_and_delete_report(delete_click, row_data, modal_status, confirm_click, reject_click):
     if ctx.triggered_id == "id_delete_report_button" and row_data:
         return True, ""
     elif ctx.triggered_id == "id_confirm_delete_button":
         input_url = row_data[0]["url"]
         delete_report(input_url)
         return False, "Report Deleted"
-        #Implement a refresh page mechanism in another callback to reload grid data
     elif ctx.triggered_id == "id_reject_delete_button":
         return False, ""
     return modal_status, ""
 
-@callback(
-    Output("id_update_report_modal", "is_open"),
-    Input("id_update_report_button", "n_clicks"),
-    State("id_internal_reports_table", "selectedRows"),
-    State("id_update_report_modal", "is_open"),
-    prevent_initial_call = True,
-)
-def open_update_modal(add_click, selected_row_data, modal_status):
-    if ctx.triggered_id == "id_update_report_button":
-        return not modal_status
-    return modal_status
-
+#------------------------------------------Adding Data------------------------------------------#
 @callback(
     Output("id_add_report_modal", "is_open"),
     Input("id_add_report_button", "n_clicks"),
@@ -550,9 +549,8 @@ def verify_platform_name(platform_name):
     Input("id_add_url", "value"),
     prevent_initial_call = True,
     )
-def verify_content_url(content_url):
-    url_criteria = r"^[a-zA-Z0-9]+\.[a-z]{2,}$"
-    result = re.match(url_criteria, content_url)
+def verify_content_url(url_to_add):
+    result = match_url(url_to_add)
     if result:
         return False
     return True
@@ -612,4 +610,115 @@ def insert_new_report(submit_click, user_data, platform, url, report_type, scree
             answer_date, decision, policy, appeal)
         return output
 
+#------------------------------------------Updating Data------------------------------------------#
+@callback(
+    Output("id_update_report_modal", "is_open"),
+    Input("id_update_report_button", "n_clicks"),
+    State("id_internal_reports_table", "selectedRows"),
+    State("id_update_report_modal", "is_open"),
+    prevent_initial_call = True,
+)
+def open_update_modal(add_click, selected_row, modal_status):
+    if ctx.triggered_id == "id_update_report_button" and selected_row:
+        return True
+    return False
 
+@callback(
+    Output("id_update_platform", "value"),
+    Output("id_update_url", "value"),
+    Output("id_update_report_type", "value"),
+    Output("id_update_screenshot", "value"),
+    Output("id_update_answer_date", "value"),
+    Output("id_update_decision", "value"),
+    Output("id_update_policy", "value"),
+    Output("id_update_appeal", "value"),
+    Input("id_update_report_button", "n_clicks"),
+    State("id_internal_reports_table", "selectedRows"),
+    prevent_initial_call = True
+    )
+def fill_in_update_modal(update_modal_n_clik, selected_row):
+    """Callback triggered once there is a click on the update button (with or without selected row)"""
+    if ctx.triggered_id == "id_update_report_button" and selected_row:
+        data = selected_row[0]
+        return (data["platform"], data["url"], data["report_type"], data["screenshot_url"],
+        data["answer_date"], data["platform_decision"], data["policy"], data["appeal"])
+    return [None for _ in range(8)]
+    #Or use "raise PreventUpdate" from dash.exceptions
+
+@callback(
+    Output("id_update_platform", "invalid"),
+    State("id_update_platform", "value"),
+    Input("id_update_report_modal", "is_open"),
+    prevent_initial_call = True,
+    )
+def verify_platform_to_update(platform_to_update, update_modal_opened):
+    if update_modal_opened and platform_to_update:
+        return False
+    return True
+
+@callback(
+    Output("id_update_url", "invalid"),
+    State("id_update_url", "value"),
+    Input("id_update_report_modal", "is_open"),
+    prevent_initial_call = True,
+    )
+def verify_url_to_update(url_to_update, update_modal_opened):
+    result = match_url(url_to_update)
+    if update_modal_opened and result:
+        return False
+    return True
+
+@callback(
+    Output("id_update_report_type", "invalid"),
+    State("id_update_report_type", "value"),
+    Input("id_update_report_modal", "is_open"),
+    prevent_initial_call = True,
+    )
+def verify_type_to_update(report_type, update_modal_opened):
+    if update_modal_opened and report_type:
+        return False
+    return True
+
+@callback(
+    Output("id_update_appeal", "disabled"),
+    State("id_update_decision", "value"),
+    Input("id_update_report_modal", "is_open"),
+    prevent_initial_call = True
+    )
+def prevent_update_appeal_of_nonexisting_decision(platform_decision_update, update_modal_opened):
+    if update_modal_opened and platform_decision_update:
+        return False
+    return True
+
+@callback(
+    Output("id_confirm_update_button", "disabled"),
+    Input("id_update_platform", "invalid"),
+    Input("id_update_url", "invalid"),
+    Input("id_update_report_type", "invalid"),
+    prevent_initial_call = True,
+    )
+def prevent_bad_report_update(platform_update_invalid, url_update_invalid, type_update_invalid):
+    if True in [platform_update_invalid, url_update_invalid, type_update_invalid]:
+        return True
+    return False
+
+@callback(
+    Output("id_update_report_message", "children"),
+    Input("id_update_report_modal", "is_open"),
+    Input("id_confirm_update_button", "n_clicks"),
+    State("id_update_platform", "value"),
+    State("id_update_url", "value"),
+    State("id_update_report_type", "value"),
+    State("id_update_screenshot", "value"),
+    State("id_update_answer_date", "value"),
+    State("id_update_decision", "value"),
+    State("id_update_policy", "value"),
+    State("id_update_appeal", "value"),
+    prevent_initial_call = True
+    )
+def perform_data_update(update_modal_opened, confirm_update_click, platform, url, report_type,
+    screenshot, answer_date, decision, policy, appeal):
+    if ctx.triggered_id == "id_confirm_update_button":
+        result = update_report(platform, url, report_type, screenshot, answer_date, decision, policy, appeal)
+        return result
+    return "Update and click on the Confirm Update button" #Clear output message

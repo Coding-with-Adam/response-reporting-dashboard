@@ -61,10 +61,10 @@ def login_user(login_click, email):
 	Input("id_session_data", "data"),
 	prevent_initial_call = True
 	)
-def show_output(login_click, user_data):
+def show_login_message(login_click, user_data):
 	user_logged_in = user_data.get("is_authenticated", False)
 	if ctx.triggered_id == "id_login_button" and user_logged_in:
 		return "Login Success!"
 	elif ctx.triggered_id == "id_login_button" and not user_logged_in:
-		return "Login Failure, incorrect information."
+		return "Login Failure, incorrect credentials."
 	return "Enter your credentials."

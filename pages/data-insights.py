@@ -30,25 +30,34 @@ tabs_container = dbc.Container([
         dbc.Tab([
             grid
             ],
-            label = 'Report Table'),
+            label = "Report Table"),
         dbc.Tab([
-            dcc.Graph(id ='id_graph_all_reports', figure = fig_reports_by_platform),
+            dbc.Row([
+                dbc.Col(dcc.Graph(id ="id_graph_all_reports", figure = fig_reports_by_platform)),
+                ],
+                ),
+            dbc.Row([
+                dbc.Col(dcc.Graph(id = "id_graph_decisions", figure = fig_decisions)),
+                ],
+                ),
+            dbc.Row([
+                dbc.Col(dcc.Graph(id = "id_graph_reports_types", figure = fig_report_types)),
+                ])
             ],
-            label = 'Reports by Platform'
+            label = "Theme 1"
             ),
         dbc.Tab([
-            dcc.Graph(id = 'id_graph_reports_types', figure = fig_report_types),
             ],
-            label = 'Reports Types by Platform'
+            label = "Theme 2"
             ),
         dbc.Tab([
-            dcc.Graph(id = 'id_graph_decisions', figure = fig_decisions)
             ],
-            label = 'Decisions by Platform'
+            label = "Theme 3"
             )
         ],
-        id = 'all_tabs')
-    ])
+        id = "id_tabs_container")
+    ]
+    )
 
 #_____________________________________________The Layout_____________________________________________#
 
@@ -56,5 +65,8 @@ layout = dbc.Container([
         dbc.Row([html.H1("Data Insights", style = {"text-align":"center"})]),
         dbc.Row(tabs_container)
     ],
+    id = "id_insights_layout",
     fluid = True
 )
+
+#______________________________________________Callbacks______________________________________________#

@@ -43,7 +43,7 @@ def verify_user(email_in):
 		return df.iloc[0]["full_name"]
 	return ""
 
-def select_all_reports(url_in = None):
+def select_all_reports():
 	reports_query_string = f"""
 	SELECT
 		rp.timestamp,
@@ -62,15 +62,12 @@ def select_all_reports(url_in = None):
 		INNER JOIN
 		vetted_user AS vu
 		ON vu.work_email = rp.reporting_user
+	ORDER BY rp.timestamp DESC;
 	"""
-	if url_in is not None:
-		reports_query_string += f"""
-		WHERE rp.url = "{url_in}";
-		"""
 	df = read_query(reports_query_string)
 	return df
 
-def select_user_reports(email_in):
+def select_user_reports(email_in, url_in = None):
 	reports_query_string = f"""
 	SELECT
 		timestamp,
@@ -84,6 +81,13 @@ def select_user_reports(email_in):
 		appeal
 	FROM report
 	WHERE reporting_user = "{email_in}"
+	"""
+	if url_in is not None:
+		reports_query_string += f"""
+		WHERE url = "{url_in}"
+		"""
+	#Add a nonmandatory sorting:
+	reports_query_string += f"""
 	ORDER BY timestamp DESC;
 	"""
 	df = read_query(reports_query_string)
@@ -166,11 +170,31 @@ def add_report(current_date_in, email_in, platform_in, url_in, type_in, screensh
 	result = write_query(add_report_query_string)
 	return result
 
+#________________________________________UPDATE Queries________________________________________#
+
+def update_report(platform_in, url_in, type_in, screenshot_in,
+	answer_date_in, decision_in, policy_in, appeal_in):
+	update_report_query_string = f"""
+	UPDATE report
+	SET
+		platform_name = CASE WHEN "{platform_in}" = '' THEN NULL ELSE "{platform_in}" END,
+		url = CASE WHEN "{url_in}" = '' THEN url ELSE "{url_in}" END,
+		report_type = CASE WHEN "{type_in}" = '' THEN NULL ELSE "{type_in}" END,
+		screenshot_url = CASE WHEN "{screenshot_in}" = '' THEN NULL ELSE "{screenshot_in}" END,
+		answer_date = CASE WHEN "{answer_date_in}" = '' THEN NULL ELSE "{answer_date_in}" END,
+		platform_decision = CASE WHEN "{decision_in}" = '' THEN NULL ELSE "{decision_in}" END,
+		policy = CASE WHEN "{policy_in}" = '' THEN NULL ELSE "{policy_in}" END,
+		appeal = CASE WHEN "{appeal_in}" = '' THEN NULL ELSE "{appeal_in}" END
+	WHERE url = "{url_in}";
+	"""
+	result = write_query(update_report_query_string)
+	return result
+
 #________________________________________DELETE Queries________________________________________#
-def delete_report(report_url):
+def delete_report(url_in):
 	delete_report_query = f"""
 	DELETE FROM report
-	WHERE url = "{report_url}"
+	WHERE url = "{url_in}"
 	"""
 	result = write_query(delete_report_query)
 	return result
