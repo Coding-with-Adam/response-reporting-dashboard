@@ -98,6 +98,7 @@ app = Dash(
     use_pages=True,
     pages_folder="pages",
     prevent_initial_callbacks=True,
+suppress_callback_exceptions=True
 )
 
 ########### Navbar design section####################

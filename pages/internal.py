@@ -1,5 +1,5 @@
 import dash
-from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update
+from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update, clientside_callback
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 from datetime import datetime
@@ -12,6 +12,7 @@ dash.register_page(__name__)
 df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
 df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
 df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
+rowData = df.to_dict("records")
 
 
 cols = [
@@ -89,25 +90,31 @@ layout = dbc.Container(
             dbc.Col([
                 dag.AgGrid(
                     id="reports-table",
-                    rowData=df.to_dict("records"),
+                    rowData=rowData,
+                    getRowId="params.data.id",
                     columnDefs=cols,
                     columnSize="sizeToFit",
                     defaultColDef={"editable": True, "filter": True},
-                    dashGridOptions={"pagination": True,
-                                     "paginationPageSize": 7,
+                    dashGridOptions={
+                                    # "pagination": True,
+                                    #  "paginationPageSize": 7,
                                      "undoRedoCellEditing": True,
-                                     "rowSelection": "multiple"}
+                                     "rowSelection": "multiple",
+                                     "animateRows": False}
                 )
             ], width=12)
         ]),
-        dmc.Button(
+        dbc.Button(
             id="delete-row-btn",
             children="Delete row",
         ),
-        dmc.Button(
+        dbc.Button(
             id="add-row-btn",
             children="Add row",
         ),
+        html.Br(),
+        dbc.Input(id='dd-scroll-to-data'),
+
     ], 	fluid = True
 )
 
@@ -143,3 +150,19 @@ def update_table(n_dlt, n_add, data):
 
     elif ctx.triggered_id == "delete-row-btn":
         return True, no_update
+
+@callback(
+    Output("reports-table", "scrollTo"),
+    Input("dd-scroll-to-data", "value"),
+    prevent_initial_call=True,
+)
+def scroll_to_data(value):
+    if value is None:
+        return no_update
+    for row in rowData:
+        if row["URL"] == str(value):
+            break
+    return {"data": row}
+
+
+
