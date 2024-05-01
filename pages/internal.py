@@ -23,13 +23,19 @@ appeal = ["Yes", "No"]
 #_________________________________________Utilities Functions_________________________________________#
 
 def match_url(content_url):
-    url_criteria = r"^[a-zA-Z0-9:/]+\.[a-z]{2,}$"
+    url_criteria = r"^[a-zA-Z0-9:/.]+\.[a-z]{2,3}$"
     if content_url:
         return re.match(url_criteria, content_url)
     return None
 
+def preprocess_if_none(value):
+    """NULL values from database are converted into None by Python, which complicates update queries"""
+    if value == None:
+        return ''
+    return value
+
 #_______________________________________Grid Columns definition_______________________________________#
-#Consider moving column definitions and its function calls into a new module, and only import the result
+#Consider moving column definitions and its function calls into a new utils module, and only import the result
 
 cols = [
     {
@@ -200,7 +206,7 @@ add_report_output_message = dbc.Row([
     "Complete the form and click on the submit button "
     ],
     id = "id_add_report_message",
-    class_name = "ms-2")
+    class_name = "ms-3")
 
 submit_report_button = dbc.Button(
     id = "id_submit_report_button",
@@ -234,7 +240,8 @@ update_report_inputs = dbc.Row([
             ),
         dbc.Row([
             dbc.Label("Content URL"),
-            dbc.Input(id= "id_update_url", disabled = False) #Turn to True if desirable to prevent update
+            dbc.Input(id= "id_update_url", type = "text", disabled = False)
+            #Turn disabled to True if desirable to prevent update of url
             ],
             class_name = "mb-3"
             ),
@@ -254,7 +261,7 @@ update_report_inputs = dbc.Row([
             ),
         dbc.Row([
             dbc.Label("Screenshot URL"),
-            dbc.Input(id= "id_update_screenshot", placeholder = "Enter Screenshot URL")
+            dbc.Input(id= "id_update_screenshot", type = "text", placeholder = "Enter Screenshot URL")
             ],
             class_name = "mb-3"
             )
@@ -263,7 +270,7 @@ update_report_inputs = dbc.Row([
     dbc.Col([
         dbc.Row([
             dbc.Label("Platform Response Date (Year/Month/Day)"),
-            dbc.Input(id= "id_update_answer_date", placeholder = "YYYY/MM/DD hh:mm:ss")
+            dbc.Input(id= "id_update_answer_date", type = "text", placeholder = "YYYY/MM/DD hh:mm:ss")
             ],
             class_name = "mb-3"
             ),
@@ -282,7 +289,7 @@ update_report_inputs = dbc.Row([
             ),
         dbc.Row([
             dbc.Label("Policy"),
-            dbc.Input(id= "id_update_policy", placeholder = "Enter Policy")
+            dbc.Input(id= "id_update_policy", type = "text", placeholder = "Enter Policy")
             ],
             class_name = "mb-3"
             ),
@@ -309,7 +316,7 @@ update_report_message = dbc.Row([
     "Update and click on the Confirm Update button"
     ],
     id = "id_update_report_message",
-    class_name = "ms-2")
+    class_name = "ms-3")
 
 confirm_update_button = dbc.Button(
     id = "id_confirm_update_button",
@@ -443,7 +450,7 @@ unprotected_container = dbc.Container([
     html.Hr(),
     dbc.Row([
         dbc.Col([
-            html.H1("Permission denied. Contact an admnistrator.")
+            html.H1("Permission denied. No rights to access the requested page.")
             ],
             style = {"text-align":"center"})
         ]),
@@ -639,54 +646,59 @@ def open_update_modal(add_click, selected_row, modal_status):
 def fill_in_update_modal(update_modal_n_clik, selected_row):
     """Callback triggered once there is a click on the update button (with or without selected row)"""
     if ctx.triggered_id == "id_update_report_button" and selected_row:
+
         data = selected_row[0]
-        return (data["platform"], data["url"], data["report_type"], data["screenshot_url"],
-        data["answer_date"], data["platform_decision"], data["policy"], data["appeal"])
+        platform = data["platform"]
+        url = data["url"]
+        report_type = preprocess_if_none(data["report_type"])
+        screenshot = preprocess_if_none(data["screenshot_url"])
+        answer_date = preprocess_if_none(data["answer_date"])
+        decision = preprocess_if_none(data["platform_decision"])
+        policy = preprocess_if_none(data["policy"])
+        appeal = preprocess_if_none(data["appeal"])
+
+        return (platform, url, report_type, screenshot, answer_date, decision, policy, appeal)
     return [None for _ in range(8)]
     #Or use "raise PreventUpdate" from dash.exceptions
 
 @callback(
     Output("id_update_platform", "invalid"),
-    State("id_update_platform", "value"),
-    Input("id_update_report_modal", "is_open"),
+    Input("id_update_platform", "value"),
     prevent_initial_call = True,
     )
-def verify_platform_to_update(platform_to_update, update_modal_opened):
-    if update_modal_opened and platform_to_update:
+def verify_platform_to_update(platform_to_update):
+    if platform_to_update:
         return False
     return True
 
 @callback(
     Output("id_update_url", "invalid"),
-    State("id_update_url", "value"),
-    Input("id_update_report_modal", "is_open"),
+    Input("id_update_url", "value"),
     prevent_initial_call = True,
     )
-def verify_url_to_update(url_to_update, update_modal_opened):
+def verify_url_to_update(url_to_update):
     result = match_url(url_to_update)
-    if update_modal_opened and result:
+    if result:
         return False
     return True
 
 @callback(
     Output("id_update_report_type", "invalid"),
-    State("id_update_report_type", "value"),
-    Input("id_update_report_modal", "is_open"),
+    Input("id_update_report_type", "value"),
     prevent_initial_call = True,
     )
-def verify_type_to_update(report_type, update_modal_opened):
-    if update_modal_opened and report_type:
+def verify_type_to_update(report_type):
+    if report_type:
         return False
     return True
 
 @callback(
     Output("id_update_appeal", "disabled"),
-    State("id_update_decision", "value"),
-    Input("id_update_report_modal", "is_open"),
+    Input("id_update_decision", "value"),
     prevent_initial_call = True
     )
-def prevent_update_appeal_of_nonexisting_decision(platform_decision_update, update_modal_opened):
-    if update_modal_opened and platform_decision_update:
+def prevent_update_appeal_of_nonexisting_decision(platform_decision_update):
+    if platform_decision_update:
         return False
     return True
 
@@ -718,6 +730,7 @@ def prevent_bad_report_update(platform_update_invalid, url_update_invalid, type_
     )
 def perform_data_update(update_modal_opened, confirm_update_click, platform, url, report_type,
     screenshot, answer_date, decision, policy, appeal):
+
     if ctx.triggered_id == "id_confirm_update_button":
         result = update_report(platform, url, report_type, screenshot, answer_date, decision, policy, appeal)
         return result

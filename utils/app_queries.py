@@ -36,14 +36,14 @@ def verify_user(email_in):
 	SELECT
 		CONCAT(first_name, ' ', last_name) AS full_name
 	FROM vetted_user
-	WHERE work_email = "{email_in}";
+	WHERE work_email = '{email_in}';
 	"""
 	df = read_query(user_query_string)
 	if not df.empty:
 		return df.iloc[0]["full_name"]
 	return ""
 
-def select_all_reports():
+def select_all_reports(url_in = None):
 	reports_query_string = f"""
 	SELECT
 		rp.timestamp,
@@ -62,6 +62,12 @@ def select_all_reports():
 		INNER JOIN
 		vetted_user AS vu
 		ON vu.work_email = rp.reporting_user
+	"""
+	if url_in is not None:
+		reports_query_string += f"""
+		WHERE url = '{url_in}'
+		"""
+	reports_query_string += f"""
 	ORDER BY rp.timestamp DESC;
 	"""
 	df = read_query(reports_query_string)
@@ -80,11 +86,11 @@ def select_user_reports(email_in, url_in = None):
 		policy,
 		appeal
 	FROM report
-	WHERE reporting_user = "{email_in}"
+	WHERE reporting_user = '{email_in}'
 	"""
 	if url_in is not None:
 		reports_query_string += f"""
-		WHERE url = "{url_in}"
+		WHERE url = '{url_in}'
 		"""
 	#Add a nonmandatory sorting:
 	reports_query_string += f"""
@@ -113,7 +119,7 @@ def add_entity(affiliation_in, website_in, signatory_status_in, country_in):
 		signatory_of_code_of_practice_on_disinformation,
 		country_name
 	)
-	VALUES ("{affiliation_in}", "{website_in}", "{signatory_status_in}", "{country_in}");
+	VALUES ('{affiliation_in}', '{website_in}', '{signatory_status_in}', '{country_in}');
 	"""
 	result = write_query(add_entity_query_string)
 	return result
@@ -131,7 +137,7 @@ def add_user(email_in, first_name_in, last_name_in, affiliation_in):
 		last_name,
 		affiliation_name
 	)
-	VALUES ("{email_in}", "{first_name_in}", "{last_name_in}", "{affiliation_in}");
+	VALUES ('{email_in}', '{first_name_in}', '{last_name_in}', '{affiliation_in}');
 	"""
 	result = write_query(add_user_query_string)
 	return result
@@ -156,16 +162,16 @@ def add_report(current_date_in, email_in, platform_in, url_in, type_in, screensh
 		appeal
 	)
 	SELECT
-		"{current_date_in}",
-		"{email_in}",
-		"{platform_in}",
-		"{url_in}",
-		"{type_in}",
-		CASE WHEN "{screenshot_url_in}" = 'None' THEN NULL ELSE "{screenshot_url_in}" END,
-		CASE WHEN "{answer_date_in}" = 'None' THEN NULL ELSE "{answer_date_in}" END,
-		CASE WHEN "{decision_in}" = 'None' THEN NULL ELSE "{decision_in}" END,
-		CASE WHEN "{policy_in}" = 'None' THEN NULL ELSE "{policy_in}" END,
-		CASE WHEN "{appeal_in}" = 'None' THEN NULL ELSE "{appeal_in}" END;
+		'{current_date_in}',
+		'{email_in}',
+		'{platform_in}',
+		'{url_in}',
+		'{type_in}',
+		CASE WHEN '{screenshot_url_in}' = 'None' THEN NULL ELSE '{screenshot_url_in}' END,
+		CASE WHEN '{answer_date_in}' = 'None' THEN NULL ELSE '{answer_date_in}' END,
+		CASE WHEN '{decision_in}' = 'None' THEN NULL ELSE '{decision_in}' END,
+		CASE WHEN '{policy_in}' = 'None' THEN NULL ELSE '{policy_in}' END,
+		CASE WHEN '{appeal_in}' = 'None' THEN NULL ELSE '{appeal_in}' END;
 	"""
 	result = write_query(add_report_query_string)
 	return result
@@ -177,15 +183,15 @@ def update_report(platform_in, url_in, type_in, screenshot_in,
 	update_report_query_string = f"""
 	UPDATE report
 	SET
-		platform_name = CASE WHEN "{platform_in}" = '' THEN NULL ELSE "{platform_in}" END,
-		url = CASE WHEN "{url_in}" = '' THEN url ELSE "{url_in}" END,
-		report_type = CASE WHEN "{type_in}" = '' THEN NULL ELSE "{type_in}" END,
-		screenshot_url = CASE WHEN "{screenshot_in}" = '' THEN NULL ELSE "{screenshot_in}" END,
-		answer_date = CASE WHEN "{answer_date_in}" = '' THEN NULL ELSE "{answer_date_in}" END,
-		platform_decision = CASE WHEN "{decision_in}" = '' THEN NULL ELSE "{decision_in}" END,
-		policy = CASE WHEN "{policy_in}" = '' THEN NULL ELSE "{policy_in}" END,
-		appeal = CASE WHEN "{appeal_in}" = '' THEN NULL ELSE "{appeal_in}" END
-	WHERE url = "{url_in}";
+		platform_name = '{platform_in}',
+		url = CASE WHEN '{url_in}' = '' THEN url ELSE '{url_in}' END,
+		report_type = NULLIF('{type_in}', ''),
+		screenshot_url = NULLIF('{screenshot_in}', ''),
+		answer_date = NULLIF('{answer_date_in}', ''),
+		platform_decision = NULLIF('{decision_in}', ''),
+		policy = NULLIF('{policy_in}', ''),
+		appeal = NULLIF('{appeal_in}', '')
+	WHERE url = '{url_in}';
 	"""
 	result = write_query(update_report_query_string)
 	return result
@@ -194,7 +200,7 @@ def update_report(platform_in, url_in, type_in, screenshot_in,
 def delete_report(url_in):
 	delete_report_query = f"""
 	DELETE FROM report
-	WHERE url = "{url_in}"
+	WHERE url = '{url_in}'
 	"""
 	result = write_query(delete_report_query)
 	return result
