@@ -297,7 +297,7 @@ layout = dbc.Container(
             class_name="mt-3 d-flex justify-content-center",
         ),
     ],
-    className=" vh-100",
+    # className=" vh-100",
 )
 
 
