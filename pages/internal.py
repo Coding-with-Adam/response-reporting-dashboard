@@ -6,13 +6,17 @@ from datetime import datetime
 from datetime import date
 import dash_ag_grid as dag
 import pandas as pd
+from utils.login_handler import require_login
 
 dash.register_page(__name__)
+require_login(__name__)
+
 
 df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-reporting-dashboard/main/dummy_data_100_wNan.csv")
 df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
 df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
 rowData = df.to_dict("records")
+print(df.columns)
 
 
 cols = [
@@ -88,6 +92,7 @@ layout = dbc.Container(
         # dmc.Center(html.H4('This page content to be visible after vetted user has logged in.')),
         dbc.Row([
             dbc.Col([
+                html.H5(id='username', className='fw-bold text-black mt-2'),
                 dag.AgGrid(
                     id="reports-table",
                     rowData=rowData,
@@ -113,7 +118,7 @@ layout = dbc.Container(
             children="Add row",
         ),
         html.Br(),
-        dbc.Input(id='dd-scroll-to-data'),
+        dcc.Input(id='dd-scroll-to-data', type='text'),
 
     ], 	fluid = True
 )
@@ -160,7 +165,7 @@ def scroll_to_data(value):
     if value is None:
         return no_update
     for row in rowData:
-        if row["URL"] == str(value):
+        if row["Platform"] == value:
             break
     return {"data": row}
 

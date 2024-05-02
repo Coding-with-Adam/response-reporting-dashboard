@@ -13,6 +13,8 @@ from dash_bootstrap_templates import load_figure_template
 from datetime import datetime, timedelta
 
 
+global_username = ''
+## Routing For Login and Registartion and Logout
 
 
 server = Flask(__name__)
@@ -31,6 +33,9 @@ class User(db.Model, UserMixin):
 
 with server.app_context():
     db.create_all()
+
+alert = False
+count_message = 0
 @server.route('/register', methods=['POST'])
 def register_route():
     global alert
@@ -100,6 +105,8 @@ app = Dash(
     prevent_initial_callbacks=True,
 suppress_callback_exceptions=True
 )
+
+server = app.server
 
 ########### Navbar design section####################
 # dropdown w/ quick links to navigate to the other pages
@@ -183,8 +190,6 @@ app.layout = dbc.Container(
     prevent_initial_call=True
 )
 def update_authentication_status(path, n):
-    global popovers
-    ### logout redirect
     if n:
         if not n[0]:
             return '', '', dash.no_update,
@@ -212,6 +217,28 @@ def update_authentication_status(path, n):
     ### if path login and logout hide links
     if path in ['/login', '/logout', '/register']:
         return login_page, '', dash.no_update
+
+
+@app.callback(
+    Output("username", "children"),
+    Input('url', 'pathname'))
+def current_username(url):
+    if url == '/internal' and current_user.is_authenticated:
+        current_username = "Welcome, " + current_user.username + '!'
+        return current_username
+
+@app.callback(
+    Output("the_alert", "children"),
+    Input("url", "pathname"))
+def toggle_modal(path):
+    alert_message = dbc.Alert("User registered successfully", color="#2e8cbc",
+                              dismissable=True, className="text-center fw-bold")
+    global count_message
+    if path == '/login' and alert == True and count_message == 0:
+        count_message = 1
+        return alert_message
+    return dash.no_update
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
