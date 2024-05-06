@@ -414,7 +414,7 @@ def update_avg_chart(_, selected_month, selected_year):
         x="Platform", 
         y="Avg Response Time (days)", 
         text="Avg Response Time (days)", 
-        hover_data={"Platform": False, "Avg Response Time (days)": False},
+        hover_data={"Platform": False, "Avg Response Time (days)": True},
         color="Platform",
         color_discrete_map={
             'YouTube': px.colors.qualitative.Set1[0], 'Facebook': px.colors.qualitative.Set1[1], 
@@ -424,7 +424,7 @@ def update_avg_chart(_, selected_month, selected_year):
         },
         title="Avg Response Time (days)"
         )
-    fig3.update_traces(textposition="inside", texttemplate='%{y:.2f}')
+    fig3.update_traces(textposition="inside", texttemplate='%{y:.2f}', hovertemplate='%{y:.2f}')
     fig3.update_xaxes(title_text="")
     fig3.update_yaxes(title_text="")
     fig3.update_layout(showlegend=False)
@@ -447,7 +447,7 @@ def update_platform_decision_chart(_, selected_month, selected_year):
         y="Count", 
         facet_col="Platform", 
         text="Count", 
-        hover_data={"Platform Decision": False, "Count": False, "Platform": False},
+        hover_data={"Platform Decision": False, "Count": True, "Platform": False},
         color="Platform",
         color_discrete_map={
             'YouTube': px.colors.qualitative.Set1[0], 'Facebook': px.colors.qualitative.Set1[1], 
