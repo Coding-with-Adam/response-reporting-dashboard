@@ -341,7 +341,8 @@ def update_platform_chart(_, selected_month, selected_year):
         df_sub, 
         names="Platform", 
         hole=0.8, 
-        hover_data={"Platform": False},
+        hover_data=["Platform"],
+        color="Platform",
         color_discrete_map={
             'YouTube': px.colors.qualitative.Set1[0], 'Facebook': px.colors.qualitative.Set1[1], 
             'WhatsApp': px.colors.qualitative.Set1[2], 'Instagram': px.colors.qualitative.Set1[3],
@@ -361,7 +362,7 @@ def update_platform_chart(_, selected_month, selected_year):
             xref="paper", yref="paper",
             x=0.50, y=0.50,
             sizex=0.50, sizey=0.50,
-            xanchor="center", yanchor="middle", sizing="contain",
+            xanchor="center", yanchor="middle", sizing="contain"
         )
     )
     return fig2
