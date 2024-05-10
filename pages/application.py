@@ -4,6 +4,7 @@ import pandas as pd
 import re
 from datetime import datetime
 from utils.app_queries import register_user
+from utils.password_encryption import hash_password
 
 register_page(__name__)
 
@@ -12,7 +13,7 @@ country_names = countries["country_name"]
 
 #_________________________________________Form Input Components_________________________________________#
 
-name_input = dbc.Row([
+user_name_input = dbc.Row([
 	dbc.Label("First Name: ", width = 1),
 	dbc.Col([
 		dbc.Input(id= "id_first_name_in", placeholder = "Enter your first name", invalid = True),
@@ -29,7 +30,7 @@ name_input = dbc.Row([
 	class_name = "mb-3"
 	)
 
-affiliation_input = dbc.Row([
+entity_input = dbc.Row([
 	dbc.Label("Affiliation:", width = 1),
 	dbc.Col([
 		dbc.Input(id= "id_affiliatiion_in", placeholder = "The name of the entity you are representing"),
@@ -51,24 +52,13 @@ affiliation_input = dbc.Row([
 	class_name = "mb-3"
 	)
 
-contacts_input = dbc.Row([
+entity_references_input = dbc.Row([
 	dbc.Label("Website:", width = 1),
 	dbc.Col([
 		dbc.Input(id= "id_website_in", placeholder = "Enter the website of the entity"),
 		],
 		width = 5,
 		),
-	dbc.Label("Work Email:", width = 1),
-	dbc.Col([
-		dbc.Input(id= "id_email_in", type = "email", placeholder = "Enter your work email", invalid = True),
-		],
-		width = 5,
-		),
-	],
-	class_name = "mb-3"
-	)
-
-country_input = dbc.Row([
 	dbc.Label("Country:", width = 1),
 	dbc.Col([
 		dbc.Select([
@@ -86,14 +76,37 @@ country_input = dbc.Row([
 	class_name = "mb-3"
 	)
 
+user_credentials_input = dbc.Row([
+	dbc.Label("Work Email:", width = 1),
+	dbc.Col([
+		dbc.Input(id= "id_email_in", type = "email", placeholder = "Enter your work email", invalid = True),
+		],
+		width = 5,
+		),
+	dbc.Label("Password:", width = 1),
+	dbc.Col([
+		dbc.Input(id= "id_password_in", type = "password", placeholder = "Enter a password", invalid = True),
+		],
+		width = 2,
+		),
+	dbc.Label("Confirm:", width = 1),
+	dbc.Col([
+		dbc.Input(id= "id_password_confirm_in", type = "password", placeholder = "Confirm password", invalid = True),
+		],
+		width = 2,
+		),
+	],
+	class_name = "mb-3"
+	)
+
 #_________________________________________Form body_________________________________________#
 
 form = dbc.Card([
 	dbc.CardBody([
-		name_input,
-		affiliation_input,
-		contacts_input,
-		country_input,
+		user_name_input,
+		entity_input,
+		entity_references_input,
+		user_credentials_input,
 		])
 	])
 
@@ -141,7 +154,7 @@ def verify_first_name(first_name):
 	Input("id_last_name_in", "value"),
 	prevent_initial_call = True
 	)
-def verify_last_name(last_name):
+def validate_last_name(last_name):
 	name_criteria = r"[a-zA-Z]{2,}"
 	last_name_match = re.match(name_criteria, last_name)
 	if last_name_match:
@@ -153,7 +166,7 @@ def verify_last_name(last_name):
 	Input("id_email_in", "value"),
 	prevent_initial_call = True
 	)
-def verify_email(user_email):
+def validate_email(user_email):
 	email_criteria = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 	result = re.match(email_criteria, user_email)
 	if result:
@@ -165,10 +178,33 @@ def verify_email(user_email):
 	Input("id_country_in", "value"),
 	prevent_initial_call = True
 	)
-def verify_country(entity_country):
+def validate_country(entity_country):
 	if entity_country == "":
 		return True
 	return False
+
+@callback(
+	Output("id_password_in", "invalid"),
+	Input("id_password_in", "value"),
+	prevent_initial_call = True,
+	)
+def validate_password(user_password):
+	password_criteria = r"[a-zA-Z0-9]{5,16}"
+	result = re.match(password_criteria, user_password)
+	if result:
+		return False
+	return True
+
+@callback(
+	Output("id_password_confirm_in", "invalid"),
+	Input("id_password_confirm_in", "value"),
+	Input("id_password_in", "value"),
+	prevent_initial_call = True
+	)
+def validate_password_confirmation(first_input, second_input):
+	if first_input == second_input:
+		return False
+	return True
 
 @callback(
 	Output("id_registration_message", "children"),
@@ -177,6 +213,8 @@ def verify_country(entity_country):
 	State("id_first_name_in", "invalid"),
 	State("id_last_name_in", "invalid"),
 	State("id_email_in", "invalid"),
+	State("id_password_in", "invalid"),
+	State("id_password_confirm_in", "invalid"),
 	State("id_country_in", "invalid"),
 	State("id_first_name_in", "value"),
 	State("id_last_name_in", "value"),
@@ -184,16 +222,20 @@ def verify_country(entity_country):
 	State("id_signatory_status", "value"),
 	State("id_website_in", "value"),
 	State("id_email_in", "value"),
+	State("id_password_in", "value"),
+	State("id_password_confirm_in", "value"),
 	State("id_country_in", "value"),
 	prevent_initial_call = True
 	)
-def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid, country_invalid,
-	f_name_in, l_name_in, affiliation_in, status_in, website_in, email_in, country_in):
+def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_invalid, pwd_invalid,
+	pwd_confirm_invalid, country_invalid, f_name_in, l_name_in, affiliation_in, status_in, website_in,
+	email_in, pwd_in, pwd_confirm_in, country_in):
 
-	invalid_inputs = [f_name_invalid, l_name_invalid, email_invalid, country_invalid]
+	invalid_inputs = [f_name_invalid, l_name_invalid, email_invalid, pwd_invalid, pwd_confirm_invalid, country_invalid]
 
 	if (ctx.triggered_id == "id_submit_button") and not (True in invalid_inputs):
-		query_output_message = register_user(email_in, f_name_in, l_name_in, affiliation_in,
+		hashed_pwd = hash_password(pwd_in)
+		query_output_message = register_user(email_in, hashed_pwd, f_name_in, l_name_in, affiliation_in,
 			website_in, status_in, country_in)
 		if query_output_message == "Success":
 			return "Submission successful", {"registered_user":True}

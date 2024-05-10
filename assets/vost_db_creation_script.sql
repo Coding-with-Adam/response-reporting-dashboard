@@ -61,6 +61,7 @@ DROP TABLE IF EXISTS `vost_db`.`vetted_user` ;
 
 CREATE TABLE IF NOT EXISTS `vost_db`.`vetted_user` (
   `work_email` VARCHAR(50) NOT NULL,
+  `hashed_password` CHAR(60) NOT NULL,
   `first_name` VARCHAR(50) NOT NULL,
   `last_name` VARCHAR(50) NOT NULL,
   `affiliation_name` VARCHAR(100) NOT NULL,

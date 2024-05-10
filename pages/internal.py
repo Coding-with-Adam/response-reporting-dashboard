@@ -489,9 +489,9 @@ def layout_security(session_data):
     Input("id_update_report_message", "children")
     )
 def get_reports_for_this_user(user_data, new_report_msg, delete_report_msg, update_report_message):
-    """The data is update both when the user logs in and when there are updates"""
-    email = user_data.get("email", "")
-    df = select_user_reports(email)
+    """The data is refreshed both when the user logs in and when there are updates"""
+    user_email = user_data.get("email", "")
+    df = select_user_reports(user_email)
     grid_row_data = df.to_dict("records")
     return grid_row_data
 

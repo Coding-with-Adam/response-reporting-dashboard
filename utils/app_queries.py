@@ -32,16 +32,21 @@ def select_all_users():
 	return df
 
 def verify_user(email_in):
+	user_data = {"full_name":"", "hashed_password":""}
+
 	user_query_string = f"""
 	SELECT
-		CONCAT(first_name, ' ', last_name) AS full_name
+		CONCAT(first_name, ' ', last_name) AS full_name,
+		hashed_password
 	FROM vetted_user
 	WHERE work_email = '{email_in}';
 	"""
 	df = read_query(user_query_string)
 	if not df.empty:
-		return df.iloc[0]["full_name"]
-	return ""
+		user_data["full_name"] = df.iloc[0]["full_name"]
+		user_data["hashed_password"] = df.iloc[0]["hashed_password"]
+		return user_data
+	return user_data
 
 def select_all_reports(url_in = None):
 	reports_query_string = f"""
@@ -125,7 +130,7 @@ def add_entity(affiliation_in, website_in, signatory_status_in, country_in):
 	return result
 
 
-def add_user(email_in, first_name_in, last_name_in, affiliation_in):
+def add_user(email_in, hashed_password_in, first_name_in, last_name_in, affiliation_in):
 	df = select_all_users()
 	if email_in in df["work_email"].values:
 		return "Existing User"
@@ -133,12 +138,14 @@ def add_user(email_in, first_name_in, last_name_in, affiliation_in):
 	add_user_query_string = f"""
 	INSERT INTO vetted_user(
 		work_email,
+		hashed_password,
 		first_name,
 		last_name,
 		affiliation_name
 	)
-	VALUES ('{email_in}', '{first_name_in}', '{last_name_in}', '{affiliation_in}');
+	VALUES ('{email_in}', "{hashed_password_in}", '{first_name_in}', '{last_name_in}', '{affiliation_in}');
 	"""
+
 	result = write_query(add_user_query_string)
 	return result
 
@@ -207,7 +214,7 @@ def delete_report(url_in):
 
 #______________________Custom Functions execute multiple queries in a chain______________________#
 
-def register_user(email_in, first_name_in, last_name_in, affiliation_in, 
+def register_user(email_in, hashed_password_in, first_name_in, last_name_in, affiliation_in, 
 	website_in, signatory_status_in, country_in):
 	add_entity(affiliation_in, website_in, signatory_status_in, country_in)
-	return add_user(email_in, first_name_in.title(), last_name_in.title(), affiliation_in)
+	return add_user(email_in, hashed_password_in, first_name_in.title(), last_name_in.title(), affiliation_in)
