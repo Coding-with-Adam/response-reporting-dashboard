@@ -3,17 +3,17 @@ import pandas as pd
 
 def get_connection(logon = "vost_user", pwd = "vost", db = "vost_db"):
 	try:
-		connection = connector.connect( user = logon, password = pwd, database = db)
+		connection = connector.connect(user = logon, password = pwd, database = db)
 		return connection
-	except connector.Error as Err:
-		return None
+	except connector.Error as err:
+		return err
 
-def handle_query_connections(query_function):
+def handle_query_connections(query_executing_function):
 	def wrapper(query_statement):
 		connection = get_connection()
 		if connection:
 			cursor = connection.cursor(buffered=True)
-			query_result = query_function(cursor, query_statement)
+			query_result = query_executing_function(cursor, query_statement)
 			cursor.close()
 			connection.commit()
 			connection.close()
@@ -28,7 +28,7 @@ def write_query(cursor, query_statement):
 		cursor.execute(query_statement)
 		return "Success"
 	except connector.Error as err:
-		return str(err)
+		return err
 
 @handle_query_connections
 def read_query(cursor, query_statement):

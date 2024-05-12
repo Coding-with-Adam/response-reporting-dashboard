@@ -58,12 +58,15 @@ def login_user(login_click, input_email, input_password):
 	if ctx.triggered_id == "id_login_button":
 		user_full_name = verify_user(input_email)["full_name"]
 		hashed_password = verify_user(input_email)["hashed_password"]
+		user_is_an_admin = verify_user(input_email)["is_admin"]
+
 		password_validation = compare_passwords(input_password, hashed_password)
 
 		if user_full_name and password_validation:
 			user_data["full_name"] = user_full_name
 			user_data["is_authenticated"] = True
 			user_data["email"] = input_email
+			user_data["is_admin"] = bool(user_is_an_admin)
 			return user_data, "/"
 
 	user_data["is_authenticated"] = False #To prevent potential bypass of the login

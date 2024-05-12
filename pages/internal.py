@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, callback, Output, Input, State, ctx, no_update, register_page
+from dash import Dash, html, dcc, callback, Output, Input, State, ctx, register_page
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from datetime import datetime
@@ -12,6 +12,7 @@ from utils.app_queries import select_reports_types
 from utils.app_queries import delete_report
 from utils.app_queries import add_report
 from utils.app_queries import update_report
+from utils.custom_templates import permission_denial_layout
 
 register_page(__name__)
 
@@ -419,7 +420,7 @@ add_report_button = dbc.Button(
 
 #_______________________________________Layout Protection Setup_______________________________________#
 
-protected_container = dbc.Container([
+protected_layout = dbc.Container([
         html.H1("Internal", style = {"text-align":"center"}),
         dmc.Center(html.H4("Update existing report or insert a new report.")),
         dbc.Row([reports_grid]),
@@ -445,20 +446,6 @@ protected_container = dbc.Container([
     fluid = True
 )
 
-
-unprotected_container = dbc.Container([
-    html.Hr(),
-    dbc.Row([
-        dbc.Col([
-            html.H1("Permission denied. No rights to access the requested page.")
-            ],
-            style = {"text-align":"center"})
-        ]),
-    html.Hr(),
-    ],
-    fluid = True
-    )
-
 #__________________________________________The actual Layout__________________________________________#
 
 layout = dbc.Container([
@@ -477,8 +464,8 @@ layout = dbc.Container([
 def layout_security(session_data):
     authenticated = session_data.get("is_authenticated", False)
     if authenticated:
-        return protected_container
-    return unprotected_container
+        return protected_layout
+    return permission_denial_layout
 
 #---------------------------------------Returning User's reports---------------------------------------#
 @callback(

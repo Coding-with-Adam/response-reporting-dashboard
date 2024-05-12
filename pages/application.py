@@ -118,7 +118,7 @@ layout = dbc.Container([
 
 	html.Hr(),
 	dbc.Row([
-		html.H1("New User Registration", style = {"text-align" : "center"}),
+		html.H1("User Application", style = {"text-align" : "center"}),
 		]),
 	html.Hr(),
 	form,

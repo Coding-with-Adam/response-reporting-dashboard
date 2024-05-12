@@ -20,12 +20,13 @@ server = app.server
 #_______________________________Pages Custom Properties_______________________________#
 
 app_pages = [
-    {"name" : "Home", "relative_path" : "/", "protected" : False, "show_to_active_user" : True},
-    {"name" : "Data Insights", "relative_path" : "/data-insights", "protected" : False, "show_to_active_user": True},
-    {"name" : "Application", "relative_path" : "/application", "protected" : False, "show_to_active_user": False},
-    {"name" : "Internal", "relative_path" : "/internal", "protected" : True, "show_to_active_user" : True},
-    {"name" : "Login", "relative_path" : "/login", "protected" : False, "show_to_active_user":False},
-    {"name" : "Logout", "relative_path" : "/login", "protected" : True, "show_to_active_user":True}
+    {"name" : "Home", "relative_path" : "/", "show_to_public":True, "show_to_users":True, "show_to_admin":True},
+    {"name" : "Admin Menu", "relative_path" : "/admin-menu", "show_to_public":False, "show_to_users":False, "show_to_admin":True},
+    {"name" : "Data Insights", "relative_path" : "/data-insights", "show_to_public":True, "show_to_users":True, "show_to_admin":True},
+    {"name" : "Application", "relative_path" : "/application", "show_to_public":True, "show_to_users":False, "show_to_admin":False},
+    {"name" : "Internal", "relative_path" : "/internal", "show_to_public":False, "show_to_users":True, "show_to_admin":True},
+    {"name" : "Login", "relative_path" : "/login", "show_to_public":True, "show_to_users":False, "show_to_admin":False},
+    {"name" : "Logout", "relative_path" : "/login", "show_to_public":False, "show_to_users":True, "show_to_admin":True}
 ]
 
 #___________________________________Navigation bar___________________________________#
@@ -92,20 +93,28 @@ def switch_app_theme(dark_theme_active):
     Input("id_session_data", "data")
     )
 def update_navbar_pages(session_data):
-    authenticated = session_data.get("is_authenticated", False)
+    is_authenticated = session_data.get("is_authenticated", False)
+    is_admin = session_data.get("is_admin", False)
 
-    if authenticated:
-        protected_pages = [
+    if is_authenticated and is_admin:
+        admin_pages = [
         dbc.NavItem(
             dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
-            ) for page in app_pages if page["show_to_active_user"] == True
+            ) for page in app_pages if page["show_to_admin"] == True
         ]
-        return protected_pages
+        return admin_pages
+    elif is_authenticated and not is_admin:
+        users_pages = [
+        dbc.NavItem(
+            dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
+            ) for page in app_pages if page["show_to_users"] == True
+        ]
+        return users_pages
     else:
         public_pages = [
         dbc.NavItem(
             dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
-            ) for page in app_pages if page["protected"] == False
+            ) for page in app_pages if page["show_to_public"] == True
         ]
         return public_pages
 

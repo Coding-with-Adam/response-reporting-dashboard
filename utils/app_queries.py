@@ -32,21 +32,23 @@ def select_all_users():
 	return df
 
 def verify_user(email_in):
-	user_data = {"full_name":"", "hashed_password":""}
+	user_info = {"full_name":"", "hashed_password":"", "is_admin":False}
 
 	user_query_string = f"""
 	SELECT
 		CONCAT(first_name, ' ', last_name) AS full_name,
+		is_admin,
 		hashed_password
 	FROM vetted_user
 	WHERE work_email = '{email_in}';
 	"""
 	df = read_query(user_query_string)
 	if not df.empty:
-		user_data["full_name"] = df.iloc[0]["full_name"]
-		user_data["hashed_password"] = df.iloc[0]["hashed_password"]
-		return user_data
-	return user_data
+		user_info["full_name"] = df.iloc[0]["full_name"]
+		user_info["hashed_password"] = df.iloc[0]["hashed_password"]
+		user_info["is_admin"] = df.iloc[0]["is_admin"]
+		return user_info
+	return user_info
 
 def select_all_reports(url_in = None):
 	reports_query_string = f"""

@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`vetted_user` (
   `first_name` VARCHAR(50) NOT NULL,
   `last_name` VARCHAR(50) NOT NULL,
   `affiliation_name` VARCHAR(100) NOT NULL,
+  `is_admin` BIT(2) NOT NULL DEFAULT 0,
   PRIMARY KEY (`work_email`),
   INDEX `user_affiliation_pk_idx` (`affiliation_name` ASC) VISIBLE,
   CONSTRAINT `user_affiliation_pk`
