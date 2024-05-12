@@ -41,7 +41,7 @@ def preprocess_if_none(value):
 cols = [
     {
         "headerName": "Report Date",
-        "field": "timestamp",
+        "field": "open_report_timestamp",
         "filter": "agDateColumnFilter",
         "cellEditor": "agDateStringCellEditor",
         "sortable":True
@@ -69,7 +69,7 @@ cols = [
     },
     {
         "headerName": "Answer Date",
-        "field": "answer_date",
+        "field": "close_report_timestamp",
         "filter": "agDateColumnFilter",
         'cellEditor': 'agDateStringCellEditor',
         'cellEditorParams': {
@@ -161,7 +161,7 @@ add_report_inputs = dbc.Row([
     dbc.Col([
         dbc.Row([
             dbc.Label("Platform Response Date (Year/Month/Day)"),
-            dbc.Input(id= "id_add_answer_date", placeholder = "YYYY/MM/DD hh:mm:ss")
+            dbc.Input(id= "id_add_close_report_timestamp", placeholder = "YYYY/MM/DD hh:mm:ss")
             ],
             class_name = "mb-3"
             ),
@@ -271,7 +271,7 @@ update_report_inputs = dbc.Row([
     dbc.Col([
         dbc.Row([
             dbc.Label("Platform Response Date (Year/Month/Day)"),
-            dbc.Input(id= "id_update_answer_date", type = "text", placeholder = "YYYY/MM/DD hh:mm:ss")
+            dbc.Input(id= "id_update_close_report_timestamp", type = "text", placeholder = "YYYY/MM/DD hh:mm:ss")
             ],
             class_name = "mb-3"
             ),
@@ -589,19 +589,19 @@ def prevent_bad_report_submission(platform_invalid, url_invalid, type_invalid):
     State("id_add_url", "value"),
     State("id_add_report_type", "value"),
     State("id_add_screenshot", "value"),
-    State("id_add_answer_date", "value"),
+    State("id_add_close_report_timestamp", "value"),
     State("id_add_decision", "value"),
     State("id_add_policy", "value"),
     State("id_add_appeal", "value"),
     prevent_initial_call = True,
     )
 def insert_new_report(submit_click, user_data, platform, url, report_type, screenshot,
-    answer_date, decision, policy, appeal):
-    timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+    close_report_timestamp, decision, policy, appeal):
+    open_report_timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
     user_email = user_data.get("email")
     if ctx.triggered_id == "id_submit_report_button":
-        output = add_report(timestamp, user_email, platform, url, report_type, screenshot,
-            answer_date, decision, policy, appeal)
+        output = add_report(open_report_timestamp, user_email, platform, url, report_type, screenshot,
+            close_report_timestamp, decision, policy, appeal)
         return output
 
 #------------------------------------------Updating Data------------------------------------------#
@@ -622,7 +622,7 @@ def open_update_modal(add_click, selected_row, modal_status):
     Output("id_update_url", "value"),
     Output("id_update_report_type", "value"),
     Output("id_update_screenshot", "value"),
-    Output("id_update_answer_date", "value"),
+    Output("id_update_close_report_timestamp", "value"),
     Output("id_update_decision", "value"),
     Output("id_update_policy", "value"),
     Output("id_update_appeal", "value"),
@@ -639,12 +639,12 @@ def fill_in_update_modal(update_modal_n_clik, selected_row):
         url = data["url"]
         report_type = preprocess_if_none(data["report_type"])
         screenshot = preprocess_if_none(data["screenshot_url"])
-        answer_date = preprocess_if_none(data["answer_date"])
+        close_report_timestamp = preprocess_if_none(data["close_report_timestamp"])
         decision = preprocess_if_none(data["platform_decision"])
         policy = preprocess_if_none(data["policy"])
         appeal = preprocess_if_none(data["appeal"])
 
-        return (platform, url, report_type, screenshot, answer_date, decision, policy, appeal)
+        return (platform, url, report_type, screenshot, close_report_timestamp, decision, policy, appeal)
     return [None for _ in range(8)]
     #Or use "raise PreventUpdate" from dash.exceptions
 
@@ -709,16 +709,16 @@ def prevent_bad_report_update(platform_update_invalid, url_update_invalid, type_
     State("id_update_url", "value"),
     State("id_update_report_type", "value"),
     State("id_update_screenshot", "value"),
-    State("id_update_answer_date", "value"),
+    State("id_update_close_report_timestamp", "value"),
     State("id_update_decision", "value"),
     State("id_update_policy", "value"),
     State("id_update_appeal", "value"),
     prevent_initial_call = True
     )
 def perform_data_update(update_modal_opened, confirm_update_click, platform, url, report_type,
-    screenshot, answer_date, decision, policy, appeal):
+    screenshot, close_report_timestamp, decision, policy, appeal):
 
     if ctx.triggered_id == "id_confirm_update_button":
-        result = update_report(platform, url, report_type, screenshot, answer_date, decision, policy, appeal)
+        result = update_report(platform, url, report_type, screenshot, close_report_timestamp, decision, policy, appeal)
         return result
-    return "Update and click on the Confirm Update button" #Clear output message
+    return "Update and click on the Confirm Update button" #Default output message

@@ -53,14 +53,14 @@ def verify_user(email_in):
 def select_all_reports(url_in = None):
 	reports_query_string = f"""
 	SELECT
-		rp.timestamp,
+		rp.open_report_timestamp,
 		CONCAT(vu.first_name, " ", vu.last_name) AS reporing_user,
 		vu.affiliation_name AS reporting_entity,
 		rp.platform_name AS platform,
 		rp.url,
 		rp.report_type,
 		rp.screenshot_url,
-		rp.answer_date,
+		rp.close_report_timestamp,
 		rp.platform_decision,
 		rp.policy,
 		rp.appeal
@@ -75,7 +75,7 @@ def select_all_reports(url_in = None):
 		WHERE url = '{url_in}'
 		"""
 	reports_query_string += f"""
-	ORDER BY rp.timestamp DESC;
+	ORDER BY rp.open_report_timestamp DESC;
 	"""
 	df = read_query(reports_query_string)
 	return df
@@ -83,12 +83,12 @@ def select_all_reports(url_in = None):
 def select_user_reports(email_in, url_in = None):
 	reports_query_string = f"""
 	SELECT
-		timestamp,
+		open_report_timestamp,
 		platform_name AS platform,
 		url,
 		report_type,
 		screenshot_url,
-		answer_date,
+		close_report_timestamp,
 		platform_decision,
 		policy,
 		appeal
@@ -101,7 +101,7 @@ def select_user_reports(email_in, url_in = None):
 		"""
 	#Add a nonmandatory sorting:
 	reports_query_string += f"""
-	ORDER BY timestamp DESC;
+	ORDER BY open_report_timestamp DESC;
 	"""
 	df = read_query(reports_query_string)
 	return df
@@ -122,7 +122,8 @@ def add_entity(affiliation_in, website_in, signatory_status_in, country_in):
 
 	add_entity_query_string = f"""
 	INSERT INTO entity (
-		entity_name, website,
+		entity_name,
+		website,
 		signatory_of_code_of_practice_on_disinformation,
 		country_name
 	)
@@ -159,13 +160,13 @@ def add_report(current_date_in, email_in, platform_in, url_in, type_in, screensh
 	
 	add_report_query_string = f"""
 	INSERT INTO report(
-		timestamp,
+		open_report_timestamp,
 		reporting_user,
 		platform_name,
 		url,
 		report_type,
 		screenshot_url,
-		answer_date,
+		close_report_timestamp,
 		platform_decision,
 		policy,
 		appeal
@@ -196,7 +197,7 @@ def update_report(platform_in, url_in, type_in, screenshot_in,
 		url = CASE WHEN '{url_in}' = '' THEN url ELSE '{url_in}' END,
 		report_type = NULLIF('{type_in}', ''),
 		screenshot_url = NULLIF('{screenshot_in}', ''),
-		answer_date = NULLIF('{answer_date_in}', ''),
+		close_report_timestamp = NULLIF('{answer_date_in}', ''),
 		platform_decision = NULLIF('{decision_in}', ''),
 		policy = NULLIF('{policy_in}', ''),
 		appeal = NULLIF('{appeal_in}', '')
