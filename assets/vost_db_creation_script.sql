@@ -113,13 +113,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `vost_db`.`report` ;
 
 CREATE TABLE IF NOT EXISTS `vost_db`.`report` (
-  `timestamp` TIMESTAMP(6) NOT NULL,
+  `open_report_timestamp` TIMESTAMP(6) NOT NULL,
   `reporting_user` VARCHAR(100) NOT NULL,
   `platform_name` VARCHAR(100) NOT NULL,
   `url` VARCHAR(200) NOT NULL,
   `report_type` VARCHAR(50) NOT NULL,
   `screenshot_url` VARCHAR(200) NULL,
-  `answer_date` TIMESTAMP(6) NULL,
+  `close_report_timestamp` TIMESTAMP(6) NULL,
   `platform_decision` VARCHAR(50) NULL,
   `policy` VARCHAR(100) NULL,
   `appeal` VARCHAR(10) NULL,
