@@ -232,11 +232,12 @@ def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_inva
 	email_in, pwd_in, pwd_confirm_in, country_in):
 
 	invalid_inputs = [f_name_invalid, l_name_invalid, email_invalid, pwd_invalid, pwd_confirm_invalid, country_invalid]
+	date_now = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
 
 	if (ctx.triggered_id == "id_submit_button") and not (True in invalid_inputs):
 		hashed_pwd = hash_password(pwd_in)
 		query_output_message = register_user(email_in, hashed_pwd, f_name_in, l_name_in, affiliation_in,
-			website_in, status_in, country_in)
+			date_now, website_in, status_in, country_in)
 		if query_output_message == "Success":
 			return "Submission successful", {"registered_user":True}
 		elif query_output_message == "Existing User":

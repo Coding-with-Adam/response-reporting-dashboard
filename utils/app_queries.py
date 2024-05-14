@@ -133,7 +133,7 @@ def add_entity(affiliation_in, website_in, signatory_status_in, country_in):
 	return result
 
 
-def add_user(email_in, hashed_password_in, first_name_in, last_name_in, affiliation_in):
+def add_user(email_in, hashed_password_in, first_name_in, last_name_in, affiliation_in, date_in):
 	df = select_all_users()
 	if email_in in df["work_email"].values:
 		return "Existing User"
@@ -144,16 +144,17 @@ def add_user(email_in, hashed_password_in, first_name_in, last_name_in, affiliat
 		hashed_password,
 		first_name,
 		last_name,
-		affiliation_name
+		affiliation_name,
+		application_date
 	)
-	VALUES ('{email_in}', "{hashed_password_in}", '{first_name_in}', '{last_name_in}', '{affiliation_in}');
+	VALUES ('{email_in}', '{hashed_password_in}', '{first_name_in}', '{last_name_in}', '{affiliation_in}', '{date_in}');
 	"""
 
 	result = write_query(add_user_query_string)
 	return result
 
-def add_report(current_date_in, email_in, platform_in, url_in, type_in, screenshot_url_in = "None",
-	answer_date_in = "None", decision_in = "None", policy_in = "None", appeal_in = "None"):
+def add_report(current_date_in, email_in, platform_in, url_in, type_in, screenshot_url_in,
+	answer_date_in, decision_in, policy_in, appeal_in):
 	df = select_all_reports(url_in)
 	if not df.empty:
 		return "A report with the specified url already exists. Submission denied."
@@ -218,6 +219,6 @@ def delete_report(url_in):
 #______________________Custom Functions execute multiple queries in a chain______________________#
 
 def register_user(email_in, hashed_password_in, first_name_in, last_name_in, affiliation_in, 
-	website_in, signatory_status_in, country_in):
+	date_in, website_in, signatory_status_in, country_in):
 	add_entity(affiliation_in, website_in, signatory_status_in, country_in)
-	return add_user(email_in, hashed_password_in, first_name_in.title(), last_name_in.title(), affiliation_in)
+	return add_user(email_in, hashed_password_in, first_name_in.title(), last_name_in.title(), affiliation_in, date_in)

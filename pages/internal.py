@@ -160,8 +160,9 @@ add_report_inputs = dbc.Row([
         class_name = "ms-4 me-2"),
     dbc.Col([
         dbc.Row([
-            dbc.Label("Platform Response Date (Year/Month/Day)"),
-            dbc.Input(id= "id_add_close_report_timestamp", placeholder = "YYYY/MM/DD hh:mm:ss")
+            dbc.Label("Platform Response Date and time", className = "display-right"),
+            dbc.Input(id= "id_add_close_report_timestamp", placeholder = "YYYY/MM/DD", style = {"width":"50%"}),
+            #dbc.Input(id="id_add_close_report_time", placeholder = "hh:mm:ss", style = {"width":"50%"})
             ],
             class_name = "mb-3"
             ),

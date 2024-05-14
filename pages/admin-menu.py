@@ -10,12 +10,22 @@ from utils.custom_templates import permission_denial_layout
 
 register_page(__name__)
 
+#___________________________________________Layout Items___________________________________________#
+
+admin_tabs = dbc.Container([
+    ],
+    id = "id_admin_tabs"
+    )
+
 #_______________________________________Layout Protection Setup_______________________________________#
 
 protected_layout = dbc.Container([
+    dbc.Row([html.H1("Admin Menu", style = {"text-align":"center"})]),
+    html.Hr(),
+    dbc.Row(admin_tabs)
     ],
     fluid = True
-)
+    )
 
 #__________________________________________The actual Layout__________________________________________#
 
@@ -33,7 +43,7 @@ layout = dbc.Container([
 def layout_security(session_data):
     is_authenticated = session_data.get("is_authenticated", False)
     is_admin = session_data.get("is_admin", False)
-    
+
     if is_authenticated and is_admin:
         return protected_layout
     return permission_denial_layout
