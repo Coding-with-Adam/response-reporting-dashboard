@@ -1,3 +1,4 @@
 #Ignore all pychache and its content
 __pycache__/
+app_venv/
 *.bak

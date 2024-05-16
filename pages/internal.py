@@ -161,8 +161,13 @@ add_report_inputs = dbc.Row([
     dbc.Col([
         dbc.Row([
             dbc.Label("Platform Response Date and time", className = "display-right"),
-            dbc.Input(id= "id_add_close_report_timestamp", placeholder = "YYYY/MM/DD", style = {"width":"50%"}),
-            #dbc.Input(id="id_add_close_report_time", placeholder = "hh:mm:ss", style = {"width":"50%"})
+            dmc.DatePicker(
+                id= "id_add_close_report_date",
+                placeholder = "Pick a Date",
+                #valueFormat = "YYYY/MM/DD",    #Not supported in dmc 0.12.1
+                maxDate = datetime.now().date(),
+                clearable = True,
+                ),
             ],
             class_name = "mb-3"
             ),
@@ -271,8 +276,14 @@ update_report_inputs = dbc.Row([
         class_name = "ms-4 me-2"),
     dbc.Col([
         dbc.Row([
-            dbc.Label("Platform Response Date (Year/Month/Day)"),
-            dbc.Input(id= "id_update_close_report_timestamp", type = "text", placeholder = "YYYY/MM/DD hh:mm:ss")
+            dbc.Label("Platform Response Date"),
+            dmc.DatePicker(
+                id= "id_update_close_report_date",
+                placeholder = "Pick a Date",
+                #valueFormat = "YYYY/MM/DD",    #Not supported in dmc 0.12.1
+                maxDate = datetime.now().date(),
+                clearable = True,
+                ),
             ],
             class_name = "mb-3"
             ),
@@ -590,7 +601,7 @@ def prevent_bad_report_submission(platform_invalid, url_invalid, type_invalid):
     State("id_add_url", "value"),
     State("id_add_report_type", "value"),
     State("id_add_screenshot", "value"),
-    State("id_add_close_report_timestamp", "value"),
+    State("id_add_close_report_date", "value"),
     State("id_add_decision", "value"),
     State("id_add_policy", "value"),
     State("id_add_appeal", "value"),
@@ -623,7 +634,7 @@ def open_update_modal(add_click, selected_row, modal_status):
     Output("id_update_url", "value"),
     Output("id_update_report_type", "value"),
     Output("id_update_screenshot", "value"),
-    Output("id_update_close_report_timestamp", "value"),
+    Output("id_update_close_report_date", "value"),
     Output("id_update_decision", "value"),
     Output("id_update_policy", "value"),
     Output("id_update_appeal", "value"),
@@ -710,7 +721,7 @@ def prevent_bad_report_update(platform_update_invalid, url_update_invalid, type_
     State("id_update_url", "value"),
     State("id_update_report_type", "value"),
     State("id_update_screenshot", "value"),
-    State("id_update_close_report_timestamp", "value"),
+    State("id_update_close_report_date", "value"),
     State("id_update_decision", "value"),
     State("id_update_policy", "value"),
     State("id_update_appeal", "value"),
