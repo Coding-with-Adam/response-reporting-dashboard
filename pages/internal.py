@@ -164,7 +164,7 @@ add_report_inputs = dbc.Row([
             dmc.DatePicker(
                 id= "id_add_close_report_date",
                 placeholder = "Pick a Date",
-                #valueFormat = "YYYY/MM/DD",    #Not supported in dmc 0.12.1
+                minDate = datetime.now().date(),
                 maxDate = datetime.now().date(),
                 clearable = True,
                 ),
@@ -280,7 +280,6 @@ update_report_inputs = dbc.Row([
             dmc.DatePicker(
                 id= "id_update_close_report_date",
                 placeholder = "Pick a Date",
-                #valueFormat = "YYYY/MM/DD",    #Not supported in dmc 0.12.1
                 maxDate = datetime.now().date(),
                 clearable = True,
                 ),
@@ -390,7 +389,7 @@ add_report_modal = dbc.Modal([
 reports_grid = dag.AgGrid(
     id = "id_internal_reports_table",
     columnDefs = cols,
-    rowData = [],
+    rowData = [], #Initialize to empty list of records
     columnSize = "sizeToFit",
     defaultColDef = {"editable": False, "filter": True, "resizable": True},
     dashGridOptions = {
@@ -509,7 +508,6 @@ def open_delete_popover(delete_click, row_data, popover_status):
 
 @callback(
     Output("id_delete_report_modal", "is_open"),
-    Output("id_delete_report_message", "children"),
     Input("id_delete_report_button", "n_clicks"),
     State("id_internal_reports_table", "selectedRows"),
     State("id_delete_report_modal", "is_open"),
@@ -517,16 +515,25 @@ def open_delete_popover(delete_click, row_data, popover_status):
     Input("id_reject_delete_button", "n_clicks"),
     prevent_initial_call = True,
 )
-def open_delete_modal_and_delete_report(delete_click, row_data, modal_status, confirm_click, reject_click):
+def open_delete_report_modal(delete_click, row_data, modal_status, confirm_click, reject_click):
+    """A click on delete button with data selected opens the delete modal. All other clicks close it"""
     if ctx.triggered_id == "id_delete_report_button" and row_data:
-        return True, ""
-    elif ctx.triggered_id == "id_confirm_delete_button":
+        return True
+    return False
+
+@callback(
+    Output("id_delete_report_message", "children"),
+    State("id_internal_reports_table", "selectedRows"),
+    Input("id_confirm_delete_button", "n_clicks"),
+    Input("id_reject_delete_button", "n_clicks"),
+    prevent_initial_call = True,
+)
+def delete_a_report(row_data, confirm_click, reject_click):
+    """If this callback is triggered, then the delete modal is already open, with a selected row of data."""
+    if ctx.triggered_id == "id_confirm_delete_button":
         input_url = row_data[0]["url"]
         delete_report(input_url)
-        return False, "Report Deleted"
-    elif ctx.triggered_id == "id_reject_delete_button":
-        return False, ""
-    return modal_status, ""
+    #A None children is returned as output message, which still helps trigger data update
 
 #------------------------------------------Adding Data------------------------------------------#
 @callback(
