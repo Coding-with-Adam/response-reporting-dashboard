@@ -533,7 +533,7 @@ def delete_a_report(row_data, confirm_click, reject_click):
     if ctx.triggered_id == "id_confirm_delete_button":
         input_url = row_data[0]["url"]
         delete_report(input_url)
-    #A None children is returned as output message, which still helps trigger data update
+    #A None children is returned as output message, which still helps trigger data update, no value needed.
 
 #------------------------------------------Adding Data------------------------------------------#
 @callback(

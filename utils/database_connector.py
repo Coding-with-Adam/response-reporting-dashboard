@@ -1,12 +1,13 @@
 import mysql.connector as connector
 import pandas as pd
 
+
 def get_connection(logon = "vost_user", pwd = "vost", db = "vost_db"):
 	try:
 		connection = connector.connect(user = logon, password = pwd, database = db)
 		return connection
 	except connector.Error as err:
-		return err
+		return err #Won't be used
 
 def handle_query_connections(query_executing_function):
 	def wrapper(query_statement):
@@ -19,7 +20,7 @@ def handle_query_connections(query_executing_function):
 			connection.close()
 			return query_result
 		else:
-			return "No access"
+			return connection #Won't be used
 	return wrapper
 
 @handle_query_connections
@@ -28,7 +29,7 @@ def write_query(cursor, query_statement):
 		cursor.execute(query_statement)
 		return "Success"
 	except connector.Error as err:
-		return err
+		return err #Will be used
 
 @handle_query_connections
 def read_query(cursor, query_statement):

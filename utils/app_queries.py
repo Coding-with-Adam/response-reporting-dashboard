@@ -43,11 +43,13 @@ def verify_user(email_in):
 	WHERE work_email = '{email_in}';
 	"""
 	df = read_query(user_query_string)
-	if not df.empty:
+	try:
+		#The try except elegantly replaces "not df.empty" and, in addition, handles nondataframe results
 		user_info["full_name"] = df.iloc[0]["full_name"]
 		user_info["hashed_password"] = df.iloc[0]["hashed_password"]
 		user_info["is_admin"] = df.iloc[0]["is_admin"]
-		return user_info
+	except Exception as e:
+		return user_info #Unmodified default dict construction
 	return user_info
 
 def select_all_reports(url_in = None):
