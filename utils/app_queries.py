@@ -49,7 +49,7 @@ def verify_user(email_in):
 		user_info["hashed_password"] = df.iloc[0]["hashed_password"]
 		user_info["is_admin"] = df.iloc[0]["is_admin"]
 	except Exception as e:
-		return user_info #Unmodified default dict construction
+		return user_info #Unmodified template dict
 	return user_info
 
 def select_all_reports(url_in = None):
