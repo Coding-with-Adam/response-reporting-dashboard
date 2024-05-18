@@ -10,7 +10,7 @@ from utils.custom_templates import permission_denial_layout
 
 register_page(__name__)
 
-#___________________________________________Menu Buttons___________________________________________#
+#_________________________________________Admin Menu Buttons_________________________________________#
 approval_menu_button = dbc.Button(
     "User Approval",
     id = "id_approval_menu_button",
@@ -46,9 +46,9 @@ password_reset_menu_button = dbc.Button(
     active = False,
     class_name = "me-1",
     )
-#__________________________________________________________________________________________________#
 
-buttons_row = html.Div([
+#Group the buttons into a division wich will be a row of the admin menu
+admin_buttons_row = html.Div([
         approval_menu_button,
         deletion_menu_button,
         add_menu_button,
@@ -57,7 +57,7 @@ buttons_row = html.Div([
         id = "id_buttons_row",
         className = "gap-2 d-flex justify-content-center"
         )
-#To easily update the active buttons. Warning : Very dependent on callback outputs positions
+#A dictionary to update the active buttons. Warning : Designed with callback outputs positions in mind
 buttons_status = {
     "id_approval_menu_button" : [True, False, False, False],
     "id_deletion_menu_button" : [False, True, False, False],
@@ -108,7 +108,7 @@ buttons_contents = {
 protected_layout = dbc.Container([
     #dbc.Row([html.H1("Admin Menu", style = {"text-align":"center"})]),
     html.Hr(),
-    dbc.Row(buttons_row),
+    dbc.Row(admin_buttons_row),
     html.Hr(),
     dbc.Row(id = "id_chosen_menu")
     ],

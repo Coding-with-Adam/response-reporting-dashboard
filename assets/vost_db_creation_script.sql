@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`entity` (
   `country_name` VARCHAR(100) NULL,
   PRIMARY KEY (`entity_name`),
   INDEX `affiliation_country_pk_idx` (`country_name` ASC) VISIBLE,
-  CONSTRAINT `affiliation_country_pk`
+  CONSTRAINT `affiliation_country_fk`
     FOREIGN KEY (`country_name`)
     REFERENCES `vost_db`.`country` (`country_name`)
     ON DELETE NO ACTION
@@ -67,12 +67,20 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`vetted_user` (
   `is_admin` BIT(2) NOT NULL DEFAULT 0,
   `affiliation_name` VARCHAR(100) NOT NULL,
   `application_date` TIMESTAMP(6) NOT NULL,
-  `approval_date` TIMESTAMP(6) NULL,
+  `application_decision` VARCHAR(20) NULL DEFAULT 'Pending',
+  `decision_date` TIMESTAMP(6) NULL,
+  `decision_author` VARCHAR(50) NULL,
   PRIMARY KEY (`work_email`),
   INDEX `user_affiliation_pk_idx` (`affiliation_name` ASC) VISIBLE,
-  CONSTRAINT `user_affiliation_pk`
+  INDEX `user_decision_author_fk_idx` (`decision_author` ASC) VISIBLE,
+  CONSTRAINT `user_affiliation_fk`
     FOREIGN KEY (`affiliation_name`)
     REFERENCES `vost_db`.`entity` (`entity_name`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+  CONSTRAINT `user_decision_author_fk`
+    FOREIGN KEY (`decision_author`)
+    REFERENCES `vost_db`.`vetted_user` (`work_email`)
     ON DELETE NO ACTION
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
