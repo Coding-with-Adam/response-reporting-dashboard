@@ -16,7 +16,7 @@ approval_menu_button = dbc.Button(
     id = "id_approval_menu_button",
     color = "primary",
     outline = True,
-    active = False,
+    active = True, #Default active menu
     class_name = "me-1",
     )
 
@@ -57,12 +57,12 @@ buttons_row = html.Div([
         id = "id_buttons_row",
         className = "gap-2 d-flex justify-content-center"
         )
-#To easily update the active buttons, we set up a dictionary
-buttons_status : {
-    "id_approval_menu_button":True,
-    "id_deletion_menu_button": False,
-    "id_add_menu_button":False,
-    "id_resset_password_menu_button":False
+#To easily update the active buttons. Warning : Very dependent on callback outputs positions
+buttons_status = {
+    "id_approval_menu_button" : [True, False, False, False],
+    "id_deletion_menu_button" : [False, True, False, False],
+    "id_add_menu_button" : [False, False, True, False],
+    "id_resset_password_menu_button" : [False, False, False, True]
     }
 
 #__________________________________________Menus Content___________________________________________#
@@ -137,13 +137,21 @@ def layout_security(session_data):
         return protected_layout
     return permission_denial_layout
 
-""" To DO
+#--------------------------------------------Active Button-------------------------------------------#
 @callback(
-    Ouput(),
-    Input(),
+    Output("id_approval_menu_button", "active"),
+    Output("id_deletion_menu_button", "active"),
+    Output("id_add_menu_button", "active"),
+    Output("id_resset_password_menu_button", "active"),
+    Input("id_approval_menu_button", "n_clicks"),
+    Input("id_deletion_menu_button", "n_clicks"),
+    Input("id_add_menu_button", "n_clicks"),
+    Input("id_resset_password_menu_button", "n_clicks"),
     )
-def set_active_button():
-"""
+def set_active_button(approval_menu_click, deletion_menu_click, add_menu_click, reset_menu_click):
+    """Remember the button_status dictionary with a warning on the positions of the callback outputs"""
+    default_active_button = buttons_status["id_approval_menu_button"]
+    return buttons_status.get(ctx.triggered_id, default_active_button)
 
 #---------------------------------------------Chosen Menu--------------------------------------------#
 @callback(
