@@ -24,10 +24,14 @@ def select_all_entities():
 	df = read_query(select_entities_query_string)
 	return df
 
-def select_all_users():
+def select_all_users(application_decision = None):
 	select_users_query_string = f"""
-	SELECT * FROM vetted_user;
+	SELECT * FROM vetted_user 
 	"""
+	if application_decision is not None:
+		select_users_query_string += f"""
+		WHERE application_decision = '{application_decision}';
+		"""
 	df = read_query(select_users_query_string)
 	return df
 
