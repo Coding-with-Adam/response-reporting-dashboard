@@ -4,11 +4,12 @@ import pandas as pd
 import re
 from datetime import datetime
 from utils.app_queries import register_user
+from utils.app_queries import select_all_countries
 from utils.password_encryption import hash_password
 
 register_page(__name__)
 
-countries = pd.read_csv("assets/countries_list.csv") #To replace with a read query from database
+countries = select_all_countries()
 country_names = countries["country_name"]
 
 #_________________________________________Form Input Components_________________________________________#

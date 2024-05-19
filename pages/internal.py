@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, callback, Output, Input, State, ctx, register_page
+from dash import Dash, html, dcc, callback, Output, Input, State, ctx, register_page, exceptions
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from datetime import datetime
@@ -664,8 +664,7 @@ def fill_in_update_modal(update_modal_n_clik, selected_row):
         appeal = preprocess_if_none(data["appeal"])
 
         return (platform, url, report_type, screenshot, close_report_timestamp, decision, policy, appeal)
-    return [None for _ in range(8)]
-    #Or use "raise PreventUpdate" from dash.exceptions
+    raise exceptions.PreventUpdate
 
 @callback(
     Output("id_update_platform", "invalid"),

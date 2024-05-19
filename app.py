@@ -1,6 +1,6 @@
 import dash
 import os
-from dash import Dash, html, dcc, Input, Output, State, callback
+from dash import Dash, html, dcc, Input, Output, State, callback, exceptions
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
