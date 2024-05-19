@@ -8,6 +8,7 @@ import re
 from datetime import datetime
 from utils.custom_templates import permission_denial_layout
 from utils.app_queries import select_all_users
+from utils.app_queries import update_application_decision
 
 register_page(__name__)
 
@@ -154,7 +155,7 @@ pending_applications_table = dag.AgGrid(
     dashGridOptions = {
     "pagination": True,
     "paginationPageSize": 7,
-    "rowSelection": "single"
+    "rowSelection": "multiple"
     }
     )
 
@@ -339,13 +340,23 @@ def update_pending_applications_table(approval_menu_opened, admin_decision):
     State("id_pending_applications_table", "selectedRows"),
     Input("id_approve_application_button", "n_clicks"),
     Input("id_reject_application_button", "n_clicks"),
+    State("id_session_data", "data"),
     prevent_initial_call = True
     )
-def approve_or_reject_application(selected_row, approval_click, rejection_click):
-    if ctx.triggered_id == "id_approve_application_button" and selected_row:
-        return f"{selected_row[0]['first_name']} {selected_row[0]['last_name']} was approved!"
-    elif ctx.triggered_id == "id_reject_application_button" and selected_row:
-        return f"{selected_row[0]['first_name']} {selected_row[0]['last_name']} was rejected!"
+def approve_or_reject_application(selected_rows, approval_click, rejection_click, user_data):
+    try:
+        users_tuple = tuple([row["work_email"] for row in selected_rows])
+        admin_email = user_data.get("email", "")
+        date_now = datetime.now()
+    except Exception as e:
+        pass
+        
+    if ctx.triggered_id == "id_approve_application_button" and selected_rows:
+        update_application_decision(admin_email, "Approved", date_now, users_tuple)
+        return f"Application(s) approved!"
+    elif ctx.triggered_id == "id_reject_application_button" and selected_rows:
+        update_application_decision(admin_email, "Rejected", date_now, users_tuple)
+        return f"Application(s) rejected!"
     raise exceptions.PreventUpdate
 
 #--------------------------------------Active Users Table-------------------------------------#

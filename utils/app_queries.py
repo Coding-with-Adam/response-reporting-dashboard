@@ -213,6 +213,25 @@ def update_report(platform_in, url_in, type_in, screenshot_in,
 	result = write_query(update_report_query_string)
 	return result
 
+def update_application_decision(admin_email_in, admin_decision_in, decision_date_in, users_tuple_in):
+	update_applications_query_string = f"""
+	UPDATE vetted_user
+	SET
+		application_decision = '{admin_decision_in}',
+		decision_date = '{decision_date_in}',
+		decision_author = '{admin_email_in}'
+	"""
+	if len(users_tuple_in) > 1:
+		update_applications_query_string += f"""
+		WHERE work_email IN {users_tuple_in};
+		"""
+	else:
+		update_applications_query_string += f"""
+		WHERE work_email = '{users_tuple_in[0]}';
+		""" #To deal with trailing comma when length of tuple is 1
+	result = write_query(update_applications_query_string)
+	return result
+
 #________________________________________DELETE Queries________________________________________#
 def delete_report(url_in):
 	delete_report_query = f"""
