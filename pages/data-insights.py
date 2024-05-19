@@ -20,7 +20,7 @@ grid = dag.AgGrid(
             id = "id_insights_report_table",
             rowData = df.to_dict("records"),
             columnDefs = [{"field": i} for i in df.columns],
-            columnSize = "sizeToFit",
+            columnSize = "responsiveSizeToFit",
             defaultColDef = {"filter": True, "resizable": True},
             dashGridOptions = {"pagination": True, "paginationPageSize":7},
         )

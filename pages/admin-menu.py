@@ -184,7 +184,6 @@ approved_users_cols = [
     email_field,
     first_name_field,
     last_name_field,
-    admin_flag_field,
     affiliation_field,
     decision_date_field,
     decision_author_field
@@ -350,7 +349,7 @@ def approve_or_reject_application(selected_rows, approval_click, rejection_click
         date_now = datetime.now()
     except Exception as e:
         pass
-        
+
     if ctx.triggered_id == "id_approve_application_button" and selected_rows:
         update_application_decision(admin_email, "Approved", date_now, users_tuple)
         return f"Application(s) approved!"
