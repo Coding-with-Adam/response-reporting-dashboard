@@ -16,7 +16,6 @@ df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/response-re
 df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.strftime('%Y-%m-%d')
 df["Answer Date"] = pd.to_datetime(df["Answer Date"]).dt.strftime('%Y-%m-%d')
 rowData = df.to_dict("records")
-print(df.columns)
 
 
 cols = [

@@ -6,7 +6,7 @@ from flask import Flask, request, redirect, session, url_for, flash, render_temp
 from flask_login import login_user, LoginManager, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 import dash
-from dash import Dash, dcc, html, Input, Output, State, ALL, page_container
+from dash import Dash, dcc, html, Input, Output, State, ALL, page_container, ctx
 import dash_bootstrap_components as dbc
 from utils.login_handler import restricted_page
 from dash_bootstrap_templates import load_figure_template
@@ -34,48 +34,6 @@ class User(db.Model, UserMixin):
 with server.app_context():
     db.create_all()
 
-alert = False
-count_message = 0
-@server.route('/register', methods=['POST'])
-def register_route():
-    global alert
-    global count_message
-    if request.form:
-        username = request.form['username']
-        password = request.form['password']
-        data = request.form
-        print(data)
-        if username == '' or password == '':
-            return """username and/or password is empty <a href='/register'>Register here</a>"""
-        if User.query.first() is not None:
-            if User.query.filter_by(username=username).first() is not None:
-                return """username already taken <a href='/register'>Register here</a>"""
-        with server.app_context():
-            user = User(username=username, password=password)
-            db.session.add(user)
-            db.session.commit()
-            alert=True
-            count_message = 0
-        return redirect('/login')
-
-
-@server.route('/login', methods=['POST'])
-def login():
-    global global_username
-    if request.form:
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
-        if user is None or user.password != password:
-            return """invalid username and/or password <a href='/login'>login here</a>"""
-        login_user(user)
-        if 'url' in session:
-            if session['url']:
-                url = session['url']
-                session['url'] = None
-                return redirect(url) ## redirect to target url
-        return redirect('/internal') ## redirect to home
-
 
 @server.route("/logout")
 def logout():
@@ -101,9 +59,8 @@ app = Dash(
     server=server,
     external_stylesheets=[dbc.themes.SPACELAB, dbc.icons.BOOTSTRAP],
     use_pages=True,
-    pages_folder="pages",
-    prevent_initial_callbacks=True,
-suppress_callback_exceptions=True
+    # pages_folder="pages",
+    suppress_callback_exceptions=True
 )
 
 server = app.server
@@ -182,9 +139,69 @@ app.layout = dbc.Container(
 )
 
 @app.callback(
+    Output("username-input", "invalid"),
+    Output("password-input", "invalid"),
+    Output("username_feedback_message", "children"),
+    Output("the_alert", "children"),
+    Input("registration_submit_button", "n_clicks"),
+    State("username-input", "value"),
+    State("password-input", "value"),
+)
+def register_user(button, username, password):
+    alert_message = dash.no_update
+    if "registration_submit_button" == ctx.triggered_id:
+        if (username == None or username == '') and (password == None or password == ''):
+            return True, True, 'username cannot be empty', alert_message
+        if username == None or username == '':
+            return True, False, 'username cannot be empty', alert_message
+        if password == None or password == '':
+            return False, True, '', alert_message
+        if User.query.first() is not None:
+                if User.query.filter_by(username=username).first() is not None:
+                    return True, False, 'username already exists', alert_message
+        with server.app_context():
+            user = User(username=username, password=password)
+            db.session.add(user)
+            db.session.commit()
+            alert_message = dbc.Alert("User registered successfully", color="#2e8cbc",
+                                      dismissable=True, className="text-center fw-bold")
+    return False, False, '', alert_message
+
+
+@app.callback(
+    Output("login-username-input", "invalid"),
+    Output("login-password-input", "invalid"),
+    Output('login-test', 'children'),
+    Input("login-submit-button", "n_clicks"),
+    State("login-username-input", "value"),
+    State("login-password-input", "value"),
+)
+def login_the_user(button, username, password):
+    if ctx.triggered_id == 'login-submit-button':
+        if (username == None or username == '') and (password == None or password == ''):
+            return True, True, dash.no_update
+        if username == None or username == '':
+            return True, False, dash.no_update
+        if password == None or password == '':
+            return False, True, dash.no_update
+        user = User.query.filter_by(username=username).first()
+        if user is None or user.password != password:
+            return True, True, dash.no_update
+        login_user(user)
+        return False, False, ' '
+    return False, False, dash.no_update
+
+@app.callback(Output('url', 'pathname'),
+              Input('login-test', 'children'))
+def route_login(input):
+    if input == ' ':
+        return '/internal'
+    return dash.no_update
+
+@app.callback(
      Output("pg1", "children"),
      Output("pg2", "children"),
-     Output('url', 'pathname'),
+     Output('url', 'pathname', allow_duplicate=True),
      Input("url", "pathname"),
      Input({'index': ALL, 'type':'redirect'}, 'n_intervals'),
     prevent_initial_call=True
@@ -226,18 +243,6 @@ def current_username(url):
     if url == '/internal' and current_user.is_authenticated:
         current_username = "Welcome, " + current_user.username + '!'
         return current_username
-
-@app.callback(
-    Output("the_alert", "children"),
-    Input("url", "pathname"))
-def toggle_modal(path):
-    alert_message = dbc.Alert("User registered successfully", color="#2e8cbc",
-                              dismissable=True, className="text-center fw-bold")
-    global count_message
-    if path == '/login' and alert == True and count_message == 0:
-        count_message = 1
-        return alert_message
-    return dash.no_update
 
 
 if __name__ == "__main__":
