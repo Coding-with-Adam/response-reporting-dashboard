@@ -8,18 +8,10 @@ from utils.app_queries import select_all_reports
 
 register_page(__name__)
 
-df = select_all_reports()
-
-fig_reports_by_platform = px.histogram(df, x = 'platform')
-fig_report_types = px.histogram(df, x = 'report_type', facet_col = 'platform')
-fig_decisions = px.histogram(df, x = 'platform_decision', facet_col = 'platform')
-
 #___________________________________________Layout Items___________________________________________#
 
 grid = dag.AgGrid(
             id = "id_insights_report_table",
-            rowData = df.to_dict("records"),
-            columnDefs = [{"field": i} for i in df.columns],
             columnSize = "responsiveSizeToFit",
             defaultColDef = {"filter": True, "resizable": True},
             dashGridOptions = {"pagination": True, "paginationPageSize":7},
@@ -33,15 +25,15 @@ tabs_container = dbc.Container([
             label = "Report Table"),
         dbc.Tab([
             dbc.Row([
-                dbc.Col(dcc.Graph(id ="id_graph_all_reports", figure = fig_reports_by_platform)),
+                dbc.Col(dcc.Graph(id ="id_graph_all_reports")),
                 ],
                 ),
             dbc.Row([
-                dbc.Col(dcc.Graph(id = "id_graph_decisions", figure = fig_decisions)),
+                dbc.Col(dcc.Graph(id = "id_graph_decisions")),
                 ],
                 ),
             dbc.Row([
-                dbc.Col(dcc.Graph(id = "id_graph_reports_types", figure = fig_report_types)),
+                dbc.Col(dcc.Graph(id = "id_graph_reports_types")),
                 ])
             ],
             label = "Theme 1"
@@ -59,14 +51,57 @@ tabs_container = dbc.Container([
     ]
     )
 
+refresh_data_button = dbc.Button(
+    "Refresh",
+    id = "id_refresh_data_button",
+    color = "success",
+    className = "mt-2",
+    )
+
 #_____________________________________________The Layout_____________________________________________#
 
 layout = dbc.Container([
-        dbc.Row([html.H1("Data Insights", style = {"text-align":"center"})]),
-        dbc.Row(tabs_container)
+    dcc.Store(id = "id_insights_data", storage_type = "memory", data = []),
+    dbc.Row(dbc.Col("Controls here")),
+    html.Hr(),
+    dbc.Row(tabs_container),
+    refresh_data_button,
     ],
     id = "id_insights_layout",
     fluid = True
 )
 
 #______________________________________________Callbacks______________________________________________#
+
+@callback(
+    Output("id_insights_data", "data"),
+    Input("id_refresh_data_button", "n_clicks"),
+    #Do not prevent initial call
+    )
+def update_page_data(refresh_button_click):
+    """Data is updated when the refresh button is clicked"""
+    data = select_all_reports().to_dict("records")
+    return data
+
+@callback(
+    Output("id_insights_report_table", "rowData"),
+    Output("id_insights_report_table", "columnDefs"),
+    Input("id_insights_data", "data"),
+    )
+def update_reports(insights_data):
+    df = pd.DataFrame(insights_data)
+    col_defs = [{"field": i} for i in df.columns]
+    return insights_data, col_defs
+
+@callback(
+    Output("id_graph_all_reports", "figure"),
+    Output("id_graph_decisions", "figure"),
+    Output("id_graph_reports_types", "figure"),
+    Input("id_insights_data", "data"),
+    )
+def update_graphs(insights_data):
+    df = pd.DataFrame(insights_data)
+    reports_by_platform = px.histogram(df, x = 'platform')
+    report_types = px.histogram(df, x = 'report_type', facet_col = 'platform')
+    decisions = px.histogram(df, x = 'platform_decision', facet_col = 'platform')
+    return reports_by_platform, report_types, decisions
