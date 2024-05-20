@@ -61,7 +61,6 @@ refresh_data_button = dbc.Button(
 #_____________________________________________The Layout_____________________________________________#
 
 layout = dbc.Container([
-    dcc.Store(id = "id_insights_data", storage_type = "memory", data = []),
     dbc.Row(dbc.Col("Controls here")),
     html.Hr(),
     dbc.Row(tabs_container),
@@ -74,30 +73,23 @@ layout = dbc.Container([
 #______________________________________________Callbacks______________________________________________#
 
 @callback(
-    Output("id_insights_data", "data"),
+    Output("id_insights_report_table", "rowData"),
+    Output("id_insights_report_table", "columnDefs"),
     Input("id_refresh_data_button", "n_clicks"),
     #Do not prevent initial call
     )
-def update_page_data(refresh_button_click):
-    """Data is updated when the refresh button is clicked"""
-    data = select_all_reports().to_dict("records")
-    return data
-
-@callback(
-    Output("id_insights_report_table", "rowData"),
-    Output("id_insights_report_table", "columnDefs"),
-    Input("id_insights_data", "data"),
-    )
-def update_reports(insights_data):
-    df = pd.DataFrame(insights_data)
+def refresh_grid_data(refresh_button_click):
+    """Data is refreshed both when the page loads(everytime) and when the resfresh button is clicked"""
+    df = select_all_reports()
     col_defs = [{"field": i} for i in df.columns]
-    return insights_data, col_defs
+    data_dict = df.to_dict("records")
+    return data_dict, col_defs
 
 @callback(
     Output("id_graph_all_reports", "figure"),
     Output("id_graph_decisions", "figure"),
     Output("id_graph_reports_types", "figure"),
-    Input("id_insights_data", "data"),
+    Input("id_insights_report_table", "rowData"),
     )
 def update_graphs(insights_data):
     df = pd.DataFrame(insights_data)
