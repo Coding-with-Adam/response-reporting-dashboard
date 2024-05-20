@@ -198,15 +198,44 @@ approved_users_table = dag.AgGrid(
     dashGridOptions = {
     "pagination": True,
     "paginationPageSize": 7,
-    "rowSelection": "single"
+    "rowSelection": "multiple"
     }
     )
 
-delete_user_button = dbc.Button(
+user_delete_button = dbc.Button(
     "Delete",
-    id = "id_delete_user_button",
+    id = "id_user_delete_button",
     color = "danger",
     className = "mt-2",
+    )
+
+confirm_user_delete_button = dbc.Button(
+    id = "id_confirm_user_delete_button",
+    children = "Yes",
+    color = "danger",
+    class_name = "me-1"
+    )
+reject_user_delete_button = dbc.Button(
+    id = "id_reject_user_delete_button",
+    children = "No",
+    color = "success",
+    class_name = "me-auto"
+    )
+
+user_delete_modal = dbc.Modal([
+    dbc.ModalBody([
+        dbc.Row([html.P("Are you sure?", style = {"text-align":"center", "color":"black"})]),
+        dbc.Row([
+            dbc.Col([confirm_user_delete_button, reject_user_delete_button], className = "text-center")
+            ],),
+        dbc.Row(id = "id_user_deleted_message", class_name = "ms-2")
+        ])
+    ],
+    id = "id_user_delete_modal",
+    is_open = False,
+    size = "sm",
+    backdrop = True,
+    centered = True
     )
 
 #-------------------------Inserting the subcomponents into their containers-------------------------#
@@ -223,7 +252,8 @@ approval_menu_content = dbc.Container([
 
 deletion_menu_content = dbc.Container([
     dbc.Row([approved_users_table]),
-    delete_user_button
+    user_delete_modal,
+    user_delete_button
     ],
     id = "id_deletion_menu_content"
     )
@@ -290,7 +320,7 @@ def layout_security(session_data):
         return protected_layout
     return permission_denial_layout
 
-#--------------------------------------------Active Button-------------------------------------------#
+#----------------------------------------Setting Active Button---------------------------------------#
 @callback(
     Output("id_approval_menu_button", "active"),
     Output("id_deletion_menu_button", "active"),
@@ -308,7 +338,7 @@ def set_active_button(approval_menu, deletion_menu, add_menu, reset_menu, admin_
     default_active_button = buttons_status["id_approval_menu_button"]
     return buttons_status.get(ctx.triggered_id, default_active_button)
 
-#---------------------------------------------Chosen Menu--------------------------------------------#
+#----------------------------------------Opening the Chosen Menu---------------------------------------#
 @callback(
     Output("id_chosen_menu", "children"),
     Input("id_approval_menu_button", "n_clicks"),
@@ -323,7 +353,7 @@ def open_selected_menu(approval_menu, deletion_menu, add_menu, reset_menu, admin
     default_content = buttons_contents["id_approval_menu_button"]
     return buttons_contents.get(ctx.triggered_id, default_content)
 
-#--------------------------------------Pending Applications Table-------------------------------------#
+#--------------------------------------Pending Applications Decision------------------------------------#
 @callback(
     Output("id_pending_applications_table", "rowData"),
     Input("id_approval_menu_button", "n_clicks"),
@@ -358,12 +388,39 @@ def approve_or_reject_application(selected_rows, approval_click, rejection_click
         return f"Application(s) rejected!"
     raise exceptions.PreventUpdate
 
-#--------------------------------------Active Users Table-------------------------------------#
+#-------------------------------------------Users Delete------------------------------------------#
 @callback(
     Output("id_approved_users_table", "rowData"),
     Input("id_deletion_menu_button", "n_clicks"),
+    Input("id_user_deleted_message", "children"),
 )
-def update_approved_users_table(delete_menu_opened):
+def update_approved_users_table(delete_menu_opened, delete_user_message):
     approved_users_table = select_all_users(application_decision = "Approved")
     row_data = approved_users_table.to_dict("records")
     return row_data
+
+@callback(
+    Output("id_user_delete_modal", "is_open"),
+    Input("id_user_delete_button", "n_clicks"),
+    Input("id_reject_user_delete_button", "n_clicks"),
+    Input("id_user_deleted_message", "children"),
+    State("id_approved_users_table", "selectedRows"),
+    )
+def open_close_user_delete_modal(user_delete_button, reject_click, deleted_user, selected_row):
+    if ctx.triggered_id == "id_user_delete_button" and selected_row:
+        return True
+    return False
+
+@callback(
+    Output("id_user_deleted_message", "children"),
+    State("id_approved_users_table", "selectedRows"),
+    Input("id_confirm_user_delete_button", "n_clicks"),
+    State("id_session_data", "data"),
+    prevent_initial_call = True
+    )
+def confirm_user_delete(selected_rows, confirm_click, user_data):
+    users_tuple = tuple([row["work_email"] for row in selected_rows])
+    admin_email = user_data.get("email", "")
+    date_now = datetime.now()
+    update_application_decision(admin_email, "Deleted", date_now, users_tuple)
+    return ""

@@ -7,20 +7,20 @@ def get_connection(logon = "vost_user", pwd = "vost", db = "vost_db"):
 		connection = connector.connect(user = logon, password = pwd, database = db)
 		return connection
 	except connector.Error as err:
-		return err #Won't be used
+		return err
 
 def handle_query_connections(query_executing_function):
 	def wrapper(query_statement):
-		connection = get_connection()
-		if connection:
+		try:
+			connection = get_connection()
 			cursor = connection.cursor(buffered=True)
 			query_result = query_executing_function(cursor, query_statement)
 			cursor.close()
 			connection.commit()
 			connection.close()
 			return query_result
-		else:
-			return connection #Won't be used
+		except Exception as e:
+			return e
 	return wrapper
 
 @handle_query_connections
@@ -29,7 +29,7 @@ def write_query(cursor, query_statement):
 		cursor.execute(query_statement)
 		return "Success"
 	except connector.Error as err:
-		return err #Will be used
+		return err
 
 @handle_query_connections
 def read_query(cursor, query_statement):

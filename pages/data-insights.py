@@ -8,7 +8,22 @@ from utils.app_queries import select_all_reports
 
 register_page(__name__)
 
+#____________________________________________Utilities____________________________________________#
+
+def standard_figure_config(figure):
+    figure.update_layout(
+        template = "plotly_white",
+        #paper_bgcolor = "rgba(0, 0, 0, 0)",
+        #plot_bgcolor = "rgba(0, 0, 0, 0)",
+        margin = {"t":0, "b":0, "l":0, "r":0}
+        )
+    return figure
+
+
 #___________________________________________Layout Items___________________________________________#
+
+controls = dbc.Row([
+    ])
 
 grid = dag.AgGrid(
             id = "id_insights_report_table",
@@ -25,22 +40,21 @@ tabs_container = dbc.Container([
             label = "Report Table"),
         dbc.Tab([
             dbc.Row([
-                dbc.Col(dcc.Graph(id ="id_graph_all_reports")),
+                dbc.Col(dcc.Graph(id ="id_graph_all_reports", style = {"height":"35vh"})),
                 ],
                 ),
             dbc.Row([
-                dbc.Col(dcc.Graph(id = "id_graph_decisions")),
+                dbc.Col(dcc.Graph(id = "id_graph_decisions", style = {"height":"30vh"}), width = 6),
+                dbc.Col(dcc.Graph(id = "id_graph_reports_types", style = {"height":"30vh"}), width = 6),
                 ],
+                #className = "bg-white"
                 ),
-            dbc.Row([
-                dbc.Col(dcc.Graph(id = "id_graph_reports_types")),
-                ])
             ],
-            label = "Theme 1"
+            label = "Reports Accros Platforms"
             ),
         dbc.Tab([
             ],
-            label = "Theme 2"
+            label = "Reports Over Time"
             ),
         dbc.Tab([
             ],
@@ -48,7 +62,7 @@ tabs_container = dbc.Container([
             )
         ],
         id = "id_tabs_container")
-    ]
+    ],
     )
 
 refresh_data_button = dbc.Button(
@@ -67,7 +81,7 @@ layout = dbc.Container([
     refresh_data_button,
     ],
     id = "id_insights_layout",
-    fluid = True
+    fluid = True,
 )
 
 #______________________________________________Callbacks______________________________________________#
@@ -93,7 +107,7 @@ def refresh_grid_data(refresh_button_click):
     )
 def update_graphs(insights_data):
     df = pd.DataFrame(insights_data)
-    reports_by_platform = px.histogram(df, x = 'platform')
-    report_types = px.histogram(df, x = 'report_type', facet_col = 'platform')
-    decisions = px.histogram(df, x = 'platform_decision', facet_col = 'platform')
-    return reports_by_platform, report_types, decisions
+    fig_1 = px.histogram(df, x = 'platform')
+    fig_2 = px.histogram(df, x = 'report_type')
+    fig_3 = px.histogram(df, x = 'platform_decision')
+    return standard_figure_config(fig_1), standard_figure_config(fig_2), standard_figure_config(fig_3)

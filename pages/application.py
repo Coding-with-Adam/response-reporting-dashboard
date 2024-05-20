@@ -9,8 +9,15 @@ from utils.password_encryption import hash_password
 
 register_page(__name__)
 
-countries = select_all_countries()
-country_names = countries["country_name"]
+#_______________________________________________Utilities_______________________________________________#
+
+def get_countries():
+	try:
+		countries = select_all_countries()
+		country_names = countries["country_name"]
+	except Exception as e:
+		return [""]
+	return countries
 
 #_________________________________________Form Input Components_________________________________________#
 
@@ -63,7 +70,7 @@ entity_references_input = dbc.Row([
 	dbc.Label("Country:", width = 1),
 	dbc.Col([
 		dbc.Select([
-			{"label" : country, "value" : country} for country in country_names
+			{"label" : country, "value" : country} for country in get_countries()
 			],
 			id = "id_country_in",
 			value = "",

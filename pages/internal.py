@@ -16,12 +16,10 @@ from utils.custom_templates import permission_denial_layout
 
 register_page(__name__)
 
-platforms = select_all_platforms()
-reports_types = select_reports_types()
+#_________________________________________Utilities Functions_________________________________________#
+
 decisions = ["Demoted", "Removed", "No Action"]
 appeal = ["Yes", "No"]
-
-#_________________________________________Utilities Functions_________________________________________#
 
 def match_url(content_url):
     url_criteria = r"^[a-zA-Z0-9:/.]+\.[a-z]{2,3}$"
@@ -34,6 +32,20 @@ def preprocess_if_none(value):
     if value == None:
         return ''
     return value
+
+def get_platforms():
+    try:
+        platforms = select_all_platforms()["platform_name"].values
+    except Exception as e:
+        return [e]
+    return platforms
+
+def get_report_types():
+    try:
+        reports_types = select_reports_types()["report_type"].values
+    except Exception as e:
+        return [e]
+    return reports_types
 
 #_______________________________________Grid Columns definition_______________________________________#
 #Consider moving column definitions and its function calls into a new utils module, and only import the result
@@ -50,7 +62,7 @@ cols = [
         "headerName": "Platform",
         "field": "platform",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": platforms["platform_name"].values},
+        "cellEditorParams": {"values": get_platforms()},
         "sortable":True
     },
     {
@@ -61,7 +73,7 @@ cols = [
         "headerName": "Report Type",
         "field": "report_type",
         "cellEditor": "agSelectCellEditor",
-        "cellEditorParams": {"values": reports_types["report_type"].values}
+        "cellEditorParams": {"values": get_report_types()}
     },
     {
         "headerName" : "Screenshot URL",
@@ -120,7 +132,7 @@ add_report_inputs = dbc.Row([
             dbc.Label("Platform"),
             dbc.Select(
                 options = [
-                {"label": value, "value":value} for value in platforms["platform_name"].values
+                {"label": value, "value":value} for value in get_platforms()
                 ],
                 value = "",
                 id = "id_add_platform",
@@ -140,7 +152,7 @@ add_report_inputs = dbc.Row([
             dbc.Label("Report Type"),
             dbc.Select(
                 options = [
-                {"label": value, "value":value} for value in reports_types["report_type"].values
+                {"label": value, "value":value} for value in get_report_types()
                 ],
                 value = "",
                 id = "id_add_report_type",
@@ -235,7 +247,7 @@ update_report_inputs = dbc.Row([
             dbc.Label("Platform"),
             dbc.Select(
                 options = [
-                {"label": value, "value":value} for value in platforms["platform_name"].values
+                {"label": value, "value":value} for value in get_platforms()
                 ],
                 value = "",
                 id = "id_update_platform",
@@ -256,7 +268,7 @@ update_report_inputs = dbc.Row([
             dbc.Label("Report Type"),
             dbc.Select(
                 options = [
-                {"label": value, "value":value} for value in reports_types["report_type"].values
+                {"label": value, "value":value} for value in get_report_types()
                 ],
                 value = "",
                 id = "id_update_report_type",
