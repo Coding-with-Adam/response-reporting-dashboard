@@ -41,6 +41,7 @@ def verify_user(email_in):
 	user_query_string = f"""
 	SELECT
 		CONCAT(first_name, ' ', last_name) AS full_name,
+		application_decision,
 		is_admin,
 		hashed_password
 	FROM vetted_user

@@ -3,7 +3,14 @@ import dash_bootstrap_components as dbc
 
 
 #Template to store user's session data
-session_data_template = {"email" : "", "full_name" : "", "is_authenticated" : False, "is_admin" : False}
+session_data_template = {
+    "email" : "",
+    "full_name" : "",
+    "is_authenticated" : False,
+    "is_approved_user" : False,
+    "is_admin" : False,
+    "require_password_reset" : False
+    }
 
 #Pages protection setup
 permission_denial_layout = dbc.Container([
