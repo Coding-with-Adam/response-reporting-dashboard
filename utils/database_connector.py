@@ -2,9 +2,9 @@ import mysql.connector as connector
 import pandas as pd
 
 
-def get_connection(logon = "vost_user", pwd = "vost", db = "vost_db"):
+def get_connection(host = "127.0.0.1", host_port = 3307, logon = "vost_user", pwd = "vost", db = "vost_db"):
 	try:
-		connection = connector.connect(user = logon, password = pwd, database = db)
+		connection = connector.connect(port = host_port, user = logon, password = pwd, database = db)
 		return connection
 	except connector.Error as err:
 		return err
