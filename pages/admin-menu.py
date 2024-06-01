@@ -396,7 +396,8 @@ def approve_or_reject_application(selected_rows, approval_click, rejection_click
 )
 def update_approved_users_table(delete_menu_opened, delete_user_message):
     approved_users_table = select_all_users(application_decision = "Approved")
-    row_data = approved_users_table.to_dict("records")
+    users_except_admins = approved_users_table[approved_users_table["is_admin"]==0]
+    row_data = users_except_admins.to_dict("records")
     return row_data
 
 @callback(

@@ -1,6 +1,6 @@
 import dash
 import os
-from dash import Dash, html, dcc, Input, Output, State, callback, exceptions
+from dash import Dash, html, dcc, Input, Output, State, callback, clientside_callback, exceptions
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
@@ -10,7 +10,7 @@ app = Dash(
     __name__,
     title = "WatchTower",
     use_pages = True,
-    external_stylesheets = [dbc.themes.BOOTSTRAP],
+    external_stylesheets = [dbc.themes.DARKLY, dbc.icons.FONT_AWESOME],
     suppress_callback_exceptions = True
     )
 app._favicon = os.path.join("assets", "favicon.ico")
@@ -35,7 +35,6 @@ logo_path = os.path.join("assets", "VOSTEU_WatchTowerLogo.png")
 logo = html.Img(src = logo_path, height = "60px")
 brand = dbc.NavbarBrand("WatchTower: Disinformation Reporting Platform")
 
-theme_switch = dmc.Switch(label = "Dark", id = "id_theme_switch", checked = True)
 active_user = html.P(id="id_active_user_name")
 
 navigation_bar = dbc.Navbar([
@@ -53,7 +52,6 @@ navigation_bar = dbc.Navbar([
             className = "ms-auto",
             #ms-auto pushes the content to the right most side of the navigation bar
             ),
-        dbc.Row([theme_switch]),
         ],
         fluid = True
         )
@@ -67,26 +65,16 @@ navigation_bar = dbc.Navbar([
 #___________________________________App body___________________________________#
 
 
-app.layout = dmc.MantineProvider([
+app.layout = dbc.Container([
     dcc.Store(id="id_session_data", storage_type = "local", data = {}),
     navigation_bar,
     dash.page_container,
     ],
     id = "id_app_layout",
-    theme = {"colorScheme": "dark"},
-    withGlobalStyles = True,
+    fluid = True
     )
 
 #___________________________________Callbacks___________________________________#
-
-@callback(
-    Output("id_app_layout", "theme"),
-    Input("id_theme_switch", "checked")
-    )
-def switch_app_theme(dark_theme_active):
-    if dark_theme_active == False:
-        return {"colorScheme": "white"}
-    return {"colorScheme": "dark"}
 
 @callback(
     Output("id_navigation_pages", "children"),

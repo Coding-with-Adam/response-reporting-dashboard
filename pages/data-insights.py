@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, callback, Output, Input, State, register_page
+from dash import Dash, html, dcc, callback, Output, Input, State, register_page, exceptions
 import dash_bootstrap_components as dbc
 import dash_ag_grid as dag
 import pandas as pd
@@ -94,9 +94,12 @@ layout = dbc.Container([
     )
 def refresh_grid_data(refresh_button_click):
     """Data is refreshed both when the page loads(everytime) and when the resfresh button is clicked"""
-    df = select_all_reports()
-    col_defs = [{"field": i} for i in df.columns]
-    data_dict = df.to_dict("records")
+    try:
+        df = select_all_reports()
+        col_defs = [{"field": i} for i in df.columns]
+        data_dict = df.to_dict("records")
+    except Exception as e:
+        return [], []
     return data_dict, col_defs
 
 @callback(
@@ -106,8 +109,11 @@ def refresh_grid_data(refresh_button_click):
     Input("id_insights_report_table", "rowData"),
     )
 def update_graphs(insights_data):
-    df = pd.DataFrame(insights_data)
-    fig_1 = px.histogram(df, x = 'platform')
-    fig_2 = px.histogram(df, x = 'report_type')
-    fig_3 = px.histogram(df, x = 'platform_decision')
+    try:
+        df = pd.DataFrame(insights_data)
+        fig_1 = px.histogram(df, x = 'platform')
+        fig_2 = px.histogram(df, x = 'report_type')
+        fig_3 = px.histogram(df, x = 'platform_decision')
+    except Exception as e:
+        raise exceptions.PreventUpdate
     return standard_figure_config(fig_1), standard_figure_config(fig_2), standard_figure_config(fig_3)
