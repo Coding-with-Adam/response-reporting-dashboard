@@ -85,11 +85,11 @@ entity_references_input = dbc.Row([
 	)
 
 user_credentials_input = dbc.Row([
-	dbc.Label("Work Email:", width = 1),
+	dbc.Label("Work Email:", width = 2),
 	dbc.Col([
 		dbc.Input(id= "id_email_in", type = "email", placeholder = "Enter your work email", invalid = True),
 		],
-		width = 5,
+		width = 4,
 		),
 	dbc.Label("Password:", width = 1),
 	dbc.Col([
