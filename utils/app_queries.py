@@ -123,7 +123,7 @@ def select_reports_types():
 def check_pending_reset(email_in):
 	pending_reset_query_string = f"""
 	SELECT 'Yes' AS has_pending_request FROM password_reset_request
-	WHERE work_email = {email_in} AND reset_completed = 0
+	WHERE work_email = '{email_in}' AND reset_completed = 0
 	"""
 	df = read_query(pending_reset_query_string)
 	try:
@@ -211,12 +211,12 @@ def password_reset_request(user_status, date_in, email_in, reason_in, old_passwo
 	INSERT INTO password_reset_request(request_date, work_email, reset_reason, old_password, new_password)
 	VALUES ('{date_in}', '{email_in}', '{reason_in}', '{old_password_in}', '{new_password_in}')
 	"""
-	
+
 	has_pending_request = check_pending_reset(email_in)
 
-	if user_status == "Approved" and not has_pending_request:
+	if user_status == "Approved" and not has_pending_request == "Yes":
 		result = write_query(add_request_query_string)
-	elif user_status == "Approved" and has_pending_request:
+	elif user_status == "Approved" and has_pending_request == "Yes":
 		result = "There already is a pending password request for this user."
 	elif user_status == "Pending":
 		result = "You cannot reset your password while your application is pending."
