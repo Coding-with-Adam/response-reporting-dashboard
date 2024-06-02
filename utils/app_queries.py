@@ -206,7 +206,7 @@ def add_report(current_date_in, email_in, platform_in, url_in, type_in, screensh
 	result = write_query(add_report_query_string)
 	return result
 
-def password_reset_request(user_status, date_in, email_in, reason_in, old_password_in, new_password_in):
+def add_password_reset_request(user_status, date_in, email_in, reason_in, old_password_in, new_password_in):
 	add_request_query_string = f"""
 	INSERT INTO password_reset_request(request_date, work_email, reset_reason, old_password, new_password)
 	VALUES ('{date_in}', '{email_in}', '{reason_in}', '{old_password_in}', '{new_password_in}')
@@ -216,7 +216,7 @@ def password_reset_request(user_status, date_in, email_in, reason_in, old_passwo
 
 	if user_status == "Approved" and not has_pending_request == "Yes":
 		result = write_query(add_request_query_string)
-	elif user_status == "Approved" and has_pending_request == "Yes":
+	elif user_status == "Approved":
 		result = "There already is a pending password request for this user."
 	elif user_status == "Pending":
 		result = "You cannot reset your password while your application is pending."

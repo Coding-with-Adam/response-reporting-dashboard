@@ -2,9 +2,8 @@ from dash import html, dcc, Input, Output, State, callback, ctx, register_page
 import dash_bootstrap_components as dbc
 import re
 from datetime import datetime
-from utils.database_connector import read_query
 from utils.custom_templates import session_data_template
-from utils.app_queries import verify_user, password_reset_request
+from utils.app_queries import verify_user, add_password_reset_request
 from utils.password_encryption import hash_password, compare_passwords
 
 register_page(__name__)
@@ -296,7 +295,7 @@ def submit_password_reset_request(request_click, email_in, reason_in, password_i
 		return "Your new password needs to be different from the old password."
 
 	new_password = hash_password(password_in)
-	result = password_reset_request(user_status, date_now, email_in, reason_in, old_password, new_password)
+	result = add_password_reset_request(user_status, date_now, email_in, reason_in, old_password, new_password)
 	
 	if result == "Success":
 		return "Your request was submitted. Kindly wait while we process it."
