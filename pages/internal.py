@@ -123,7 +123,7 @@ reject_delete_button = dbc.Button(
     )
 #-------------------------------------Add-Report Modal components-------------------------------------#
 add_report_modal_title = dbc.ModalTitle(
-    html.P("Add a New Report", style = {"color":"black"})
+    html.P("Add a New Report")
     )
 
 add_report_inputs = dbc.Row([
@@ -237,7 +237,7 @@ submit_report_button = dbc.Button(
 
 #-------------------------------------Update-Report Modal components-------------------------------------#
 update_report_modal_title = dbc.ModalTitle(
-    html.P("Update a Report", style = {"color":"black"})
+    html.P("Update a Report")
     )
 
 #identical to add_report_inputs, violates the DRY pinciple but avoids Dash callbacks conflicts

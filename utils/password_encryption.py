@@ -1,6 +1,6 @@
 import bcrypt
 
-#Note: bcrypt only accepts b-strings as inputs?
+#Note: bcrypt only accepts b-strings as inputs
 
 def hash_password(input_password):
     encoded_password = input_password.encode("utf-8") #First convert the string into a byte array (b-string)

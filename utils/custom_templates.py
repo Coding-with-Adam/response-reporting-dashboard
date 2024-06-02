@@ -8,8 +8,7 @@ session_data_template = {
     "full_name" : "",
     "is_authenticated" : False,
     "application_decision" : "",
-    "is_admin" : False,
-    "require_password_reset" : False
+    "is_admin" : False
     }
 
 #Pages protection setup

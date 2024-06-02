@@ -113,7 +113,7 @@ admins_management_menu_button = dbc.Button(
     class_name = "me-1",
     )
 
-#Group the buttons into a division wich will be a row of the admin menu
+#Group the buttons into a division which will be a row of the admin menu
 admin_buttons_row = html.Div([
         approval_menu_button,
         deletion_menu_button,
@@ -177,7 +177,7 @@ decisions_buttons = html.Div([
     className = "mt-2 gap-2 d-flex justify-content-center"
     )
 
-#------------------------------------------Delete Menu-------------------------------------------#
+#------------------------------------------Deletion Menu-------------------------------------------#
 
 approved_users_cols = [
     email_field,
@@ -257,10 +257,10 @@ deletion_menu_content = dbc.Container([
     id = "id_deletion_menu_content"
     )
 
-add_menu_content = dbc.Container([
+fetch_back_menu_content = dbc.Container([
     "Add Menu"
     ],
-    id = "id_add_menu_content"
+    id = "id_fetch_back_menu_content"
     )
 
 reset_password_menu_content = dbc.Container([
@@ -281,7 +281,7 @@ admins_management_menu_content = dbc.Container([
 buttons_contents = {
     "id_approval_menu_button" : approval_menu_content,
     "id_deletion_menu_button" : deletion_menu_content,
-    "id_fetch_back_menu_button" : add_menu_content,
+    "id_fetch_back_menu_button" : fetch_back_menu_content,
     "id_resset_password_menu_button" : reset_password_menu_content,
     "id_admins_management_menu_button" : admins_management_menu_content
     }

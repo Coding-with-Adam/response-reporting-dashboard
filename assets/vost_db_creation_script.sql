@@ -155,6 +155,31 @@ CREATE TABLE IF NOT EXISTS `vost_db`.`report` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `vost_db`.`password_reset_request`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `vost_db`.`password_reset_request` ;
+
+CREATE TABLE IF NOT EXISTS `vost_db`.`password_reset_request` (
+  `id_request` INT NOT NULL AUTO_INCREMENT,
+  `request_date` TIMESTAMP(6) NOT NULL,
+  `work_email` VARCHAR(50) NOT NULL,
+  `reset_reason` VARCHAR(100) NOT NULL,
+  `old_password` CHAR(60) NULL,
+  `new_password` CHAR(60) NOT NULL,
+  `admin_decision` VARCHAR(45) NULL DEFAULT 'Pending',
+  `admin_decision_date` DATETIME NULL,
+  `reset_completed` BIT(2) NULL DEFAULT 0,
+  PRIMARY KEY (`id_request`),
+  INDEX `user_pw_reset_fk_idx` (`work_email` ASC) VISIBLE,
+  CONSTRAINT `user_pw_reset_fk`
+    FOREIGN KEY (`work_email`)
+    REFERENCES `vost_db`.`vetted_user` (`work_email`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

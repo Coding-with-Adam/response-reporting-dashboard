@@ -1,7 +1,6 @@
 import dash
 import os
-from dash import Dash, html, dcc, Input, Output, State, callback, clientside_callback, exceptions
-import dash_mantine_components as dmc
+from dash import Dash, html, dcc, Input, Output, State, callback, exceptions
 import dash_bootstrap_components as dbc
 
 #_____________________________App and Server configuration_____________________________#

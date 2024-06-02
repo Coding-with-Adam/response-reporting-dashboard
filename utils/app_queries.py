@@ -1,5 +1,4 @@
 from utils.database_connector import read_query, write_query
-import pandas as pd
 
 #________________________________________SELECT Queries________________________________________#
 
@@ -36,6 +35,7 @@ def select_all_users(application_decision = None):
 	return df
 
 def verify_user(email_in):
+	"""Define a template so that the function always returns the expected fields, empty or not"""
 	user_info = {"full_name":"", "hashed_password":"", "is_admin":False, "application_decision":""}
 
 	user_query_string = f"""
@@ -49,13 +49,12 @@ def verify_user(email_in):
 	"""
 	df = read_query(user_query_string)
 	try:
-		#The try except elegantly replaces "not df.empty" and, in addition, handles nondataframe results
 		user_info["full_name"] = df.iloc[0]["full_name"]
 		user_info["hashed_password"] = df.iloc[0]["hashed_password"]
 		user_info["is_admin"] = df.iloc[0]["is_admin"]
 		user_info["application_decision"] = df.iloc[0]["application_decision"]
 	except Exception as e:
-		return user_info #Unmodified template dict
+		pass
 	return user_info
 
 def select_all_reports(url_in = None):
@@ -120,6 +119,18 @@ def select_reports_types():
 	"""
 	df = read_query(types_query_string)
 	return df
+
+def check_pending_reset(email_in):
+	pending_reset_query_string = f"""
+	SELECT 'Yes' AS has_pending_request FROM password_reset_request
+	WHERE work_email = {email_in} AND reset_completed = 0
+	"""
+	df = read_query(pending_reset_query_string)
+	try:
+		has_pending_request = df.iloc[0]["has_pending_request"]
+	except Exception as e:
+		return ""
+	return has_pending_request
 
 #________________________________________INSERT Queries________________________________________#
 
@@ -195,6 +206,23 @@ def add_report(current_date_in, email_in, platform_in, url_in, type_in, screensh
 	result = write_query(add_report_query_string)
 	return result
 
+def password_reset_request(user_status, date_in, email_in, reason_in, old_password_in, new_password_in):
+	add_request_query_string = f"""
+	INSERT INTO password_reset_request(request_date, work_email, reset_reason, old_password, new_password)
+	VALUES ('{date_in}', '{email_in}', '{reason_in}', '{old_password_in}', '{new_password_in}')
+	"""
+	
+	has_pending_request = check_pending_reset(email_in)
+
+	if user_status == "Approved" and not has_pending_request:
+		result = write_query(add_request_query_string)
+	elif user_status == "Approved" and has_pending_request:
+		result = "There already is a pending password request for this user."
+	elif user_status == "Pending":
+		result = "You cannot reset your password while your application is pending."
+	else:
+		result = "This user is either banned or unknown."
+	return result
 #________________________________________UPDATE Queries________________________________________#
 
 def update_report(platform_in, url_in, type_in, screenshot_in,
