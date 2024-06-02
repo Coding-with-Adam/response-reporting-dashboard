@@ -113,7 +113,8 @@ def update_navbar_pages(session_data):
     )
 def user_greetings(session_data):
     user_full_name = session_data.get("full_name", "")
-    if user_full_name:
+    user_status = session_data.get("application_decision", "")
+    if user_full_name and user_status == "Approved":
         return f"Hi, {user_full_name}"
 
 #___________________________________Serve app___________________________________#

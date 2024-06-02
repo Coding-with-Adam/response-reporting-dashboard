@@ -1,6 +1,5 @@
-from dash import Dash, html, dcc, callback, Output, Input, State, ctx, register_page, exceptions
+from dash import html, dcc, callback, Output, Input, State, ctx, register_page, exceptions
 import dash_bootstrap_components as dbc
-import dash_mantine_components as dmc
 from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
@@ -72,7 +71,7 @@ decision_author_field = {
 approval_menu_button = dbc.Button(
     "User Approval",
     id = "id_approval_menu_button",
-    color = "primary",
+    color = "success",
     outline = True,
     active = True, #Default active menu
     class_name = "me-1",
@@ -87,10 +86,10 @@ deletion_menu_button = dbc.Button(
     class_name = "me-1",
     )
 
-add_menu_button = dbc.Button(
-    "User Add",
-    id = "id_add_menu_button",
-    color = "success",
+fetch_back_menu_button = dbc.Button(
+    "Fetch Back",
+    id = "id_fetch_back_menu_button",
+    color = "primary",
     outline = True,
     active = False,
     class_name = "me-1",
@@ -118,7 +117,7 @@ admins_management_menu_button = dbc.Button(
 admin_buttons_row = html.Div([
         approval_menu_button,
         deletion_menu_button,
-        add_menu_button,
+        fetch_back_menu_button,
         password_reset_menu_button,
         admins_management_menu_button,
         ],
@@ -129,7 +128,7 @@ admin_buttons_row = html.Div([
 buttons_status = {
     "id_approval_menu_button" : [True, False, False, False, False],
     "id_deletion_menu_button" : [False, True, False, False, False],
-    "id_add_menu_button" : [False, False, True, False, False],
+    "id_fetch_back_menu_button" : [False, False, True, False, False],
     "id_resset_password_menu_button" : [False, False, False, True, False],
     "id_admins_management_menu_button" : [False, False, False, False, True]
     }
@@ -282,7 +281,7 @@ admins_management_menu_content = dbc.Container([
 buttons_contents = {
     "id_approval_menu_button" : approval_menu_content,
     "id_deletion_menu_button" : deletion_menu_content,
-    "id_add_menu_button" : add_menu_content,
+    "id_fetch_back_menu_button" : add_menu_content,
     "id_resset_password_menu_button" : reset_password_menu_content,
     "id_admins_management_menu_button" : admins_management_menu_content
     }
@@ -324,12 +323,12 @@ def layout_security(session_data):
 @callback(
     Output("id_approval_menu_button", "active"),
     Output("id_deletion_menu_button", "active"),
-    Output("id_add_menu_button", "active"),
+    Output("id_fetch_back_menu_button", "active"),
     Output("id_resset_password_menu_button", "active"),
     Output("id_admins_management_menu_button", "active"),
     Input("id_approval_menu_button", "n_clicks"),
     Input("id_deletion_menu_button", "n_clicks"),
-    Input("id_add_menu_button", "n_clicks"),
+    Input("id_fetch_back_menu_button", "n_clicks"),
     Input("id_resset_password_menu_button", "n_clicks"),
     Input("id_admins_management_menu_button", "n_clicks"),
     )
@@ -343,7 +342,7 @@ def set_active_button(approval_menu, deletion_menu, add_menu, reset_menu, admin_
     Output("id_chosen_menu", "children"),
     Input("id_approval_menu_button", "n_clicks"),
     Input("id_deletion_menu_button", "n_clicks"),
-    Input("id_add_menu_button", "n_clicks"),
+    Input("id_fetch_back_menu_button", "n_clicks"),
     Input("id_resset_password_menu_button", "n_clicks"),
     Input("id_admins_management_menu_button", "n_clicks"),
     prevent_initial_call = False

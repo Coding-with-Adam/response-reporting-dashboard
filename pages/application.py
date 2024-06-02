@@ -1,6 +1,5 @@
-from dash import Dash, html, dcc, callback, Output, Input, State, register_page, ctx
+from dash import html, dcc, callback, Output, Input, State, register_page, ctx
 import dash_bootstrap_components as dbc
-import pandas as pd
 import re
 from datetime import datetime
 from utils.app_queries import register_user

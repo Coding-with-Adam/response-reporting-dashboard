@@ -7,7 +7,7 @@ session_data_template = {
     "email" : "",
     "full_name" : "",
     "is_authenticated" : False,
-    "is_approved_user" : False,
+    "application_decision" : "",
     "is_admin" : False,
     "require_password_reset" : False
     }

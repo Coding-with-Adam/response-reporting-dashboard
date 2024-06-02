@@ -36,14 +36,14 @@ def select_all_users(application_decision = None):
 	return df
 
 def verify_user(email_in):
-	user_info = {"full_name":"", "hashed_password":"", "is_admin":False}
+	user_info = {"full_name":"", "hashed_password":"", "is_admin":False, "application_decision":""}
 
 	user_query_string = f"""
 	SELECT
 		CONCAT(first_name, ' ', last_name) AS full_name,
-		application_decision,
 		is_admin,
-		hashed_password
+		hashed_password,
+		application_decision
 	FROM vetted_user
 	WHERE work_email = '{email_in}';
 	"""
@@ -53,6 +53,7 @@ def verify_user(email_in):
 		user_info["full_name"] = df.iloc[0]["full_name"]
 		user_info["hashed_password"] = df.iloc[0]["hashed_password"]
 		user_info["is_admin"] = df.iloc[0]["is_admin"]
+		user_info["application_decision"] = df.iloc[0]["application_decision"]
 	except Exception as e:
 		return user_info #Unmodified template dict
 	return user_info

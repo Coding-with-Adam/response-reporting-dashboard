@@ -22,7 +22,7 @@ layout = dbc.Container([
 		dbc.Col([
 			dbc.Input(id= "id_login_email", placeholder = "Enter your work email")
 			],
-			width = {"size" : 5, "offset" : 1}
+			width = {"size" : 4, "offset" : 1}
 			),
 		dbc.Col([
 			dbc.Input(id = "id_login_password", type = "password", placeholder = "Enter your password")
@@ -33,13 +33,18 @@ layout = dbc.Container([
 			dbc.Button("Login", id = "id_login_button", color = "primary")
 			],
 			width = 1
+			),
+		dbc.Col([
+			dbc.Button("Password Reset", id = "id_password_reset_button", color = "danger", outline=True)
+			],
+			width = 2
 			)
 		],
 		style = {"align":"center"}
 		),
 	dbc.Row([
 		dbc.Col(id = "id_login_output_message", width = {"size" : 10, "offset" : 1})
-		])
+		]),
 	],
 	fluid = True
 	)
@@ -54,20 +59,22 @@ layout = dbc.Container([
 	)
 def login_user(login_click, input_email, input_password):
 	user_data = session_data_template.copy() #To avoid rewriting the whole dict stucture
+	
+	user_full_name = verify_user(input_email)["full_name"]
+	hashed_password = verify_user(input_email)["hashed_password"]
+	user_is_an_admin = verify_user(input_email)["is_admin"]
+	user_status = verify_user(input_email)["application_decision"]
 
-	if ctx.triggered_id == "id_login_button":
-		user_full_name = verify_user(input_email)["full_name"]
-		hashed_password = verify_user(input_email)["hashed_password"]
-		user_is_an_admin = verify_user(input_email)["is_admin"]
+	password_validation = compare_passwords(input_password, hashed_password)
 
-		password_validation = compare_passwords(input_password, hashed_password)
-
-		if user_full_name and password_validation:
-			user_data["full_name"] = user_full_name
-			user_data["is_authenticated"] = True
-			user_data["email"] = input_email
-			user_data["is_admin"] = bool(user_is_an_admin)
-			return user_data, "/"
+	if user_full_name and password_validation:
+		user_data["full_name"] = user_full_name
+		user_data["email"] = input_email
+		user_data["is_admin"] = bool(user_is_an_admin)
+		user_data["application_decision"] = user_status
+	if user_status == "Approved":
+		user_data["is_authenticated"] = True
+		return user_data, "/"
 
 	user_data["is_authenticated"] = False #To prevent potential bypass of the login
 	return user_data, "/login"
@@ -80,7 +87,15 @@ def login_user(login_click, input_email, input_password):
 	)
 def show_login_message(login_click, user_data):
 	user_logged_in = user_data.get("is_authenticated", False)
-	if ctx.triggered_id == "id_login_button" and user_logged_in:
+	user_status = user_data.get("application_decision")
+
+	if ctx.triggered_id == "id_login_button" and user_status == "Pending":
+		return f"Hi {user_data["full_name"]}, your application is still pending. Please, wait while we process it."
+	elif ctx.triggered_id == "id_login_button" and user_status == "Deleted":
+		return f"Hi {user_data["full_name"]}, your account has been suspended."
+	elif ctx.triggered_id == "id_login_button" and user_status == "Rejected":
+		return f"Hi {user_data["full_name"]}, your application was rejected by an admin."
+	elif ctx.triggered_id == "id_login_button" and user_logged_in:
 		return "Login Success!"
 	elif ctx.triggered_id == "id_login_button" and not user_logged_in:
 		return "Login Failure, incorrect credentials."
