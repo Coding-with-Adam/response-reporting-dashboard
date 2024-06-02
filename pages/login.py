@@ -167,19 +167,15 @@ layout = dbc.Container([
 def login_user(login_click, input_email, input_password):
 	user_data = session_data_template.copy() #To avoid rewriting the whole dict stucture
 	
-	user_full_name = verify_user(input_email)["full_name"]
+	user_data["email"] = input_email
+	user_data["full_name"] = verify_user(input_email)["full_name"]
 	hashed_password = verify_user(input_email)["hashed_password"]
-	user_is_an_admin = verify_user(input_email)["is_admin"]
-	user_status = verify_user(input_email)["application_decision"]
+	user_data["is_admin"] = bool(verify_user(input_email)["is_admin"])
+	user_data["application_decision"] = verify_user(input_email)["application_decision"]
 
-	password_validation = compare_passwords(input_password, hashed_password)
+	valid_password = compare_passwords(input_password, hashed_password)
 
-	if user_full_name and password_validation:
-		user_data["full_name"] = user_full_name
-		user_data["email"] = input_email
-		user_data["is_admin"] = bool(user_is_an_admin)
-		user_data["application_decision"] = user_status
-	if user_status == "Approved":
+	if user_data["full_name"] and valid_password and user_data["application_decision"] == "Approved":
 		user_data["is_authenticated"] = True
 		return user_data, "/"
 
