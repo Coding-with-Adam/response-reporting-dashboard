@@ -120,6 +120,38 @@ def select_reports_types():
 	df = read_query(types_query_string)
 	return df
 
+def select_pending_password_resets():
+	password_resets_query_string = f"""
+	WITH reset_counts_cte AS(
+	SELECT
+		work_email,
+		COUNT(id_request) AS resets_count
+	FROM password_reset_request
+	GROUP BY work_email
+	)
+	SELECT
+		vt.first_name,
+    	vt.last_name,
+    	vt.affiliation_name,
+    	pr.request_date,
+    	pr.reset_reason,
+    	DATEDIFF(
+			pr.request_date,
+			LAG(pr.request_date) OVER (PARTITION BY pr.work_email ORDER BY pr.request_date)
+			) AS days_since_last_request,
+    	rc.resets_count
+	FROM
+		vetted_user AS vt
+		INNER JOIN
+		password_reset_request AS pr
+		ON pr.work_email = vt.work_email
+		INNER JOIN reset_counts_cte AS rc
+		ON rc.work_email = vt.work_email
+	WHERE pr.reset_completed = 0
+	"""
+	df = read_query(password_resets_query_string)
+	return df
+
 def check_pending_reset(email_in):
 	pending_reset_query_string = f"""
 	SELECT 'Yes' AS has_pending_request FROM password_reset_request

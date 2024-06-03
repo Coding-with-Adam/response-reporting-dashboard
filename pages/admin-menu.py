@@ -8,6 +8,7 @@ from datetime import datetime
 from utils.custom_templates import permission_denial_layout
 from utils.app_queries import select_all_users
 from utils.app_queries import update_application_decision
+from utils.app_queries import select_pending_password_resets
 
 register_page(__name__)
 
@@ -65,6 +66,30 @@ decision_date_field = {
 decision_author_field = {
     "headerName": "Approved by",
     "field": "decision_author"
+    }
+
+password_reset_request_date_field = {
+    "headerName": "Request Date",
+    "field": "request_date",
+    "filter": "agDateColumnFilter",
+    "sortable":True
+    }
+
+reset_reason_field = {
+    "headerName": "Reset Reason",
+    "field": "reset_reason"
+    }
+
+days_since_last_reset_field  = {
+    "headerName": "Days Since Last Reset",
+    "field": "days_since_last_reset",
+    "sortable":True
+    }
+
+total_reset_count_field = {
+    "headerName": "Resets Count",
+    "field": "resets_count",
+    "sortable":True
     }
 
 #_________________________________________Admin Menu Buttons_________________________________________#
@@ -237,6 +262,31 @@ user_delete_modal = dbc.Modal([
     centered = True
     )
 
+#----------------------------------------Password Reset Menu-----------------------------------------#
+
+password_resets_cols = [
+    first_name_field,
+    last_name_field,
+    affiliation_field,
+    password_reset_request_date_field,
+    reset_reason_field,
+    days_since_last_reset_field,
+    total_reset_count_field
+]
+
+pending_resets_table = dag.AgGrid(
+    id = "id_pending_password_resets_table",
+    columnDefs = password_resets_cols,
+    rowData = [], #Initialize to empty list of records
+    columnSize = "sizeToFit",
+    defaultColDef = {"editable": False, "filter": True, "resizable": True},
+    dashGridOptions = {
+    "pagination": True,
+    "paginationPageSize": 7,
+    "rowSelection": "multiple"
+    }
+    )
+
 #-------------------------Inserting the subcomponents into their containers-------------------------#
 approval_menu_content = dbc.Container([
     dbc.Row([pending_applications_table]),
@@ -264,7 +314,7 @@ fetch_back_menu_content = dbc.Container([
     )
 
 reset_password_menu_content = dbc.Container([
-    "Password Reset Menu"
+    dbc.Row([pending_resets_table]),
     ],
     id = "id_reset_menu_content"
     )
@@ -424,3 +474,14 @@ def confirm_user_delete(selected_rows, confirm_click, user_data):
     date_now = datetime.now()
     update_application_decision(admin_email, "Deleted", date_now, users_tuple)
     return ""
+
+#-----------------------------------------Password Reset----------------------------------------#
+
+@callback(
+    Output("id_pending_password_resets_table", "rowData"),
+    Input("id_resset_password_menu_button", "n_clicks"),
+)
+def update_resets_request_table(approval_menu_opened):
+    pending_request_table = select_pending_password_resets()
+    grid_row_data = pending_request_table.to_dict("records")
+    return grid_row_data
