@@ -11,6 +11,11 @@ session_data_template = {
     "is_admin" : False
     }
 
+#If messages are not needed, use this dict as ouput for callbacks that need to trigger data reload
+app_events_flags = {
+    "refresh_data" : False
+}
+
 #Pages protection setup
 permission_denial_layout = dbc.Container([
 	html.Hr(),

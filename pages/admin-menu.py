@@ -6,9 +6,11 @@ import pandas as pd
 import re
 from datetime import datetime
 from utils.custom_templates import permission_denial_layout
+from utils.custom_templates import app_events_flags
 from utils.app_queries import select_all_users
 from utils.app_queries import update_application_decision
 from utils.app_queries import select_pending_password_resets
+from utils.app_queries import decide_password_reset
 
 register_page(__name__)
 
@@ -68,6 +70,16 @@ decision_author_field = {
     "field": "decision_author"
     }
 
+password_reset_request_id_field = {
+    "field": "id_request",
+    "hide":True
+    }
+
+password_reset_request_email__field = {
+    "field": "work_email",
+    "hide":True
+    }
+
 password_reset_request_date_field = {
     "headerName": "Request Date",
     "field": "request_date",
@@ -80,9 +92,9 @@ reset_reason_field = {
     "field": "reset_reason"
     }
 
-days_since_last_reset_field  = {
-    "headerName": "Days Since Last Reset",
-    "field": "days_since_last_reset",
+days_since_last_request_field  = {
+    "headerName": "Days Since Last Request",
+    "field": "days_since_last_request",
     "sortable":True
     }
 
@@ -265,12 +277,14 @@ user_delete_modal = dbc.Modal([
 #----------------------------------------Password Reset Menu-----------------------------------------#
 
 password_resets_cols = [
+    password_reset_request_id_field,
+    password_reset_request_email__field,
     first_name_field,
     last_name_field,
     affiliation_field,
     password_reset_request_date_field,
     reset_reason_field,
-    days_since_last_reset_field,
+    days_since_last_request_field,
     total_reset_count_field
 ]
 
@@ -283,8 +297,27 @@ pending_resets_table = dag.AgGrid(
     dashGridOptions = {
     "pagination": True,
     "paginationPageSize": 7,
-    "rowSelection": "multiple"
+    "rowSelection": "single"
     }
+    )
+
+approve_password_reset_button = dbc.Button(
+    "Approve",
+    id = "id_approve_password_reset_button",
+    color = "success",
+    )
+reject_password_reset_button = dbc.Button(
+    "Reject",
+    id = "id_reject_password_reset_button",
+    color = "danger",
+    )
+
+password_reset_decisions_buttons = html.Div([
+    approve_password_reset_button,
+    reject_password_reset_button,
+    ],
+    id = "id_password_reset_decisions_buttons_row",
+    className = "mt-2 gap-2 d-flex justify-content-center"
     )
 
 #-------------------------Inserting the subcomponents into their containers-------------------------#
@@ -315,6 +348,8 @@ fetch_back_menu_content = dbc.Container([
 
 reset_password_menu_content = dbc.Container([
     dbc.Row([pending_resets_table]),
+    password_reset_decisions_buttons,
+    dcc.Store(id = "id_password_reset_flag", storage_type = 'session', data = {})
     ],
     id = "id_reset_menu_content"
     )
@@ -480,8 +515,37 @@ def confirm_user_delete(selected_rows, confirm_click, user_data):
 @callback(
     Output("id_pending_password_resets_table", "rowData"),
     Input("id_resset_password_menu_button", "n_clicks"),
+    Input("id_password_reset_flag", "data")
 )
-def update_resets_request_table(approval_menu_opened):
+def update_resets_request_table(approval_menu_opened, reset_event_flag):
     pending_request_table = select_pending_password_resets()
     grid_row_data = pending_request_table.to_dict("records")
+    reset_event_flag["refresh_data"] = False
     return grid_row_data
+
+@callback(
+    Output("id_password_reset_flag", "data"),
+    Input("id_approve_password_reset_button", "n_clicks"),
+    Input("id_reject_password_reset_button", "n_clicks"),
+    State("id_pending_password_resets_table", "selectedRows"),
+    prevent_initial_call = True
+)
+def decide_password_reset_request(approve_click, reject_click, selected_rows):
+    reset_event_flag = app_events_flags.copy()
+
+    date_now = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+
+    if selected_rows:
+        id_request = selected_rows[0]["id_request"]
+        user_email = selected_rows[0]["work_email"]
+        if ctx.triggered_id == "id_approve_password_reset_button":
+            decision = "Approved"
+            decide_password_reset(decision, date_now, id_request, user_email)
+            reset_event_flag["refresh_data"] = True
+            return reset_event_flag
+        elif ctx.triggered_id == "id_reject_password_reset_button":
+            decision = "Rejected"
+            decide_password_reset(decision, date_now, id_request, user_email)
+            reset_event_flag["refresh_data"] = True
+            return reset_event_flag
+    raise exceptions.PreventUpdate

@@ -126,10 +126,12 @@ def select_pending_password_resets():
 	SELECT
 		work_email,
 		COUNT(id_request) AS resets_count
-	FROM password_reset_request
+	FROM password_reset_request WHERE admin_decision = 'Approved'
 	GROUP BY work_email
 	)
 	SELECT
+		pr.id_request,
+		pr.work_email,
 		vt.first_name,
     	vt.last_name,
     	vt.affiliation_name,
@@ -139,13 +141,13 @@ def select_pending_password_resets():
 			pr.request_date,
 			LAG(pr.request_date) OVER (PARTITION BY pr.work_email ORDER BY pr.request_date)
 			) AS days_since_last_request,
-    	rc.resets_count
+    	COALESCE(rc.resets_count, 0) AS resets_count
 	FROM
 		vetted_user AS vt
 		INNER JOIN
 		password_reset_request AS pr
 		ON pr.work_email = vt.work_email
-		INNER JOIN reset_counts_cte AS rc
+		LEFT JOIN reset_counts_cte AS rc
 		ON rc.work_email = vt.work_email
 	WHERE pr.reset_completed = 0
 	"""
@@ -163,6 +165,17 @@ def check_pending_reset(email_in):
 	except Exception as e:
 		return ""
 	return has_pending_request
+
+def select_new_password(id_request_in):
+	new_password_query_string = f"""
+	SELECT new_password FROM password_reset_request WHERE id_request = {id_request_in};
+	"""
+	try:
+		df = read_query(new_password_query_string)
+		new_password = df.iloc[0]["new_password"]
+	except Exception as e:
+		return "Failed"
+	return new_password
 
 #________________________________________INSERT Queries________________________________________#
 
@@ -294,6 +307,27 @@ def update_application_decision(admin_email_in, admin_decision_in, decision_date
 	result = write_query(update_applications_query_string)
 	return result
 
+def update_password_reset_decision(decision_in, decision_date_in, id_request_in):
+	update_requests_query_string = f"""
+	UPDATE password_reset_request
+	SET
+		admin_decision = '{decision_in}',
+		admin_decision_date = '{decision_date_in}',
+		reset_completed = 1
+	WHERE id_request = {id_request_in};
+	"""
+	write_query(update_requests_query_string)
+
+def update_password(user_email_in, new_password_in):
+	update_password_query_string = f"""
+	UPDATE vetted_user
+	SET
+		hashed_password = '{new_password_in}'
+	WHERE work_email = '{user_email_in}';
+	"""
+	write_query(update_password_query_string)
+	
+
 #________________________________________DELETE Queries________________________________________#
 def delete_report(url_in):
 	delete_report_query = f"""
@@ -309,3 +343,12 @@ def register_user(email_in, hashed_password_in, first_name_in, last_name_in, aff
 	date_in, website_in, signatory_status_in, country_in):
 	add_entity(affiliation_in, website_in, signatory_status_in, country_in)
 	return add_user(email_in, hashed_password_in, first_name_in.title(), last_name_in.title(), affiliation_in, date_in)
+
+def decide_password_reset(decision_in, decision_date_in, id_request_in, user_email_in):
+	new_password_in = select_new_password(id_request_in)
+	if decision_in == "Approved" and new_password_in != "Failed":
+		update_password_reset_decision(decision_in, decision_date_in, id_request_in)
+		update_password(user_email_in, new_password_in)
+	elif decision_in == "Rejected":
+		update_password_reset_decision(decision_in, decision_date_in, id_request_in)
+	

@@ -16,4 +16,8 @@ def compare_passwords(new_input_password, stored_hashed_password):
 	encoded_input = new_input_password.encode("utf-8") #Convert the plain password into a b-string
 	encoded_hashed_password = stored_hashed_password.encode("utf-8")
 	
-	return bcrypt.checkpw(encoded_input, encoded_hashed_password)
+	try:
+		is_same_password = bcrypt.checkpw(encoded_input, encoded_hashed_password)
+	except Exception as e:
+		return False
+	return is_same_password
