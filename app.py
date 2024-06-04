@@ -34,8 +34,6 @@ logo_path = os.path.join("assets", "VOSTEU_WatchTowerLogo.png")
 logo = html.Img(src = logo_path, height = "60px")
 brand = dbc.NavbarBrand("WatchTower: Disinformation Reporting Platform")
 
-active_user = html.P(id="id_active_user_name")
-
 navigation_bar = dbc.Navbar([
     dbc.Container([
         dbc.Row([
@@ -44,7 +42,7 @@ navigation_bar = dbc.Navbar([
             ],
             align = 'center'
             ),
-        dbc.Row([dbc.Col(active_user)], className = "ms-auto mt-3 flex-nowrap"),
+        dbc.Row([dbc.Col(id = "id_navbar_active_user")], className = "ms-auto mt-3 flex-nowrap"),
         dbc.Nav(
             id = "id_navigation_pages",
             navbar = True,
@@ -106,15 +104,21 @@ def update_navbar_pages(session_data):
         return public_pages
 
 @callback(
-    Output("id_active_user_name", "children"),
+    Output("id_navbar_active_user", "children"),
     Input("id_session_data", "data"),
     prevent_initial_call = True
     )
-def user_greetings(session_data):
+def get_navbar_user(session_data):
     user_full_name = session_data.get("full_name", "")
     user_status = session_data.get("application_decision", "")
+
     if user_full_name and user_status == "Approved":
-        return f"Hi, {user_full_name}"
+        nav_item = html.Span([
+            html.Label(className = "fa fa-user"),
+            html.P(user_full_name, className = "d-inline-block ms-1")
+            ]
+            )
+        return nav_item
 
 #___________________________________Serve app___________________________________#
 
