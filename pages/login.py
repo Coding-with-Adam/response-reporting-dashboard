@@ -245,7 +245,7 @@ def validate_reset_reason(reset_reason):
 	prevent_initial_call = True,
 	)
 def validate_new_password(new_password):
-	password_criteria = r"[a-zA-Z0-9@_\-]{5,16}"
+	password_criteria = r"[a-zA-Z0-9@_\-.]{5,16}"
 	result = re.match(password_criteria, new_password)
 	if result:
 		return False
@@ -265,12 +265,13 @@ def validate_second_password_input(first_input, second_input):
 @callback(
     Output("id_password_reset_request_button", "disabled"),
     Input("id_password_reset_email_input", "invalid"),
+	Input("id_password_reset_reason_input", "invalid"),
     Input("id_password_reset_password_input", "invalid"),
     Input("id_password_reset_password_input_repeat", "invalid"),
     prevent_initial_call = True,
     )
-def prevent_bad_report_update(email_invalid, password_invalid, password_repeat_invalid):
-    if True in [email_invalid, password_invalid, password_repeat_invalid]:
+def prevent_bad_report_update(email_invalid, reason_invalid, password_invalid, password_repeat_invalid):
+    if True in [email_invalid, reason_invalid, password_invalid, password_repeat_invalid]:
         return True
     return False
 

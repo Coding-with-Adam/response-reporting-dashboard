@@ -196,7 +196,7 @@ def validate_country(entity_country):
 	prevent_initial_call = True,
 	)
 def validate_password(user_password):
-	password_criteria = r"[a-zA-Z0-9@_\-]{5,16}"
+	password_criteria = r"[a-zA-Z0-9@_\-.]{5,16}"
 	result = re.match(password_criteria, user_password)
 	if result:
 		return False

@@ -75,7 +75,7 @@ refresh_data_button = dbc.Button(
 #_____________________________________________The Layout_____________________________________________#
 
 layout = dbc.Container([
-    dbc.Row(dbc.Col("Controls here")),
+    dbc.Row(dbc.Col("Area for Controls")),
     html.Hr(),
     dbc.Row(tabs_container),
     refresh_data_button,

@@ -3,7 +3,6 @@ import dash_bootstrap_components as dbc
 from datetime import datetime
 import dash_ag_grid as dag
 import pandas as pd
-import re
 from datetime import datetime
 from utils.custom_templates import permission_denial_layout
 from utils.custom_templates import app_events_flags
@@ -320,6 +319,93 @@ password_reset_decisions_buttons = html.Div([
     className = "mt-2 gap-2 d-flex justify-content-center"
     )
 
+#--------------------------------------Admins Management Menu---------------------------------------#
+admin_label_icon = html.Div([html.I(className = "fa fa-user-secret pe-1"), "Admin"])
+non_admin_label_icon = html.Div([html.I(className = "fa fa-users pe-1"), "Basic"])
+
+admin_user_priviledge_selection = dbc.Card([
+    dbc.Label("Priviledge Category"),
+    dbc.RadioItems(
+        options = [
+            {"label": admin_label_icon, "value": 1},
+            {"label": non_admin_label_icon, "value": 0},
+        ],
+        value = 1,
+        inline = True
+    )
+    ],
+    className = "mb-4"
+    )
+
+admin_affiliation_selection = dbc.Card([
+    dbc.Label("Select an Entity (Optional)"),
+    dbc.Select(
+        id = "id_admin_users_entity_selection"
+        )
+    ],
+    className = "mb-4"
+    )
+
+admin_user_selection = dbc.Card([
+    dbc.Label("Select a User"),
+    dbc.Select(
+        id = "id_admin_users_selection"
+        )
+    ],
+    )
+
+admin_menu_controls = dbc.Col([
+    dbc.Row(admin_user_priviledge_selection),
+    dbc.Row(admin_affiliation_selection),
+    dbc.Row(admin_user_selection),
+])
+
+
+user_room_header = html.Header("User Room", style = {"text-align":"center"}),
+
+user_room_left_pane = dbc.Col([
+    dbc.Row([
+        dbc.Col(dbc.Input(id = "id_user_room_first_name", placeholder = "First name", disabled = True)),
+        dbc.Col(dbc.Input(id = "id_user_room_last_name", placeholder = "Last name", disabled = True))
+        ],
+        className = "mb-4"
+        ),
+    dbc.Row([
+        dbc.Col(dbc.Input(id = "id_user_room_email", placeholder = "Email", disabled = True)),
+        dbc.Col(dbc.Input(id = "id_user_room_affiliation", placeholder = "Affiliation", disabled = True))
+        ],
+        className = "mb-4"
+        ),
+    dbc.Row([
+        dbc.Col(dbc.Input(id = "id_user_room_date_joined", placeholder = "Date Joinded", disabled = True)),
+        ]
+        )
+    ],
+    width = 8,
+    )
+user_room_right_pane= dbc.Col(html.I(className = "fa fa-id-badge fa-10x"), style = {"text-align":"center"})
+
+user_room_body = dbc.Row([
+    user_room_left_pane,
+    user_room_right_pane
+    ])
+
+user_room_promote_button = dbc.Button("Promote", color = "success")
+user_room_demote_button = dbc.Button("Demote", color = "danger")
+
+user_room_footer = html.Div(
+    [user_room_promote_button, user_room_demote_button],
+    className = "gap-2 d-flex justify-content-left")
+
+admin_menu_user_room = dbc.Col(
+    dbc.Card([
+        dbc.CardHeader(user_room_header),
+        dbc.CardBody(user_room_body),
+        dbc.CardFooter(user_room_footer)
+    ],
+    )
+)
+
 #-------------------------Inserting the subcomponents into their containers-------------------------#
 approval_menu_content = dbc.Container([
     dbc.Row([pending_applications_table]),
@@ -355,7 +441,11 @@ reset_password_menu_content = dbc.Container([
     )
 
 admins_management_menu_content = dbc.Container([
-    "Admins Management"
+    dbc.Row([
+        admin_menu_controls,
+        admin_menu_user_room
+        ]
+        )
     ],
     id = "id_admins_management_menu_content"
     )
@@ -377,7 +467,7 @@ protected_layout = dbc.Container([
     html.Hr(),
     dbc.Row(admin_buttons_row),
     html.Hr(),
-    dbc.Row(id = "id_chosen_menu")
+    dbc.Row(id = "id_chosen_menu"),
     ],
     fluid = True
     )
