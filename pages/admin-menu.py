@@ -2,14 +2,14 @@ from dash import html, dcc, callback, Output, Input, State, ctx, register_page, 
 import dash_bootstrap_components as dbc
 from datetime import datetime
 import dash_ag_grid as dag
-import pandas as pd
-from datetime import datetime
 from utils.custom_templates import permission_denial_layout
 from utils.custom_templates import app_events_flags
 from utils.app_queries import select_all_users
+from utils.app_queries import select_all_entities
 from utils.app_queries import update_application_decision
 from utils.app_queries import select_pending_password_resets
 from utils.app_queries import decide_password_reset
+from utils.app_queries import update_admin
 
 register_page(__name__)
 
@@ -331,6 +331,7 @@ admin_user_priviledge_selection = dbc.Card([
             {"label": non_admin_label_icon, "value": 0},
         ],
         value = 1,
+        id = "id_priviledge_selection",
         inline = True
     )
     ],
@@ -340,7 +341,8 @@ admin_user_priviledge_selection = dbc.Card([
 admin_affiliation_selection = dbc.Card([
     dbc.Label("Select an Entity (Optional)"),
     dbc.Select(
-        id = "id_admin_users_entity_selection"
+        id = "id_admin_users_entity_selection",
+        value = "All"
         )
     ],
     className = "mb-4"
@@ -349,7 +351,7 @@ admin_affiliation_selection = dbc.Card([
 admin_user_selection = dbc.Card([
     dbc.Label("Select a User"),
     dbc.Select(
-        id = "id_admin_users_selection"
+        id = "id_admin_users_selection",
         )
     ],
     )
@@ -383,15 +385,25 @@ user_room_left_pane = dbc.Col([
     ],
     width = 8,
     )
-user_room_right_pane= dbc.Col(html.I(className = "fa fa-id-badge fa-10x"), style = {"text-align":"center"})
+user_room_right_pane = dbc.Col(html.I(className = "fa fa-id-badge fa-10x"), style = {"text-align":"center"})
+
+admin_status_change_toast = dbc.Toast(
+    id = "id_admin_status_change_toast",
+    header = "User Status Change",
+    dismissable = True,
+    is_open = False,
+    duration = 3000,
+    style = {"position": "fixed", "top": 66, "right": 10}
+)
 
 user_room_body = dbc.Row([
     user_room_left_pane,
-    user_room_right_pane
+    user_room_right_pane,
+    html.Div(admin_status_change_toast)
     ])
 
-user_room_promote_button = dbc.Button("Promote", color = "success")
-user_room_demote_button = dbc.Button("Demote", color = "danger")
+user_room_promote_button = dbc.Button("Promote", id = "id_promote_admin_button", color = "success")
+user_room_demote_button = dbc.Button("Demote", id = "id_demote_admin_button", color = "danger")
 
 user_room_footer = html.Div(
     [user_room_promote_button, user_room_demote_button],
@@ -443,7 +455,8 @@ reset_password_menu_content = dbc.Container([
 admins_management_menu_content = dbc.Container([
     dbc.Row([
         admin_menu_controls,
-        admin_menu_user_room
+        admin_menu_user_room,
+        dcc.Store(id = "id_admin_status_change_flag", storage_type = 'session', data = {})
         ]
         )
     ],
@@ -639,3 +652,116 @@ def decide_password_reset_request(approve_click, reject_click, selected_rows):
             reset_event_flag["refresh_data"] = True
             return reset_event_flag
     raise exceptions.PreventUpdate
+
+#----------------------------------------Admins Management---------------------------------------#
+@callback(
+    Output("id_admin_users_entity_selection", "options"),
+    Input("id_admins_management_menu_button", "n_clicks"),
+    )
+def get_entities(menu_click):
+    entities_table = select_all_entities()
+
+    entities_selection = entities_table["entity_name"]
+
+    default_option = [{"label" : "All", "value" : "All"}]
+    added_options = [
+        {"label" : entity, "value" : entity} for entity in entities_selection
+    ]
+
+    output_options = default_option + added_options
+
+    return output_options
+
+@callback(
+    Output("id_admin_users_selection", "options"),
+    Output("id_admin_users_selection", "value"),
+    Input("id_priviledge_selection", "value"),
+    Input("id_admin_users_entity_selection", "value"),
+    Input("id_admin_status_change_flag", "data")
+    )
+def get_users(selected_flag, entity, admin_status_change):
+    users_table = select_all_users(application_decision = "Approved")
+
+    if entity == "All":
+        users_selection = users_table[users_table["is_admin"] == selected_flag]
+    else:
+        users_selection = users_table[
+            (users_table["is_admin"] == selected_flag)
+            &
+            (users_table["affiliation_name"] == entity)
+            ]
+
+    output_options = [
+        {"label" : user, "value" : user} for user in users_selection.work_email
+    ]
+    first_option = output_options[0]["value"] if len(output_options) > 0 else ""
+
+    admin_status_change["refresh_data"] = False
+
+    return output_options, first_option
+
+@callback(
+    Output("id_user_room_first_name", "value"),
+    Output("id_user_room_last_name", "value"),
+    Output("id_user_room_email", "value"),
+    Output("id_user_room_affiliation", "value"),
+    Output("id_user_room_date_joined", "value"),
+    Input("id_priviledge_selection", "value"),
+    Input("id_admin_users_entity_selection", "value"),
+    Input("id_admin_users_selection", "value")
+    )
+def fill_in_user_room(selected_priviledge, selected_entity, selected_email):
+    default_values = ["First name", "Last name", "Email", "Affiliation", "Date Joined"]
+    if not selected_email:
+        return default_values
+    
+    users_table = select_all_users(application_decision = "Approved")
+    selected_user = users_table[users_table["work_email"] == selected_email]
+
+    first_name = selected_user.iloc[0]["first_name"]
+    last_name = selected_user.iloc[0]["last_name"]
+    email = selected_user.iloc[0]["work_email"]
+    affiliation = selected_user.iloc[0]["affiliation_name"]
+    date_joined = datetime.strftime(selected_user.iloc[0]["decision_date"], "%Y/%m/%d")
+    return first_name, last_name, email, affiliation, date_joined
+
+@callback(
+    Output("id_demote_admin_button", "disabled"),
+    Output("id_promote_admin_button", "disabled"),
+    Input("id_admin_users_selection", "value"),
+    Input("id_priviledge_selection", "value"),
+    )
+def disable_nonapplicable_buttons(selected_user, is_admin):
+    if selected_user and bool(is_admin) == True:
+        return False, True
+    elif selected_user and bool(is_admin) == False:
+        return True, False
+    else:
+        return True, True
+
+@callback(
+    Output("id_admin_status_change_flag", "data"),
+    Output("id_admin_status_change_toast", "icon"),
+    Output("id_admin_status_change_toast", "children"),
+    Output("id_admin_status_change_toast", "is_open"),
+    State("id_admin_users_selection", "value"),
+    Input("id_demote_admin_button", "n_clicks"),
+    Input("id_promote_admin_button", "n_clicks"),
+    prevent_initial_call = True
+)
+def promote_or_demote(user_email, demote_click, promote_click):
+    admin_status_change_flag = app_events_flags.copy()
+    toast_message = ""
+    open_toast = True
+
+    if ctx.triggered_id == "id_demote_admin_button":
+        update_admin(0, user_email)
+        admin_status_change_flag["refresh_data"] = True
+        toast_message = f"{user_email} demoted!"
+        toast_icon = "danger"
+    elif ctx.triggered_id == "id_promote_admin_button":
+        update_admin(1, user_email)
+        admin_status_change_flag["refresh_data"] = True
+        toast_message = f"{user_email} promoted!"
+        toast_icon = "success"
+    return admin_status_change_flag, toast_icon, toast_message, open_toast

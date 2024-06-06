@@ -316,7 +316,8 @@ def update_password_reset_decision(decision_in, decision_date_in, id_request_in)
 		reset_completed = 1
 	WHERE id_request = {id_request_in};
 	"""
-	write_query(update_requests_query_string)
+	result = write_query(update_requests_query_string)
+	return result
 
 def update_password(user_email_in, new_password_in):
 	update_password_query_string = f"""
@@ -325,8 +326,17 @@ def update_password(user_email_in, new_password_in):
 		hashed_password = '{new_password_in}'
 	WHERE work_email = '{user_email_in}';
 	"""
-	write_query(update_password_query_string)
-	
+	result = write_query(update_password_query_string)
+	return result
+
+def update_admin(decision_in, email_in):
+	update_admin_query_string = f"""
+	UPDATE vetted_user
+	SET is_admin = {decision_in}
+	WHERE work_email = '{email_in}'
+	"""
+	result = write_query(update_admin_query_string)
+	return result
 
 #________________________________________DELETE Queries________________________________________#
 def delete_report(url_in):
