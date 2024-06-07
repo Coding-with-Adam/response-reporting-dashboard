@@ -29,7 +29,11 @@ grid = dag.AgGrid(
             id = "id_insights_report_table",
             columnSize = "responsiveSizeToFit",
             defaultColDef = {"filter": True, "resizable": True},
-            dashGridOptions = {"pagination": True, "paginationPageSize":7},
+            dashGridOptions = {
+                "pagination": True,
+                "paginationPageSize":7,
+                "rowSelection": "multiple"
+                }
         )
 
 tabs_container = dbc.Container([

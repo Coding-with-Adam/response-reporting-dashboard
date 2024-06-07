@@ -757,11 +757,11 @@ def promote_or_demote(user_email, demote_click, promote_click):
     if ctx.triggered_id == "id_demote_admin_button":
         update_admin(0, user_email)
         admin_status_change_flag["refresh_data"] = True
-        toast_message = f"{user_email} demoted!"
+        toast_message = f"{user_email} was demoted!"
         toast_icon = "danger"
     elif ctx.triggered_id == "id_promote_admin_button":
         update_admin(1, user_email)
         admin_status_change_flag["refresh_data"] = True
-        toast_message = f"{user_email} promoted!"
+        toast_message = f"{user_email} was promoted!"
         toast_icon = "success"
     return admin_status_change_flag, toast_icon, toast_message, open_toast
