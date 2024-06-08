@@ -3,7 +3,6 @@ import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from datetime import datetime
 import dash_ag_grid as dag
-import pandas as pd
 import re
 from datetime import datetime
 from utils.app_queries import select_user_reports
@@ -21,7 +20,7 @@ register_page(__name__)
 decisions = ["Demoted", "Removed", "No Action"]
 appeal = ["Yes", "No"]
 
-def match_url(content_url):
+def match_url(content_url): #To be replaced with a request call and placed in utils module for all
     url_criteria = r"^[a-zA-Z0-9:/.]+\.[a-z]{2,3}$"
     if content_url:
         return re.match(url_criteria, content_url)
@@ -48,7 +47,6 @@ def get_report_types():
     return reports_types
 
 #_______________________________________Grid Columns definition_______________________________________#
-#Consider moving column definitions and its function calls into a new utils module, and only import the result
 
 cols = [
     {
@@ -354,7 +352,7 @@ confirm_update_button = dbc.Button(
 
 delete_report_modal = dbc.Modal([
     dbc.ModalBody([
-        dbc.Row([html.P("Are you sure?", style = {"text-align":"center", "color":"black"})]),
+        dbc.Row([html.P("Are you sure?", style = {"text-align":"center"})]),
         dbc.Row([dbc.Col([confirm_delete_button, reject_delete_button], className = "text-center")],),
         dbc.Row(id = "id_delete_report_message", class_name = "ms-2")
         ])
@@ -444,32 +442,33 @@ add_report_button = dbc.Button(
 #_______________________________________Layout Protection Setup_______________________________________#
 
 protected_layout = dbc.Container([
-        html.H1("Internal", style = {"text-align":"center"}),
-        dmc.Center(html.H4("Update existing report or insert a new report.")),
-        dbc.Row([reports_grid]),
-        dbc.Row([
-            dbc.Col([
-                delete_report_modal,
-                update_report_modal,
-                add_report_modal
-                ])
-            ],
-            id = "id_hidden_row_for_modals"
-            ),
-        dbc.Row([
-            dbc.Col([
-                delete_report_button,
-                delete_report_button_popover,
-                update_report_button,
-                add_report_button
-                ]),
-            ]
-            )
+    dbc.Row(
+        html.P("Update existing report or insert a new report.", style = {"text-align":"center"}),
+        ),
+    dbc.Row([reports_grid]),
+    dbc.Row([
+        dbc.Col([
+            delete_report_modal,
+            update_report_modal,
+            add_report_modal
+            ])
+        ],
+        id = "id_hidden_row_for_modals"
+        ),
+    dbc.Row([
+        dbc.Col([
+            delete_report_button,
+            delete_report_button_popover,
+            update_report_button,
+            add_report_button
+            ]),
+        ]
+        )
     ],
     fluid = True
-)
+    )
 
-#__________________________________________The actual Layout__________________________________________#
+#________________________________________The Layout Interface________________________________________#
 
 layout = dbc.Container([
     ],
@@ -478,7 +477,6 @@ layout = dbc.Container([
     )
 
 #______________________________________________Callbacks______________________________________________#
-
 #------------------------------------------Securing the Page------------------------------------------#
 @callback(
     Output("id_internal_page_layout", "children"),

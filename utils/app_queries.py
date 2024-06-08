@@ -128,7 +128,8 @@ def select_pending_password_resets():
 		COUNT(id_request) AS resets_count
 	FROM password_reset_request WHERE admin_decision = 'Approved'
 	GROUP BY work_email
-	)
+	),
+	analytics_cte AS(
 	SELECT
 		pr.id_request,
 		pr.work_email,
@@ -141,7 +142,8 @@ def select_pending_password_resets():
 			pr.request_date,
 			LAG(pr.request_date) OVER (PARTITION BY pr.work_email ORDER BY pr.request_date)
 			) AS days_since_last_request,
-    	COALESCE(rc.resets_count, 0) AS resets_count
+    	COALESCE(rc.resets_count, 0) AS resets_count,
+        reset_completed
 	FROM
 		vetted_user AS vt
 		INNER JOIN
@@ -149,7 +151,8 @@ def select_pending_password_resets():
 		ON pr.work_email = vt.work_email
 		LEFT JOIN reset_counts_cte AS rc
 		ON rc.work_email = vt.work_email
-	WHERE pr.reset_completed = 0
+	)
+	SELECT * FROM analytics_cte WHERE reset_completed = 0;
 	"""
 	df = read_query(password_resets_query_string)
 	return df

@@ -205,11 +205,11 @@ reject_application_button = dbc.Button(
     color = "danger",
     )
 
-decisions_buttons = html.Div([
+application_decision_buttons = html.Div([
     approve_application_button,
     reject_application_button,
     ],
-    id = "id_decisions_buttons_row",
+    id = "id_application_decision_buttons_row",
     className = "mt-2 gap-2 d-flex justify-content-center"
     )
 
@@ -259,7 +259,7 @@ reject_user_delete_button = dbc.Button(
 
 user_delete_modal = dbc.Modal([
     dbc.ModalBody([
-        dbc.Row([html.P("Are you sure?", style = {"text-align":"center", "color":"black"})]),
+        dbc.Row([html.P("Are you sure?", style = {"text-align":"center"})]),
         dbc.Row([
             dbc.Col([confirm_user_delete_button, reject_user_delete_button], className = "text-center")
             ],),
@@ -271,6 +271,52 @@ user_delete_modal = dbc.Modal([
     size = "sm",
     backdrop = True,
     centered = True
+    )
+
+#----------------------------------------User Fetch Back Menu----------------------------------------#
+
+discarded_users_cols = [
+    email_field,
+    first_name_field,
+    last_name_field,
+    affiliation_field,
+    application_decision_field,
+    decision_date_field,
+    decision_author_field
+    ]
+
+discarded_users_table = dag.AgGrid(
+    id = "id_discarded_users_table",
+    columnDefs = discarded_users_cols,
+    rowData = [],
+    columnSize = "sizeToFit",
+    defaultColDef = {"editable": False, "filter": True, "resizable": True},
+    dashGridOptions = {
+    "pagination": True,
+    "paginationPageSize": 7,
+    "rowSelection": "single"
+    }
+    )
+
+recover_user_button = dbc.Button(
+    id = "id_recover_user_button",
+    children = "Recover User",
+    color = "warning",
+    class_name = "me-1"
+    )
+hide_user_button = dbc.Button(
+    id = "id_hide_user_button",
+    children = "Hide User",
+    color = "danger",
+    class_name = "me-auto"
+    )
+
+fetch_decision_buttons = html.Div([
+    recover_user_button,
+    hide_user_button,
+    ],
+    id = "id_fecth_decision_buttons_row",
+    className = "mt-2 gap-2 d-flex justify-content-left"
     )
 
 #----------------------------------------Password Reset Menu-----------------------------------------#
@@ -419,13 +465,11 @@ admin_menu_user_room = dbc.Col(
 )
 
 #-------------------------Inserting the subcomponents into their containers-------------------------#
+
 approval_menu_content = dbc.Container([
     dbc.Row([pending_applications_table]),
-    dbc.Row([
-        dbc.Col(id = "id_admin_decision_message", className = "mt-3"),
-        dbc.Col([decisions_buttons], width = 6),
-        dbc.Col(id = "id_placeholder_admin_decision"), #Temporary solution to keep buttons centered
-        ]),
+    dbc.Row([application_decision_buttons]),
+    dcc.Store(id = "id_application_approval_flag", storage_type = 'session', data = {})
     ],
     id = "id_approval_menu_content"
     )
@@ -439,14 +483,16 @@ deletion_menu_content = dbc.Container([
     )
 
 fetch_back_menu_content = dbc.Container([
-    "Add Menu"
+    dbc.Row([discarded_users_table]),
+    dbc.Row([fetch_decision_buttons]),
+    dcc.Store(id = "id_fetch_back_flag", storage_type = 'session', data = {})
     ],
     id = "id_fetch_back_menu_content"
     )
 
 reset_password_menu_content = dbc.Container([
     dbc.Row([pending_resets_table]),
-    password_reset_decisions_buttons,
+    dbc.Row([password_reset_decisions_buttons]),
     dcc.Store(id = "id_password_reset_flag", storage_type = 'session', data = {})
     ],
     id = "id_reset_menu_content"
@@ -456,9 +502,9 @@ admins_management_menu_content = dbc.Container([
     dbc.Row([
         admin_menu_controls,
         admin_menu_user_room,
-        dcc.Store(id = "id_admin_status_change_flag", storage_type = 'session', data = {})
         ]
-        )
+        ),
+    dcc.Store(id = "id_admin_status_change_flag", storage_type = 'session', data = {})
     ],
     id = "id_admins_management_menu_content"
     )
@@ -485,7 +531,7 @@ protected_layout = dbc.Container([
     fluid = True
     )
 
-#__________________________________________The actual Layout__________________________________________#
+#_________________________________________The Layout Interface_________________________________________#
 
 layout = dbc.Container([
     ],
@@ -544,15 +590,16 @@ def open_selected_menu(approval_menu, deletion_menu, add_menu, reset_menu, admin
 @callback(
     Output("id_pending_applications_table", "rowData"),
     Input("id_approval_menu_button", "n_clicks"),
-    Input("id_admin_decision_message", "children")
+    Input("id_application_approval_flag", "data")
 )
-def update_pending_applications_table(approval_menu_opened, admin_decision):
+def update_pending_applications_table(approval_menu_opened, decision_event):
     pending_users_table = select_all_users(application_decision = "Pending")
     grid_row_data = pending_users_table.to_dict("records")
+    decision_event["refresh_data"] = False
     return grid_row_data
 
 @callback(
-    Output("id_admin_decision_message", "children"),
+    Output("id_application_approval_flag", "data"),
     State("id_pending_applications_table", "selectedRows"),
     Input("id_approve_application_button", "n_clicks"),
     Input("id_reject_application_button", "n_clicks"),
@@ -560,6 +607,7 @@ def update_pending_applications_table(approval_menu_opened, admin_decision):
     prevent_initial_call = True
     )
 def approve_or_reject_application(selected_rows, approval_click, rejection_click, user_data):
+    event_flag = app_events_flags.copy()
     try:
         users_tuple = tuple([row["work_email"] for row in selected_rows])
         admin_email = user_data.get("email", "")
@@ -569,10 +617,12 @@ def approve_or_reject_application(selected_rows, approval_click, rejection_click
 
     if ctx.triggered_id == "id_approve_application_button" and selected_rows:
         update_application_decision(admin_email, "Approved", date_now, users_tuple)
-        return f"Application(s) approved!"
+        event_flag["refresh_data"] = True
+        return event_flag
     elif ctx.triggered_id == "id_reject_application_button" and selected_rows:
         update_application_decision(admin_email, "Rejected", date_now, users_tuple)
-        return f"Application(s) rejected!"
+        event_flag["refresh_data"] = True
+        return event_flag
     raise exceptions.PreventUpdate
 
 #-------------------------------------------Users Delete------------------------------------------#
@@ -612,6 +662,50 @@ def confirm_user_delete(selected_rows, confirm_click, user_data):
     date_now = datetime.now()
     update_application_decision(admin_email, "Deleted", date_now, users_tuple)
     return ""
+
+#----------------------------------------Users Fetch Back----------------------------------------#
+@callback(
+    Output("id_discarded_users_table", "rowData"),
+    Input("id_fetch_back_menu_button", "n_clicks"),
+    Input("id_fetch_back_flag", "data")
+)
+def update_discarded_users_table(fetch_back_menu_opened, fetch_back_event_flag):
+    all_users = select_all_users()
+    discarded_users = all_users[
+            (all_users["application_decision"] == "Rejected")
+            |
+            (all_users["application_decision"] == "Deleted")
+            ]
+    grid_row_data = discarded_users.to_dict("records")
+    fetch_back_event_flag["refresh_data"] = False
+    return grid_row_data
+
+@callback(
+    Output("id_fetch_back_flag", "data"),
+    State("id_discarded_users_table", "selectedRows"),
+    Input("id_recover_user_button", "n_clicks"),
+    Input("id_hide_user_button", "n_clicks"),
+    State("id_session_data", "data"),
+    prevent_initial_call = True
+    )
+def approve_or_reject_application(selected_rows, recover_click, hide_click, user_data):
+    event_flag = app_events_flags.copy()
+    try:
+        users_tuple = tuple([row["work_email"] for row in selected_rows])
+        admin_email = user_data.get("email", "")
+        date_now = datetime.now()
+    except Exception as e:
+        pass
+
+    if ctx.triggered_id == "id_recover_user_button" and selected_rows:
+        update_application_decision(admin_email, "Approved", date_now, users_tuple)
+        event_flag["refresh_data"] = True
+        return event_flag
+    elif ctx.triggered_id == "id_hide_user_button" and selected_rows:
+        update_application_decision(admin_email, "Hidden", date_now, users_tuple)
+        event_flag["refresh_data"] = True
+        return event_flag
+    raise exceptions.PreventUpdate
 
 #-----------------------------------------Password Reset----------------------------------------#
 
