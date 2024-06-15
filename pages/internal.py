@@ -15,7 +15,7 @@ from utils.custom_templates import permission_denial_layout
 
 register_page(__name__)
 
-#_________________________________________Utilities Functions_________________________________________#
+#_________________________________________Utilities___________________________________________#
 
 decisions = ["Demoted", "Removed", "No Action"]
 appeal = ["Yes", "No"]

@@ -75,33 +75,32 @@ app.layout = dbc.Container([
 
 @callback(
     Output("id_navigation_pages", "children"),
-    Input("id_session_data", "data")
+    Input("id_session_data", "data"),
+    Input("id_app_layout", "children"), #To create navbar pages at startup
     )
-def update_navbar_pages(session_data):
+def update_navbar_pages(session_data, page_initial_load):
     is_authenticated = session_data.get("is_authenticated", False)
     is_admin = session_data.get("is_admin", False)
 
     if is_authenticated and is_admin:
-        admin_pages = [
+        navbar_pages = [
         dbc.NavItem(
             dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
             ) for page in app_pages if page["show_to_admin"] == True
         ]
-        return admin_pages
     elif is_authenticated and not is_admin:
-        users_pages = [
+        navbar_pages = [
         dbc.NavItem(
             dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
             ) for page in app_pages if page["show_to_users"] == True
         ]
-        return users_pages
     else:
-        public_pages = [
+        navbar_pages = [
         dbc.NavItem(
             dbc.NavLink(f"{page['name']}", href = page["relative_path"], active = "exact")
             ) for page in app_pages if page["show_to_public"] == True
         ]
-        return public_pages
+    return navbar_pages
 
 @callback(
     Output("id_navbar_active_user", "children"),
