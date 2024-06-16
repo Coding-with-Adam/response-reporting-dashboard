@@ -120,7 +120,7 @@ form = dbc.Card([
 #_________________________________________Form Layout_________________________________________#
 
 layout = dbc.Container([
-	dcc.Store(id = "id_registration_data", storage_type = "local", data = {"registered_user":False}),
+	dcc.Store(id = "id_registration_data", storage_type = "memory", data = {"registered_user":False}),
 	dcc.Location(id="id_url", refresh = True),
 
 	html.Hr(),
@@ -258,7 +258,7 @@ def submit_button_click(submit_click, f_name_invalid, l_name_invalid, email_inva
 	Input("id_registration_data", "data"),
 	prevent_initial_call = True
 	)
-def load_user_home_page(registration_data):
+def redirect_registered_user(registration_data):
 	if registration_data["registered_user"] == True:
 		return "/login"
 	else:
